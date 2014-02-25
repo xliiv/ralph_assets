@@ -268,9 +268,6 @@ class Asset(TimeTrackable, EditorTrackable, SavingUser, SoftDeletable):
     task_link = models.URLField(
         max_length=200, null=True, blank=True, unique=False
     )
-    imei = models.URLField(
-        max_length=18, null=True, blank=True, unique=False
-    )
 
     def __unicode__(self):
         return "{} - {} - {}".format(self.model, self.sn, self.barcode)
@@ -502,6 +499,9 @@ class OfficeInfo(TimeTrackable, SavingUser, SoftDeletable):
     date_of_last_inventory = models.DateField(
         null=True, blank=True)
     last_logged_user = models.CharField(max_length=100, null=True, blank=True)
+    imei = models.URLField(
+        max_length=18, null=True, blank=True, unique=False
+    )
 
     def __unicode__(self):
         return "{} - {} - {}".format(
