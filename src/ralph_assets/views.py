@@ -30,19 +30,18 @@ from django.utils.translation import ugettext_lazy as _
 from ralph_assets.forms import (
     AddDeviceForm,
     AddPartForm,
+    AssetColumnChoiceField,
+    BackOfficeEditDeviceForm,
+    BackOfficeSearchAssetForm,
     BasePartForm,
     BulkEditAssetForm,
-    SplitDevice,
-    DeviceForm,
-    EditDeviceForm,
-    BackOfficeEditDeviceForm,
     DataCenterEditDeviceForm,
+    DeviceForm,
     EditPartForm,
     MoveAssetPartForm,
     OfficeForm,
     SearchAssetForm,
-    AssetColumnChoiceField,
-    BackOfficeSearchAssetForm,
+    SplitDevice,
 )
 from ralph_assets.models import (
     Asset,
@@ -260,7 +259,6 @@ class AssetSearch(AssetsMixin, DataTableMixin):
             'task_link',
         ]
         return fields
-
 
     def handle_search_data(self, get_csv=False):
         # handle simple 'equals' search fields at once.
@@ -512,6 +510,7 @@ class BackOfficeSearch(BackOfficeMixin, AssetSearch):
         search_fields = super(BackOfficeSearch, self).search_fields
         search_fields.append('imei')
         return search_fields
+
 
 class DataCenterSearch(Report, DataCenterMixin, AssetSearch):
     header = 'Search DC Assets'
@@ -838,11 +837,11 @@ class EditDevice(Base):
     template_name = 'assets/edit_device.html'
 
     def _get_form_by_mode(self, mode):
-        EditDeviceForm = (
+        FormByMode = (
             BackOfficeEditDeviceForm if mode == 'back_office'
             else DataCenterEditDeviceForm
         )
-        return EditDeviceForm
+        return FormByMode
 
     def initialize_vars(self):
         self.parts = []
@@ -877,8 +876,8 @@ class EditDevice(Base):
         if not self.asset.device_info:  # it isn't device asset
             raise Http404()
         mode = _get_mode(self.request)
-        EditDeviceForm = self._get_form_by_mode(mode)
-        self.asset_form = EditDeviceForm(instance=self.asset, mode=mode)
+        FormByMode = self._get_form_by_mode(mode)
+        self.asset_form = FormByMode(instance=self.asset, mode=mode)
         if self.asset.type in AssetType.BO.choices:
             self.office_info_form = OfficeForm(instance=self.asset.office_info)
         self.device_info_form = DeviceForm(
@@ -896,8 +895,8 @@ class EditDevice(Base):
             id=kwargs.get('asset_id')
         )
         mode = _get_mode(self.request)
-        EditDeviceForm = self._get_form_by_mode(mode)
-        self.asset_form = EditDeviceForm(
+        FormByMode = self._get_form_by_mode(mode)
+        self.asset_form = FormByMode(
             post_data,
             instance=self.asset,
             mode=mode,
