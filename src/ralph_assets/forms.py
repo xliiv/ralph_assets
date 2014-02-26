@@ -52,6 +52,15 @@ LOOKUPS = {
 
 }
 
+imei_until_2003 = re.compile(r'^\d{6} *\d{2} *\d{6} *\d$')
+imei_since_2003 = re.compile(r'^\d{8} *\d{6} *\d$')
+
+
+def validate_imei(imei):
+    is_imei = imei_until_2003.match(imei) and imei_since_2003.match(imei)
+    if not is_imei:
+        raise ValidationError('"{}" is not IMEI format'.format(imei))
+
 
 class ModeNotSetException(Exception):
     pass
@@ -670,6 +679,11 @@ class AddDeviceForm(BaseAddAssetForm):
 
 
 class OfficeForm(ModelForm):
+    imei = CharField(
+        min_length=15, max_length=18, validators=[validate_imei],
+        label=u'IMEI'
+    )
+
     class Meta:
         model = OfficeInfo
         exclude = ('created', 'modified')
@@ -876,6 +890,11 @@ class SearchAssetForm(Form):
             self.fields['category'].queryset = category.filter(
                 type=AssetCategoryType.back_office
             )
+
+
+class BackOfficeSearchAssetForm(SearchAssetForm):
+
+    imei = CharField(required=False, label='IMEI')
 
 
 class DeleteAssetConfirmForm(Form):

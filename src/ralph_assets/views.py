@@ -42,6 +42,7 @@ from ralph_assets.forms import (
     OfficeForm,
     SearchAssetForm,
     AssetColumnChoiceField,
+    BackOfficeSearchAssetForm,
 )
 from ralph_assets.models import (
     Asset,
@@ -236,8 +237,9 @@ class AssetSearch(AssetsMixin, DataTableMixin):
         #TODO: add task_link here?
     ]
 
-    def handle_search_data(self, get_csv=False):
-        search_fields = [
+    @property
+    def search_fields(self):
+        fields = [
             'niw',
             'category',
             'invoice_no',
@@ -257,9 +259,13 @@ class AssetSearch(AssetsMixin, DataTableMixin):
             'ralph_device_id',
             'task_link',
         ]
+        return fields
+
+
+    def handle_search_data(self, get_csv=False):
         # handle simple 'equals' search fields at once.
         all_q = Q()
-        for field in search_fields:
+        for field in self.search_fields:
             field_value = self.request.GET.get(field)
             if field_value:
                 exact = False
@@ -352,6 +358,11 @@ class AssetSearch(AssetsMixin, DataTableMixin):
                         all_q &= Q(task_link=field_value)
                     else:
                         all_q &= Q(task_link__icontains=field_value)
+                elif field == 'imei':
+                    if exact:
+                        all_q &= Q(office_info__imei=field_value)
+                    else:
+                        all_q &= Q(office_info__imei=field_value)
                 else:
                     q = Q(**{field: field_value})
                     all_q = all_q & q
@@ -487,6 +498,20 @@ class BackOfficeSearch(BackOfficeMixin, AssetSearch):
             return Asset.admin_objects_bo.filter(query)
         return Asset.objects_bo.filter(query)
 
+    def get(self, *args, **kwargs):
+        self.form = BackOfficeSearchAssetForm(
+            self.request.GET, mode=_get_mode(self.request)
+        )
+        self.handle_search_data()
+        if self.export_requested():
+            return self.response
+        return super(AssetSearch, self).get(*args, **kwargs)
+
+    @property
+    def search_fields(self):
+        search_fields = super(BackOfficeSearch, self).search_fields
+        search_fields.append('imei')
+        return search_fields
 
 class DataCenterSearch(Report, DataCenterMixin, AssetSearch):
     header = 'Search DC Assets'
