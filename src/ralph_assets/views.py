@@ -153,9 +153,9 @@ class AssetsBase(Base):
         if 'ralph_pricing' in settings.INSTALLED_APPS:
             mainmenu.append(
                 MenuItem(
-                    label='Ralph Pricing',
+                    label='Scrooge',
                     fugue_icon='fugue-money-coin',
-                    name='back_office',
+                    name='scrooge',
                     href='/scrooge/all-ventures/',
                 ),
             )
