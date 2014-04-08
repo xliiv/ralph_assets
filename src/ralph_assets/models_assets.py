@@ -29,6 +29,7 @@ from mptt.models import MPTTModel
 from uuid import uuid4
 
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.signals import post_save, post_delete
 from django.db.utils import DatabaseError
@@ -38,9 +39,18 @@ from django.utils.translation import ugettext_lazy as _
 from ralph.business.models import Venture
 from ralph.discovery.models_device import Device, DeviceType
 from ralph.discovery.models_util import SavingUser
+from ralph_assets.models_util import WithForm
 
 
 SAVE_PRIORITY = 0
+
+
+class LicenseAndAsset(object):
+
+    def latest_attachments(self):
+        attachments = self.attachments.all().order_by('-created')
+        for attachment in attachments:
+            yield attachment
 
 
 class CreatableFromString(object):
@@ -273,13 +283,26 @@ class DCManager(DCAdminManager, ViewableSoftDeletableManager):
 class Attachment(SavingUser, TimeTrackable):
     original_filename = models.CharField(max_length=255, unique=False)
     file = models.FileField(upload_to=_get_file_path, blank=False, null=True)
+    uploaded_by = models.ForeignKey(User, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         self.original_filename = self.file.name
         super(Attachment, self).save(*args, **kwargs)
 
 
-class Asset(TimeTrackable, EditorTrackable, SavingUser, SoftDeletable):
+class Service(Named, TimeTrackable):
+    profit_center = models.CharField(max_length=1024, blank=True)
+    cost_center = models.CharField(max_length=1024, blank=True)
+
+
+class Asset(
+    LicenseAndAsset,
+    TimeTrackable,
+    EditorTrackable,
+    SavingUser,
+    SoftDeletable,
+    WithForm,
+):
     '''
     Asset model contain fields with basic information about single asset
     '''
@@ -362,6 +385,7 @@ class Asset(TimeTrackable, EditorTrackable, SavingUser, SoftDeletable):
         max_length=64,
         default=0,
     )
+    service_name = models.ForeignKey(Service, null=True, blank=True)
     admin_objects = AssetAdminManager()
     admin_objects_dc = DCAdminManager()
     admin_objects_bo = BOAdminManager()
@@ -529,6 +553,13 @@ class Asset(TimeTrackable, EditorTrackable, SavingUser, SoftDeletable):
             return False
         return dev.model.type != DeviceType.unknown.id
 
+    @property
+    def url(self):
+        return reverse('device_edit', kwargs={
+            'mode': ASSET_TYPE2MODE[self.type],
+            'asset_id': self.id,
+        })
+
 
 @receiver(post_save, sender=Asset, dispatch_uid='ralph.create_asset')
 def create_asset_post_save(sender, instance, created, **kwargs):
@@ -613,18 +644,18 @@ def device_post_save(sender, instance, **kwargs):
             pass
 
 
+class CoaOemOs(Named):
+    """Define oem installed operating system"""
+
+
 class OfficeInfo(TimeTrackable, SavingUser, SoftDeletable):
-    license_key = models.CharField(max_length=255, blank=True)
-    version = models.CharField(max_length=50, blank=True)
-    attachment = models.FileField(
-        upload_to=_get_file_path, blank=True)
-    license_type = models.IntegerField(
-        choices=LicenseType(), verbose_name=_("license type"),
-        null=True, blank=True
+    license_key = models.TextField(null=True, blank=True,)
+    coa_number = models.CharField(
+        max_length=256, verbose_name="COA number", null=True, blank=True,
     )
-    date_of_last_inventory = models.DateField(
-        null=True, blank=True)
-    last_logged_user = models.CharField(max_length=100, null=True, blank=True)
+    coa_oem_os = models.ForeignKey(
+        CoaOemOs, verbose_name="COA oem os", null=True, blank=True,
+    )
     imei = models.CharField(
         max_length=18, null=True, blank=True, unique=True
     )
@@ -642,9 +673,10 @@ class OfficeInfo(TimeTrackable, SavingUser, SoftDeletable):
 
     def __unicode__(self):
         return "{} - {} - {}".format(
-            self.license_key,
-            self.version,
-            self.license_type
+            self.coa_oem_os,
+            self.coa_number,
+            self.purpose,
+            self.imei,
         )
 
     def __init__(self, *args, **kwargs):

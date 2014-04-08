@@ -10,6 +10,7 @@ import difflib
 
 from ajax_select import LookupChannel
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django.utils.html import escape
 from django.db.models import Q
 
@@ -23,10 +24,12 @@ from ralph_assets.models_assets import (
     AssetSource,
     AssetStatus,
     AssetType,
+    CoaOemOs,
     DeviceInfo,
     OfficeInfo,
     PartInfo,
     ReportOdtSource,
+    Service,
     Warehouse,
 )
 from ralph_assets.models_sam import (  # noqa
@@ -40,6 +43,7 @@ from ralph_assets.models_transition import (
     Transition,
     TransitionsHistory,
 )
+from ralph_assets.models_util import WithForm
 from ralph.discovery.models import Device, DeviceType
 
 
@@ -332,6 +336,16 @@ class UserLookup(LookupChannel):
             department=obj.profile.department,
         )
 
+
+def get_edit_url(object_):
+    if isinstance(object_, User):
+        return reverse(
+            'edit_user_relations', kwargs={'username': object_.username},
+        )
+    elif isinstance(object_, WithForm):
+        return object_.url
+
+
 __all__ = [
     'Action',
     'Asset',
@@ -343,10 +357,12 @@ __all__ = [
     'AssetSource',
     'AssetStatus',
     'AssetType',
+    'CoaOemOs',
     'DeviceInfo',
     'OfficeInfo',
     'PartInfo',
     'ReportOdtSource',
+    'Service',
     'Transition',
     'TransitionsHistory',
     'Warehouse',

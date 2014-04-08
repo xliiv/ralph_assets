@@ -26,8 +26,10 @@ from ralph_assets.models_assets import (
     AssetManufacturer,
     AssetOwner,
     AssetType,
+    ASSET_TYPE2MODE,
     CreatableFromString,
 )
+from ralph_assets.models_util import WithForm
 
 
 class LicenceType(Named):
@@ -51,7 +53,13 @@ class SoftwareCategory(Named, CreatableFromString):
             yield licence
 
 
-class Licence(MPTTModel, TimeTrackable, WithConcurrentGetOrCreate):
+class Licence(
+    models_assets.LicenseAndAsset,
+    MPTTModel,
+    TimeTrackable,
+    WithConcurrentGetOrCreate,
+    WithForm,
+):
     """A set of licences for a single software with a single expiration date"""
     manufacturer = models.ForeignKey(
         AssetManufacturer,
@@ -95,6 +103,7 @@ class Licence(MPTTModel, TimeTrackable, WithConcurrentGetOrCreate):
     bought_date = models.DateField(
         verbose_name=_('Purchase date'),
         null=True,
+        blank=True,
     )
     valid_thru = models.DateField(
         null=True,
@@ -103,7 +112,7 @@ class Licence(MPTTModel, TimeTrackable, WithConcurrentGetOrCreate):
     )
     order_no = models.CharField(max_length=50, null=True, blank=True)
     price = models.DecimalField(
-        max_digits=10, decimal_places=2, default=0
+        max_digits=10, decimal_places=2, default=0, null=True, blank=True,
     )
     accounting_id = models.CharField(
         max_length=200,
@@ -134,10 +143,7 @@ class Licence(MPTTModel, TimeTrackable, WithConcurrentGetOrCreate):
     def url(self):
         return reverse('edit_licence', kwargs={
             'licence_id': self.id,
-            'mode': {
-                AssetType.data_center: 'dc',
-                AssetType.back_office: 'back_office',
-            }[self.asset_type],
+            'mode': ASSET_TYPE2MODE[self.asset_type],
         })
 
 

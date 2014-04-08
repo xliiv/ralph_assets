@@ -11,6 +11,7 @@
 {% endblock %}
 
 {% block multivalue_inputs %}
+  {# TODO: loop it, use templatetag: get_item, and loop over multivalues_fields #}
   <div class="span4">
     <div class="control-group{% if asset_form.sn.errors %} error{% endif %}">
       <label {% if asset_form.sn.field.required %}class="required"{% endif %}>{{ asset_form.sn.label }}</label>

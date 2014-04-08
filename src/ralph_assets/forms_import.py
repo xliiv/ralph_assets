@@ -138,7 +138,8 @@ class ColumnChoiceField(forms.ChoiceField):
         Model = get_model_by_name(model)
         kwargs['choices'] += [
             (field.name, unicode(field.verbose_name))
-            for field in Model._meta.fields if field.name != 'id'
+            for field in it.chain(Model._meta.fields, Model._meta.many_to_many)
+            if field.name != 'id'
         ]
         if model == 'ralph_assets.asset':
             amd_field, amd_model = get_amendment_model(mode)

@@ -1,6 +1,11 @@
 Change Log
 ----------
 
+1.4.1
+~~~~~~~
+* Added Warehouse column to template bulk_edit file
+
+
 1.4.0
 ~~~~~~~
 

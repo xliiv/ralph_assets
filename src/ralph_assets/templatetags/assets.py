@@ -6,20 +6,19 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from django import template
-from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+
+from ralph_assets.models import get_edit_url
 
 
 register = template.Library()
 
 
 @register.simple_tag
-def get_edit_url(object_):
+def edit_url(object_):
     """Returns the url of edit page for a given object (currently implemented
     for Users, expand if needed)
     """
-    if isinstance(object_, User):
-        return reverse('edit_user', kwargs={'username': object_.username})
+    return get_edit_url(object_)
 
 
 @register.inclusion_tag('assets/templatetags/transition_history.html')

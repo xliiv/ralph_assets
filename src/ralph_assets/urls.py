@@ -28,10 +28,11 @@ from ralph_assets.views import (
     InvoiceReport,
     LicenceList,
     SplitDeviceView,
+    UserDetails,
     UserList,
-    XlsUploadView,
 )
 from ralph_assets.views_transition import TransitionView
+from ralph_assets.views_import import XlsUploadView
 
 from ralph_assets.forms_import import XLS_UPLOAD_FORMS
 
@@ -134,8 +135,13 @@ urlpatterns = patterns(
         name='user_list',
     ),
     url(
-        r'user/(?P<username>[^\/]+)/$',
+        r'user/relations/(?P<username>[^\/]+)/$',
         login_required(EditUser.as_view()),
-        name='edit_user',
+        name='edit_user_relations',
+    ),
+    url(
+        r'user/details/(?P<username>[^\/]+)/$',
+        login_required(UserDetails.as_view()),
+        name='user_view',
     ),
 )

@@ -3,31 +3,26 @@
 {% load i18n %}
 
 {% block content %}
-<p>
-{% trans "Import done" %}
-</p>
+<h1>{% trans "Import done" %}</h1>
+
 {% if failed_assets %}
-<p>
-{% trans "The following assets couldn't be found:" %}
-</p>
-<ul>
-    {% for asset_id in failed_assets %}
-        <li>{{ asset_id }}</li>
-    {% endfor %}
-</ul>
+  <h4> {% trans "The following assets couldn't be found:" %} </h4>
+  <ul>
+  {% for asset_id in failed_assets %}
+    <li>{{ asset_id }}</li>
+  {% endfor %}
+  </ul>
 {% endif %}
+
 {% if errors %}
-<p>
-{% trans "Following errors were encountered:" %}
-</p>
-<table>
+  <h4> {% trans "Following errors were encountered:" %} </h4>
+  <table class='table'>
     {% for k, v in errors.items %}
     <tr>
-        <td>{{ k }}</td><td>{{ v }}</td>
+      <td>{{ k }}</td><td>{{ v }}</td>
     </tr>
     {% endfor %}
-</table>
+  </table>
 {% endif %}
-</p>
 
 {% endblock %}

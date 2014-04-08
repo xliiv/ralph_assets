@@ -1,0 +1,21 @@
+{% load bob %}
+{% load i18n %}
+
+{% if attachment_parent %}
+  <div id='attachments-forms'>
+  {% if attachment_parent.attachments.all %}
+    {% for attachment in attachment_parent.attachments.all %}
+      <form id='delete-attachment-{{attachment.id}}' class='form-inline'
+        method="POST" action="{% url delete_attachment mode=mode parent=parent_name %}"
+        target="_blank"
+      >
+        {% csrf_token %}
+        <input type='hidden' name='parent_id' value='{{ attachment_parent.id }}'>
+        <input type='hidden' name='attachment_id' value='{{ attachment.id }}'>
+        <input type='hidden' name='delete_type' value=''>
+      </form>
+    {% endfor %}
+  {% endif %}
+  </div>
+{% endif %}
+

@@ -1,70 +1,28 @@
 {% extends 'assets/base.html' %}
 {% load bob %}
 {% load i18n %}
-
 {% block content %}
-<div class="row">
+<div class="row-fluid">
     <h3>{% block form_title %}{% trans "Add licence" %}{% endblock %}</h3>
 </div>
-
 {% for error in form.non_field_errors %}
 <div class="alert alert-danger">
 {{ error }}
 </div>
 {% endfor %}
-
 <form id="{{ form_id }}" class="form form-horizontal" method="POST"{% if edit_mode %} enctype="multipart/form-data"{% endif %} {% dependency_data asset_form %}>
   {% csrf_token %}
-  <div class="row">
+  <div class="row-fluid">
     <div class="span6 well">
       {% for field in form %}
         {% field_wrapper field %}
       {% endfor %}
     </div>
-
-    {% if licence %}
-      <div id='attachments-box' class='span6 well'>
-        <h5>{% trans "Attachments:" %}</h5>
-        <a class='btn btn-primary' target='_blank'
-          href="{% url add_attachment mode=mode parent='license' %}?select={{licence.id}}"
-        >{% trans "add new one" %}</a>
-      {% if licence.attachments.all %}
-        <h6>{% trans "Attached:" %}</h6>
-        <ul id='attchments-list'>
-        {% for attachment in licence.attachments.all %}
-          <li> <a href="{{MEDIA_URL}}{{attachment.file.name}}">{{attachment.original_filename}}</a> </li>
-            <div class="btn-group">
-              <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-                {% trans "Action" %}
-                <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                <li>
-                  <span class='btn btn-link delete-attachment'
-                    data-form-id='delete-attachment-{{attachment.id}}'
-                    data-delete-type='from_one'
-                  >
-                    {% trans "Delete from THIS license" %}
-                  </span>
-                  <li class="divider"></li>
-                  <span class='btn btn-link delete-attachment'
-                    data-form-id='delete-attachment-{{attachment.id}}'
-                    data-delete-type='from_all'
-                  >
-                    {% trans "Delete from ALL licenses" %}
-                  </span>
-                </li>
-              </ul>
-            </div>
-        {% endfor %}
-        </ul>
-      {% endif %}
-      </div>
-    {% endif %}
-
+    <div class="span6">
+      {% include 'assets/attachment_table.html' with attachment_parent=licence mode=mode parent_name='license' %}
+    </div>
   </div>
-
-  <div class="row">
+  <div class="row-fluid">
     <div class="span12">
       <div class="form-actions">
         <button name="asset" type="submit" class="btn btn-primary">Save</button>
@@ -72,25 +30,5 @@
     </div>
   </div>
 </form>
-
-{% if licence %}
-  <div id='attachments-forms'>
-  {% if licence.attachments.all %}
-    {% for attachment in licence.attachments.all %}
-      <form id='delete-attachment-{{attachment.id}}' class='form-inline'
-        method="POST"
-        action="{% url delete_attachment mode=mode parent='license' %}"
-        target="_blank"
-      >
-        {% csrf_token %}
-        <input type='hidden' name='parent_id' value='{{ licence.id }}'>
-        <input type='hidden' name='attachment_id' value='{{ attachment.id }}'>
-        <input type='hidden' name='delete_type' value=''>
-      </form>
-    {% endfor %}
-  {% endif %}
-  </div>
-{% endif %}
-
-
+{% include 'assets/attachment_deletion.html' with attachment_parent=licence mode=mode parent_name='license'%}
 {% endblock %}

@@ -5,29 +5,39 @@
 {% block content %}
 
 {% if wizard.steps.current == 'upload' %}
-<h1>{% trans "Form Upload" %}</h1>
+<h1>{% trans "Data upload" %}
+  <small>{% trans "step" %} {{wizard.steps.step1}}/{{wizard.steps.count}}</small>
+</h1>
 {% blocktrans %}
-<p>Upload an XLS or CSV file. The file should contain labels for fields
-as the first row.</p>
-<p>If the first column's header is 'id', the update will be performed.
-Otherwise new licences/assets will be created.</p>
+<p class='lead'>Upload an <em>XLS</em> or <em>CSV</em> file.
+The file <strong> should contain</strong> labels for fields as
+<strong>the first row.</strong></p>
+<p class='lead'>If the first column's header is <em>id</em>, the update will
+be performed.  Otherwise new <em>licences/assets</em> will be created.</p>
 {% endblocktrans %}
 {% endif %}
+
 {% if wizard.steps.current == 'column_choice' %}
-<h1>{% trans "Column choice" %}</h1>
+<h1>{% trans "Column choice" %} <small>{% trans "step 2/3" %}</small></h1>
 {% blocktrans %}
-<p>Match the names from XLS file with the desired fields. Leaving the value
-empty will cause the column value to be unused.</p>
+<p class='lead'>Match the names from <em>XLS</em> file with the desired
+fields. Leaving the value <strong>empty</strong> will cause the column value
+to be <strong>unused</strong>.</p>
 {% endblocktrans %}
 {% endif %}
+
+
 {% if wizard.steps.current == 'confirm' %}
+<h1>{% trans "Import confirmation" %} <small>{% trans "step 3/3" %}</small></h1>
 {% blocktrans %}
-<p>This data got extracted from provided file. Please make sure the data
-is OK. Submitting the data is irreversible.</p>
+<p class='lead'>This data got extracted from provided file. Please
+<strong>make sure the data is OK</strong>. Submitting the data is
+irreversible.</p>
 {% endblocktrans %}
+
 {% if update_table %}
-<h1>Assets to be updated</h1>
-<table>
+<h4 class='xls-upload-info'>Assets to be updated</h4>
+<table class='table'>
     <thead>
         <th>{% trans "Asset id" %}</th>
         {% for name in all_column_names %}
@@ -45,9 +55,10 @@ is OK. Submitting the data is irreversible.</p>
     </tbody>
 </table>
 {% endif %}
+
 {% if add_table %}
-<h1>Assets to be added</h1>
-<table>
+<h4 class='xls-upload-info'>Assets to be added</h4>
+<table class='table'>
     <thead>
         {% for name in all_column_names %}
         <th>{{ name }}</th>
@@ -64,14 +75,29 @@ is OK. Submitting the data is irreversible.</p>
     </tbody>
 </table>
 {% endif %}
+
+
 {% endif %}
 
+<div class='span6 well offset2'>
 <form id="{{ form_id }}" class="form form-horizontal" method="POST" enctype="multipart/form-data">
-    <table>
+    <table class='xls-upload'>
     {% csrf_token %}
     {{ wizard.management_form }}
-    {{ wizard.form }}
+
+    {% for error in wizard.form.non_field_errors %}
+    <div class="alert alert-danger"> {{ error }} </div>
+    {% endfor %}
+
+    {% for field in wizard.form %}
+      {% field_wrapper field %}
+    {% endfor %}
+
     </table>
-    <button name="asset" type="submit" class="btn btn-primary">{% trans "Submit" %}</button>
+    <div class="form-actions">
+      <button class='btn' name="asset" type="submit" class="btn btn-primary">{% trans "Submit" %}</button>
+    </div>
 </form>
+
+</div>
 {% endblock %}

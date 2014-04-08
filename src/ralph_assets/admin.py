@@ -9,6 +9,7 @@ from __future__ import unicode_literals
 from django.contrib import admin
 from django import forms
 from django.core.exceptions import ValidationError
+from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 from lck.django.common.admin import ModelAdmin
 
@@ -19,19 +20,40 @@ from ralph_assets.models import (
     AssetManufacturer,
     AssetModel,
     AssetOwner,
+    CoaOemOs,
     Licence,
     LicenceType,
     ReportOdtSource,
+    Service,
     SoftwareCategory,
     Transition,
     TransitionsHistory,
+    get_edit_url,
     Warehouse,
 )
+from ralph_assets.models_util import ImportProblem
 
-admin.site.register(SoftwareCategory)
-admin.site.register(LicenceType)
+
 admin.site.register(AssetOwner)
 admin.site.register(Licence)
+admin.site.register(LicenceType)
+admin.site.register(SoftwareCategory)
+
+
+class ImportProblemAdmin(ModelAdmin):
+    change_form_template = "assets/import_problem_change_form.html"
+
+    def change_view(self, request, object_id, extra_context=None):
+        extra_context = extra_context or {}
+        problem = get_object_or_404(ImportProblem, pk=object_id)
+        extra_context['resource_link'] = get_edit_url(problem.resource)
+        return super(ImportProblemAdmin, self).change_view(
+            request,
+            object_id,
+            extra_context,
+        )
+
+admin.site.register(ImportProblem, ImportProblemAdmin)
 
 
 class WarehouseAdmin(ModelAdmin):
@@ -160,3 +182,17 @@ class TransitionsHistoryAdmin(ModelAdmin):
 
 
 admin.site.register(TransitionsHistory, TransitionsHistoryAdmin)
+
+
+class CoaOemOsAdmin(ModelAdmin):
+    list_display = ('name',)
+
+
+admin.site.register(CoaOemOs, CoaOemOsAdmin)
+
+
+class ServiceAdmin(ModelAdmin):
+    list_display = ('name', 'profit_center', 'cost_center')
+
+
+admin.site.register(Service, ServiceAdmin)

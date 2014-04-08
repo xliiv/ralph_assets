@@ -32,6 +32,7 @@ from django.forms import (
     DateField,
     Form,
     IntegerField,
+    ModelChoiceField,
     ModelForm,
     ValidationError,
 )
@@ -50,15 +51,19 @@ from ralph_assets.models import (
     DeviceInfo,
     OfficeInfo,
     PartInfo,
+    Service,
 )
 from ralph_assets import models_assets
 from ralph.ui.widgets import DateWidget, ReadOnlyWidget
 
 
+RALPH_DATE_FORMAT = ['%Y-%m-%d']
+
 asset_fieldset = lambda: OrderedDict([
     ('Basic Info', [
         'type', 'category', 'model', 'niw', 'barcode', 'sn', 'warehouse',
         'location', 'status', 'task_url', 'loan_end_date', 'remarks',
+        'service_name',
     ]),
     ('Financial Info', [
         'order_no', 'invoice_date', 'invoice_no', 'price', 'provider',
@@ -66,8 +71,8 @@ asset_fieldset = lambda: OrderedDict([
         'delivery_date',
     ]),
     ('User Info', [
-        'owner', 'employee_id', 'company', 'department', 'manager',
-        'profit_center', 'cost_center', 'user'
+        'user', 'owner', 'employee_id', 'company', 'department', 'manager',
+        'profit_center', 'cost_center',
     ]),
 ])
 
@@ -133,7 +138,7 @@ class BulkEditAssetForm(ModelForm):
             'support_type', 'support_void_reporting', 'provider', 'source',
             'status', 'task_url', 'request_date', 'delivery_date',
             'production_use_date', 'provider_order_date', 'production_year',
-            'owner', 'user',
+            'user', 'owner', 'service_name',
         )
         widgets = {
             'request_date': DateWidget(),
@@ -195,6 +200,7 @@ class BulkEditAssetForm(ModelForm):
             'production_use_date', 'provider_order_date',
             'provider_order_date', 'support_period', 'support_type',
             'provider', 'source', 'status', 'production_year', 'purpose',
+            'property_of', 'service_name',
         ]
         for field_name in self.fields:
             if field_name in fillable_fields:
@@ -546,6 +552,13 @@ class DependencyAssetForm(DependencyForm):
                 CLONE,
                 page_load_update=False,
             ),
+            Dependency(
+                'owner',
+                'user',
+                dependency_conditions.NotEmpty(),
+                CLONE,
+                page_load_update=False,
+            ),
         ]
         ad_fields = (
             'company',
@@ -607,6 +620,7 @@ class BaseAddAssetForm(DependencyAssetForm, ModelForm):
             'support_void_reporting',
             'provider',
             'remarks',
+            'service_name',
             'request_date',
             'provider_order_date',
             'delivery_date',
@@ -616,6 +630,7 @@ class BaseAddAssetForm(DependencyAssetForm, ModelForm):
             'force_deprecation',
             'slots',
             'production_year',
+            'user',
             'owner',
             'location',
             'company',
@@ -624,7 +639,6 @@ class BaseAddAssetForm(DependencyAssetForm, ModelForm):
             'profit_center',
             'department',
             'manager',
-            'user',
             'loan_end_date',
             'note',
         )
@@ -785,6 +799,7 @@ class BaseEditAssetForm(DependencyAssetForm, ModelForm):
             'support_void_reporting',
             'provider',
             'remarks',
+            'service_name',
             'sn',
             'barcode',
             'request_date',
@@ -797,6 +812,7 @@ class BaseEditAssetForm(DependencyAssetForm, ModelForm):
             'force_deprecation',
             'slots',
             'production_year',
+            'user',
             'owner',
             'location',
             'company',
@@ -805,7 +821,6 @@ class BaseEditAssetForm(DependencyAssetForm, ModelForm):
             'profit_center',
             'department',
             'manager',
-            'user',
             'loan_end_date',
             'note',
         )
@@ -853,6 +868,10 @@ class BaseEditAssetForm(DependencyAssetForm, ModelForm):
         min_length=15, max_length=18, validators=[validate_imei],
         label=_("IMEI"), required=False,
     )
+    user = AutoCompleteSelectField(
+        LOOKUPS['asset_user'],
+        required=False,
+    )
     owner = AutoCompleteSelectField(
         LOOKUPS['asset_user'],
         required=False,
@@ -880,10 +899,6 @@ class BaseEditAssetForm(DependencyAssetForm, ModelForm):
     )
     manager = CharField(
         max_length=1024,
-        required=False,
-    )
-    user = AutoCompleteSelectField(
-        LOOKUPS['asset_user'],
         required=False,
     )
 
@@ -1233,6 +1248,7 @@ class SearchAssetForm(Form):
             'data-collapsed': True,
         }),
         label="Request date",
+        input_formats=RALPH_DATE_FORMAT,
     )
     request_date_to = DateField(
         required=False, widget=DateWidget(attrs={
@@ -1240,13 +1256,16 @@ class SearchAssetForm(Form):
             'placeholder': 'End YYYY-MM-DD',
             'data-collapsed': True,
         }),
-        label='')
+        label='',
+        input_formats=RALPH_DATE_FORMAT,
+    )
     provider_order_date_from = DateField(
         required=False, widget=DateWidget(attrs={
             'placeholder': 'Start YYYY-MM-DD',
             'data-collapsed': True,
         }),
         label="Provider order date",
+        input_formats=RALPH_DATE_FORMAT,
     )
     provider_order_date_to = DateField(
         required=False, widget=DateWidget(attrs={
@@ -1254,13 +1273,16 @@ class SearchAssetForm(Form):
             'placeholder': 'End YYYY-MM-DD',
             'data-collapsed': True,
         }),
-        label='')
+        label='',
+        input_formats=RALPH_DATE_FORMAT,
+    )
     delivery_date_from = DateField(
         required=False, widget=DateWidget(attrs={
             'placeholder': 'Start YYYY-MM-DD',
             'data-collapsed': True,
         }),
         label="Delivery date",
+        input_formats=RALPH_DATE_FORMAT,
     )
     delivery_date_to = DateField(
         required=False, widget=DateWidget(attrs={
@@ -1268,7 +1290,9 @@ class SearchAssetForm(Form):
             'placeholder': 'End YYYY-MM-DD',
             'data-collapsed': True,
         }),
-        label='')
+        label='',
+        input_formats=RALPH_DATE_FORMAT,
+    )
     deprecation_rate = ChoiceField(
         required=False, choices=[('', '----'),
                                  ('null', 'None'),
@@ -1286,6 +1310,7 @@ class SearchAssetForm(Form):
             'data-collapsed': True,
         }),
         label="Invoice date",
+        input_formats=RALPH_DATE_FORMAT,
     )
     invoice_date_to = DateField(
         required=False, widget=DateWidget(attrs={
@@ -1293,7 +1318,9 @@ class SearchAssetForm(Form):
             'placeholder': 'End YYYY-MM-DD',
             'data-collapsed': True,
         }),
-        label='')
+        label='',
+        input_formats=RALPH_DATE_FORMAT,
+    )
 
     production_use_date_from = DateField(
         required=False, widget=DateWidget(attrs={
@@ -1301,6 +1328,7 @@ class SearchAssetForm(Form):
             'data-collapsed': True,
         }),
         label="Production use date",
+        input_formats=RALPH_DATE_FORMAT,
     )
     production_use_date_to = DateField(
         required=False, widget=DateWidget(attrs={
@@ -1317,6 +1345,7 @@ class SearchAssetForm(Form):
             'data-collapsed': True,
         }),
         label=_("Loan end date"),
+        input_formats=RALPH_DATE_FORMAT,
     )
     loan_end_date_to = DateField(
         required=False, widget=DateWidget(attrs={
@@ -1325,6 +1354,10 @@ class SearchAssetForm(Form):
             'data-collapsed': True,
         }),
         label='',
+        input_formats=RALPH_DATE_FORMAT,
+    )
+    service_name = ModelChoiceField(
+        queryset=Service.objects.all(), empty_label="----", required=False,
     )
 
     def __init__(self, *args, **kwargs):

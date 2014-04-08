@@ -45,7 +45,6 @@ p.help {
 }
 
 #one-level-textareas {
-    margin-left: 35px;
     width: 700px;
 }
 
@@ -101,4 +100,16 @@ p.help {
 
 .bolded {
   font-weight: bold;
+}
+
+.datepicker + span.help-block {
+    margin-bottom: 20px;
+}
+
+.hide {
+    display: none;
+}
+
+.xls-upload-info {
+    margin-top: 25px;
 }

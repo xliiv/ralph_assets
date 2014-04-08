@@ -12,7 +12,7 @@
 
 {% block office_info_inputs %}
   {% if office_info_form %}
-  <div class="span6 well">
+  <div class="well">
     {% for field in office_info_form %}
       <div class="control-group{% if field.errors %} error{% endif %}">
         <label class="control-label">{{ field.label }}</label>
@@ -26,11 +26,11 @@
     {% endfor %}
   </div>
   {% endif %}
-  <div class="span6">
+  <div>
       <h6><a href="{{ history_link }}">Full history</a></h6>
   </div>
   {% if status_history %}
-      <div class="span6">
+      <div>
           <h5>Status history</h5>
           <table class="table table-striped table-bordered details-history">
               <thead><tr>
@@ -55,7 +55,7 @@
 
 {% transition_history asset %}
 
-      <div class="span6">
+      <div>
           <h5>Device parts</h5>
           {% if parts %}
           <table class="table table-striped table-bordered details-history">

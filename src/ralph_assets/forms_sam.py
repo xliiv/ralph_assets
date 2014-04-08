@@ -71,7 +71,7 @@ class LicenceForm(forms.ModelForm):
 
     def clean(self, *args, **kwargs):
         result = super(LicenceForm, self).clean(*args, **kwargs)
-        if len(result.get('assets', [])) > result['number_bought']:
+        if len(result.get('assets', [])) > result.get('number_bought'):
             raise forms.ValidationError(_(
                 "You don't have sufficient licences!"
             ))

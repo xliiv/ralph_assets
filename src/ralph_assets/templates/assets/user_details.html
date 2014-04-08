@@ -1,0 +1,149 @@
+{% extends 'assets/base.html' %}
+{% load bob %}
+{% load i18n %}
+{% load icons %}
+
+{% block extra_headers %}
+    {{ block.super }}
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+{% endblock %}
+
+
+{% block content %}
+<div class="row">
+   <div class="span6">
+        <h3>{{ user_object.get_full_name }}</h3>
+   </div>
+</div>
+<div class="row">
+   <div class="span6">
+    <h5>{% trans "Details" %}:</h5>
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>{% trans "company" %}</th>
+                <th>{% trans "employee_id" %}</th>
+                <th>{% trans "profit_center" %}</th>
+                <th>{% trans "cost_center" %}</th>
+                <th>{% trans "department" %}</th>
+                <th>{% trans "manager" %}</th>
+                <th>{% trans "location" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ user_object.profile.company }}</td>
+                <td>{{ user_object.profile.employee_id }}</td>
+                <td>{{ user_object.profile.profit_center }}</td>
+                <td>{{ user_object.profile.cost_center }}</td>
+                <td>{{ user_object.profile.department }}</td>
+                <td>{{ user_object.profile.manager }}</td>
+                <td>{{ user_object.profile.location }}</td>
+            </tr>
+        </tbody>
+    </table>
+    </div>
+</div>
+<div class="row">
+   <div class="span6">
+    <h5>{% trans "Assigned assets" %}:</h5>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>{% trans "Category" %}</th>
+                <th>{% trans "Manufacturer" %}</th>
+                <th>{% trans "Model" %}</th>
+                <th>{% trans "Sn" %}</th>
+                <th>{% trans "Barcode" %}</th>
+                <th>{% trans "Link" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for asset in assigned_assets %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ asset.category }}</td>
+                <td>{{ asset.model.manufacturer }}</td>
+                <td>{{ asset.model }}</td>
+                <td>{{ asset.sn }}</td>
+                <td>{{ asset.barcode }}</td>
+                <td>
+                    <a href="{% url device_edit mode='back_office' asset_id=asset.id %}">{% trans "go to asset" %}</a>
+                </td>
+            </tr>
+            {% with asset.licence_set.all as licences %}
+            {% if licences %}
+            <tr>
+                <td colspan="7">
+                    <strong>{% trans "licences" %}</strong>
+                    <ul>
+                        {% for licence in  licences %}
+                            <li>
+                                 <a href="{{ licence.url }}">
+                                    {{ licence.software_category }} {{ licence.niw }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+            {% endif %}
+            {% endwith %}
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+<div class="row">
+   <div class="span6">
+    <h5>{% trans "Assigned icences" %}:</h5>
+    <table class="table table-striped table-bordered ">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>{% trans "Software category" %}</th>
+                <th>{% trans "Inventory number" %}</th>
+                <th>{% trans "Link" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for licence in assigned_licences %}
+                <tr>
+                    <td>{{ forloop.counter }} </td>
+                    <td>{{ licence.software_category }}</a></td>
+                    <td>{{ licence.niw }}</a></td>
+                    <td><a href="{{ licence.url }}">{% trans "go to licence" %}</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+<div class="row">
+   <div class="span6">
+    <h5>{% trans "Transitons history" %}:</h5>
+    <table class="table table-striped table-bordered">
+        <thead><tr>
+            <th>{% trans "Date" %}</th>
+            <th>{% trans "Type" %}</th>
+            <th>{% trans "Author" %}</th>
+            <th>{% trans "Report" %}</th>
+        </tr></thead>
+        <tbody>
+        {% for h in transitions_history %}
+            <tr>
+                <td>{{ h.created|timesince_limited }}</td>
+                <td>{{ h.transition.name }}</td>
+                <td>{{ h.logged_user }}</td>
+                <td><a href="{{ h.report_file.url}}">{% trans "download" %}</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+{% endblock %}

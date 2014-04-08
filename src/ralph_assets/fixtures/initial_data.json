@@ -1,1262 +1,2206 @@
-[{
-		"pk" : "1-back-office",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : null,
-			"rght" : 46,
-			"modified_by" : null,
-			"name" : "BACK OFFICE",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 0,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 1,
-			"is_blade" : false,
-			"tree_id" : 1,
-			"type" : 1
-		}
-	}, {
-		"pk" : "1-1-back-office-accessories",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "1-back-office",
-			"rght" : 9,
-			"modified_by" : null,
-			"name" : "ACCESSORIES",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 1,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 2,
-			"is_blade" : false,
-			"tree_id" : 1,
-			"type" : 1
-		}
-	}, {
-		"pk" : "1-1-1-back-office-accessories-keyboard",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "1-1-back-office-accessories",
-			"rght" : 4,
-			"modified_by" : null,
-			"name" : "Keyboard",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 3,
-			"is_blade" : false,
-			"tree_id" : 1,
-			"type" : 1
-		}
-	}, {
-		"pk" : "1-1-1-back-office-accessories-mouse",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "1-1-back-office-accessories",
-			"rght" : 6,
-			"modified_by" : null,
-			"name" : "Mouse",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 5,
-			"is_blade" : false,
-			"tree_id" : 1,
-			"type" : 1
-		}
-	}, {
-		"pk" : "1-1-1-back-office-accessories-pendrive",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "1-1-back-office-accessories",
-			"rght" : 8,
-			"modified_by" : null,
-			"name" : "Pendrive",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 7,
-			"is_blade" : false,
-			"tree_id" : 1,
-			"type" : 1
-		}
-	}, {
-		"pk" : "1-1-back-office-equipment",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "1-back-office",
-			"rght" : 21,
-			"modified_by" : null,
-			"name" : "EQUIPMENT",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 1,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 10,
-			"is_blade" : false,
-			"tree_id" : 1,
-			"type" : 1
-		}
-	}, {
-		"pk" : "1-1-1-back-office-equipment-dock-station",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "1-1-back-office-equipment",
-			"rght" : 12,
-			"modified_by" : null,
-			"name" : "Dock station",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 11,
-			"is_blade" : false,
-			"tree_id" : 1,
-			"type" : 1
-		}
-	}, {
-		"pk" : "1-1-1-back-office-equipment-monitor",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "1-1-back-office-equipment",
-			"rght" : 14,
-			"modified_by" : null,
-			"name" : "Monitor",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 13,
-			"is_blade" : false,
-			"tree_id" : 1,
-			"type" : 1
-		}
-	}, {
-		"pk" : "1-1-1-back-office-equipment-phone-fe-voip",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "1-1-back-office-equipment",
-			"rght" : 16,
-			"modified_by" : null,
-			"name" : "Phone (f.e. VoIP)",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 15,
-			"is_blade" : false,
-			"tree_id" : 1,
-			"type" : 1
-		}
-	}, {
-		"pk" : "1-1-1-back-office-equipment-projector",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "1-1-back-office-equipment",
-			"rght" : 18,
-			"modified_by" : null,
-			"name" : "Projector",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 17,
-			"is_blade" : false,
-			"tree_id" : 1,
-			"type" : 1
-		}
-	}, {
-		"pk" : "1-1-1-back-office-equipment-tv",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "1-1-back-office-equipment",
-			"rght" : 20,
-			"modified_by" : null,
-			"name" : "TV",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 19,
-			"is_blade" : false,
-			"tree_id" : 1,
-			"type" : 1
-		}
-	}, {
-		"pk" : "1-1-back-office-mobile-devices",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "1-back-office",
-			"rght" : 29,
-			"modified_by" : null,
-			"name" : "MOBILE DEVICES",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 1,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 22,
-			"is_blade" : false,
-			"tree_id" : 1,
-			"type" : 1
-		}
-	}, {
-		"pk" : "1-1-1-back-office-mobile-devices-mobile-phone",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "1-1-back-office-mobile-devices",
-			"rght" : 24,
-			"modified_by" : null,
-			"name" : "Mobile phone",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 23,
-			"is_blade" : false,
-			"tree_id" : 1,
-			"type" : 1
-		}
-	}, {
-		"pk" : "1-1-1-back-office-mobile-devices-smartphone",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "1-1-back-office-mobile-devices",
-			"rght" : 26,
-			"modified_by" : null,
-			"name" : "Smartphone",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 25,
-			"is_blade" : false,
-			"tree_id" : 1,
-			"type" : 1
-		}
-	}, {
-		"pk" : "1-1-1-back-office-mobile-devices-tablet",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "1-1-back-office-mobile-devices",
-			"rght" : 28,
-			"modified_by" : null,
-			"name" : "Tablet",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 27,
-			"is_blade" : false,
-			"tree_id" : 1,
-			"type" : 1
-		}
-	}, {
-		"pk" : "1-1-back-office-network-device",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "1-back-office",
-			"rght" : 37,
-			"modified_by" : null,
-			"name" : "NETWORK DEVICE",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 1,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 30,
-			"is_blade" : false,
-			"tree_id" : 1,
-			"type" : 1
-		}
-	}, {
-		"pk" : "1-1-1-back-office-network-device-access-point",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "1-1-back-office-network-device",
-			"rght" : 32,
-			"modified_by" : null,
-			"name" : "Access Point",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 31,
-			"is_blade" : false,
-			"tree_id" : 1,
-			"type" : 1
-		}
-	}, {
-		"pk" : "1-1-1-back-office-network-device-router",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "1-1-back-office-network-device",
-			"rght" : 34,
-			"modified_by" : null,
-			"name" : "Router",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 33,
-			"is_blade" : false,
-			"tree_id" : 1,
-			"type" : 1
-		}
-	}, {
-		"pk" : "1-1-1-back-office-network-device-switch",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "1-1-back-office-network-device",
-			"rght" : 36,
-			"modified_by" : null,
-			"name" : "Switch",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 35,
-			"is_blade" : false,
-			"tree_id" : 1,
-			"type" : 1
-		}
-	}, {
-		"pk" : "1-1-back-office-printers",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "1-back-office",
-			"rght" : 39,
-			"modified_by" : null,
-			"name" : "PRINTERS",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 1,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 38,
-			"is_blade" : false,
-			"tree_id" : 1,
-			"type" : 1
-		}
-	}, {
-		"pk" : "1-1-back-office-workstation",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "1-back-office",
-			"rght" : 45,
-			"modified_by" : null,
-			"name" : "WORKSTATION",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 1,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 40,
-			"is_blade" : false,
-			"tree_id" : 1,
-			"type" : 1
-		}
-	}, {
-		"pk" : "1-1-1-back-office-workstation-notebook",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "1-1-back-office-workstation",
-			"rght" : 42,
-			"modified_by" : null,
-			"name" : "Notebook",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 41,
-			"is_blade" : false,
-			"tree_id" : 1,
-			"type" : 1
-		}
-	}, {
-		"pk" : "1-1-1-back-office-workstation-pc",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "1-1-back-office-workstation",
-			"rght" : 44,
-			"modified_by" : null,
-			"name" : "PC",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 43,
-			"is_blade" : false,
-			"tree_id" : 1,
-			"type" : 1
-		}
-	}, {
-		"pk" : "2-data-center",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : null,
-			"rght" : 88,
-			"modified_by" : null,
-			"name" : "DATA CENTER",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 0,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 1,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-data-center-ats",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-data-center",
-			"rght" : 3,
-			"modified_by" : null,
-			"name" : "ATS",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 1,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 2,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-data-center-device",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-data-center",
-			"rght" : 47,
-			"modified_by" : null,
-			"name" : "DEVICE",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 1,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 4,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-device-blade-system",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-device",
-			"rght" : 6,
-			"modified_by" : null,
-			"name" : "Blade System",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 5,
-			"is_blade" : true,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-device-chassis-blade",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-device",
-			"rght" : 8,
-			"modified_by" : null,
-			"name" : "Chassis blade",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 7,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-device-console-server",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-device",
-			"rght" : 10,
-			"modified_by" : null,
-			"name" : "Console Server",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 9,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-device-console-switch",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-device",
-			"rght" : 12,
-			"modified_by" : null,
-			"name" : "Console Switch",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 11,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-device-expansion-module",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-device",
-			"rght" : 14,
-			"modified_by" : null,
-			"name" : "Expansion Module",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 13,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-device-firewall",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-device",
-			"rght" : 16,
-			"modified_by" : null,
-			"name" : "Firewall",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 15,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-device-kvm",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-device",
-			"rght" : 18,
-			"modified_by" : null,
-			"name" : "KVM",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 17,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-device-load-balancer",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-device",
-			"rght" : 20,
-			"modified_by" : null,
-			"name" : "Load Balancer",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 19,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-device-management-module",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-device",
-			"rght" : 22,
-			"modified_by" : null,
-			"name" : "Management Module",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 21,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-device-pdu",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-device",
-			"rght" : 24,
-			"modified_by" : null,
-			"name" : "PDU",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 23,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-device-power-supply",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-device",
-			"rght" : 26,
-			"modified_by" : null,
-			"name" : "Power Supply",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 25,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-device-rack",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-device",
-			"rght" : 28,
-			"modified_by" : null,
-			"name" : "Rack",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 27,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-device-router",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-device",
-			"rght" : 30,
-			"modified_by" : null,
-			"name" : "Router",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 29,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-device-server-blade",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-device",
-			"rght" : 32,
-			"modified_by" : null,
-			"name" : "Server Blade",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 31,
-			"is_blade" : true,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-device-server-rack",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-device",
-			"rght" : 34,
-			"modified_by" : null,
-			"name" : "Server Rack",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 33,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-device-storage",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-device",
-			"rght" : 36,
-			"modified_by" : null,
-			"name" : "Storage",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 35,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-device-switch-ethernet-blade",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-device",
-			"rght" : 38,
-			"modified_by" : null,
-			"name" : "Switch Ethernet Blade",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 37,
-			"is_blade" : true,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-device-switch-ethernet-rack",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-device",
-			"rght" : 40,
-			"modified_by" : null,
-			"name" : "Switch Ethernet Rack",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 39,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-device-switch-fibre-channel-rack",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-device",
-			"rght" : 44,
-			"modified_by" : null,
-			"name" : "Switch Fibre Channel Rack",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 43,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-device-tape-library",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-device",
-			"rght" : 46,
-			"modified_by" : null,
-			"name" : "Tape Library",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 45,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-data-center-part",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-data-center",
-			"rght" : 87,
-			"modified_by" : null,
-			"name" : "PART",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 1,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 48,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-part-eth-card",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-part",
-			"rght" : 54,
-			"modified_by" : null,
-			"name" : "Eth Card",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 49,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-2-data-center-part-eth-card-eth-10gb",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-2-data-center-part-eth-card",
-			"rght" : 51,
-			"modified_by" : null,
-			"name" : "Eth 10Gb",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 3,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 50,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-2-data-center-part-eth-card-eth-1gb",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-2-data-center-part-eth-card",
-			"rght" : 53,
-			"modified_by" : null,
-			"name" : "Eth 1Gb",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 3,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 52,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-part-fc-card",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-part",
-			"rght" : 60,
-			"modified_by" : null,
-			"name" : "FC Card",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 55,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-2-data-center-part-fc-card-fc-4gb",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-2-data-center-part-fc-card",
-			"rght" : 57,
-			"modified_by" : null,
-			"name" : "FC 4Gb",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 3,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 56,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-2-data-center-part-fc-card-fc-8gb",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-2-data-center-part-fc-card",
-			"rght" : 59,
-			"modified_by" : null,
-			"name" : "FC 8Gb",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 3,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 58,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-part-hdd",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-part",
-			"rght" : 68,
-			"modified_by" : null,
-			"name" : "HDD",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 61,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-2-data-center-part-hdd-sas",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-2-data-center-part-hdd",
-			"rght" : 63,
-			"modified_by" : null,
-			"name" : "SAS",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 3,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 62,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-2-data-center-part-hdd-sata",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-2-data-center-part-hdd",
-			"rght" : 65,
-			"modified_by" : null,
-			"name" : "SATA",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 3,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 64,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-2-data-center-part-hdd-ssd",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-2-data-center-part-hdd",
-			"rght" : 67,
-			"modified_by" : null,
-			"name" : "SSD",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 3,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 66,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-part-processor",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-part",
-			"rght" : 70,
-			"modified_by" : null,
-			"name" : "Processor",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 69,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-part-raid-controller",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-part",
-			"rght" : 74,
-			"modified_by" : null,
-			"name" : "RAID Controller",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 71,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-2-data-center-part-raid-controller-battery",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-2-data-center-part-raid-controller",
-			"rght" : 73,
-			"modified_by" : null,
-			"name" : "Battery",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 3,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 72,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-part-ram",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-part",
-			"rght" : 82,
-			"modified_by" : null,
-			"name" : "RAM",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 75,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-2-data-center-part-ram-ddr",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-2-data-center-part-ram",
-			"rght" : 77,
-			"modified_by" : null,
-			"name" : "DDR",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 3,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 76,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-2-data-center-part-ram-ddr2",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-2-data-center-part-ram",
-			"rght" : 79,
-			"modified_by" : null,
-			"name" : "DDR2",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 3,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 78,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-2-data-center-part-ram-ddr3",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-2-data-center-part-ram",
-			"rght" : 81,
-			"modified_by" : null,
-			"name" : "DDR3",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 3,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 80,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-part-sfp-lc-10gb",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-part",
-			"rght" : 84,
-			"modified_by" : null,
-			"name" : "SFP+ LC 10Gb",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 83,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-part-sfp-lc-1gb",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-part",
-			"rght" : 86,
-			"modified_by" : null,
-			"name" : "SFP LC 1Gb",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 85,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-part-sfp-rj45-1gb",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-part",
-			"rght" : 86,
-			"modified_by" : null,
-			"name" : "SFP RJ45 1GB",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 85,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-		"pk" : "2-2-2-data-center-part-twinax",
-		"model" : "ralph_assets.assetcategory",
-		"fields" : {
-			"parent" : "2-2-data-center-part",
-			"rght" : 88,
-			"modified_by" : null,
-			"name" : "Twinax",
-			"cache_version" : 1,
-			"created" : "2014-01-02T09:00:00.000",
-			"level" : 2,
-			"modified" : "2014-01-02T09:00:00.000",
-			"created_by" : null,
-			"lft" : 87,
-			"is_blade" : false,
-			"tree_id" : 2,
-			"type" : 2
-		}
-	}, {
-      "pk": 1,
-      "model": "ralph_assets.action",
-      "fields": {
-         "name": "change_status"
-      }
-   }, {
-      "pk": 2,
-      "model": "ralph_assets.action",
-      "fields": {
-         "name": "release_report"
-      }
-   }, {
-      "pk": 3,
-      "model": "ralph_assets.action",
-      "fields": {
-         "name": "return_report"
-      }
-   }, {
-      "pk": 4,
-      "model": "ralph_assets.action",
-      "fields": {
-         "name": "assign_user"
-      }
-   }, {
-      "pk": 5,
-      "model": "ralph_assets.action",
-      "fields": {
-         "name": "unassign_user"
-      }
-   }, {
-      "pk": 6,
-      "model": "ralph_assets.action",
-      "fields": {
-         "name": "assign_warehouse"
-      }
-   }
+[
+    {
+        "pk": "1-back-office",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": null,
+            "rght": 142,
+            "modified_by": null,
+            "name": "BACK OFFICE",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 0,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 1,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-back-office-accessories",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-back-office",
+            "rght": 17,
+            "modified_by": null,
+            "name": "ACCESSORIES",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 1,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 2,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-accessories-dictaphone",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-accessories",
+            "rght": 4,
+            "modified_by": null,
+            "name": "Dictaphone",
+            "cache_version": 1,
+            "created": "2014-04-01T12:42:02",
+            "level": 2,
+            "modified": "2014-04-01T12:42:02",
+            "created_by": null,
+            "lft": 3,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-accessories-external-disk",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-accessories",
+            "rght": 6,
+            "modified_by": null,
+            "name": "External disk",
+            "cache_version": 1,
+            "created": "2014-04-01T11:17:20",
+            "level": 2,
+            "modified": "2014-04-01T11:17:20",
+            "created_by": null,
+            "lft": 5,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-accessories-headphones",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-accessories",
+            "rght": 8,
+            "modified_by": null,
+            "name": "Headphones",
+            "cache_version": 1,
+            "created": "2014-04-01T12:18:57",
+            "level": 2,
+            "modified": "2014-04-01T12:18:57",
+            "created_by": null,
+            "lft": 7,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-accessories-keyboard",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-accessories",
+            "rght": 10,
+            "modified_by": null,
+            "name": "Keyboard",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 9,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-accessories-mouse",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-accessories",
+            "rght": 12,
+            "modified_by": null,
+            "name": "Mouse",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 11,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-accessories-mp3-player",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-accessories",
+            "rght": 14,
+            "modified_by": null,
+            "name": "MP3 Player",
+            "cache_version": 1,
+            "created": "2014-04-01T12:41:17",
+            "level": 2,
+            "modified": "2014-04-01T12:41:17",
+            "created_by": null,
+            "lft": 13,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-accessories-pendrive",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-accessories",
+            "rght": 16,
+            "modified_by": null,
+            "name": "Pendrive",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 15,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-back-office-equipment",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-back-office",
+            "rght": 41,
+            "modified_by": null,
+            "name": "EQUIPMENT",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 1,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 18,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-equipment-dock-station",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-equipment",
+            "rght": 20,
+            "modified_by": null,
+            "name": "Dock station",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 19,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-equipment-fax",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-equipment",
+            "rght": 22,
+            "modified_by": null,
+            "name": "Fax",
+            "cache_version": 1,
+            "created": "2014-04-01T12:23:48",
+            "level": 2,
+            "modified": "2014-04-01T12:23:48",
+            "created_by": null,
+            "lft": 21,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-equipment-file-server",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-equipment",
+            "rght": 24,
+            "modified_by": null,
+            "name": "File Server",
+            "cache_version": 1,
+            "created": "2014-04-01T12:43:33",
+            "level": 2,
+            "modified": "2014-04-01T12:43:33",
+            "created_by": null,
+            "lft": 23,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-equipment-graphic-tablet",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-equipment",
+            "rght": 26,
+            "modified_by": null,
+            "name": "Graphic tablet",
+            "cache_version": 1,
+            "created": "2014-04-01T12:05:33",
+            "level": 2,
+            "modified": "2014-04-01T12:05:33",
+            "created_by": null,
+            "lft": 25,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-equipment-monitor",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-equipment",
+            "rght": 28,
+            "modified_by": null,
+            "name": "Monitor",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 27,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-equipment-navigation",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-equipment",
+            "rght": 30,
+            "modified_by": null,
+            "name": "Navigation",
+            "cache_version": 1,
+            "created": "2014-04-01T12:24:25",
+            "level": 2,
+            "modified": "2014-04-01T12:24:25",
+            "created_by": null,
+            "lft": 29,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-equipment-phone-fe-voip",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-equipment",
+            "rght": 32,
+            "modified_by": null,
+            "name": "Phone (f.e. VoIP)",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 31,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-equipment-projector",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-equipment",
+            "rght": 34,
+            "modified_by": null,
+            "name": "Projector",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 33,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-equipment-scanner",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-equipment",
+            "rght": 36,
+            "modified_by": null,
+            "name": "Scanner",
+            "cache_version": 1,
+            "created": "2014-04-01T11:41:48",
+            "level": 2,
+            "modified": "2014-04-01T11:41:48",
+            "created_by": null,
+            "lft": 35,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-equipment-shredder",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-equipment",
+            "rght": 38,
+            "modified_by": null,
+            "name": "Shredder",
+            "cache_version": 1,
+            "created": "2014-04-01T11:06:36",
+            "level": 2,
+            "modified": "2014-04-01T11:06:36",
+            "created_by": null,
+            "lft": 37,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-equipment-tv",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-equipment",
+            "rght": 40,
+            "modified_by": null,
+            "name": "TV",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 39,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-back-office-mobile-devices",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-back-office",
+            "rght": 49,
+            "modified_by": null,
+            "name": "MOBILE DEVICES",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 1,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 42,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-mobile-devices-mobile-phone",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-mobile-devices",
+            "rght": 44,
+            "modified_by": null,
+            "name": "Mobile phone",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 43,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-mobile-devices-smartphone",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-mobile-devices",
+            "rght": 46,
+            "modified_by": null,
+            "name": "Smartphone",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 45,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-mobile-devices-tablet",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-mobile-devices",
+            "rght": 48,
+            "modified_by": null,
+            "name": "Tablet",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 47,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-back-office-network-device",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-back-office",
+            "rght": 69,
+            "modified_by": null,
+            "name": "NETWORK DEVICE",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 1,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 50,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-network-device-access-point",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-network-device",
+            "rght": 52,
+            "modified_by": null,
+            "name": "Access Point",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 51,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-network-device-appliance",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-network-device",
+            "rght": 54,
+            "modified_by": null,
+            "name": "Appliance",
+            "cache_version": 1,
+            "created": "2014-04-01T12:25:09",
+            "level": 2,
+            "modified": "2014-04-01T12:25:09",
+            "created_by": null,
+            "lft": 53,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-network-device-controller",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-network-device",
+            "rght": 56,
+            "modified_by": null,
+            "name": "Controller",
+            "cache_version": 1,
+            "created": "2014-04-01T12:09:59",
+            "level": 2,
+            "modified": "2014-04-01T12:09:59",
+            "created_by": null,
+            "lft": 55,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-network-device-gateway",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-network-device",
+            "rght": 58,
+            "modified_by": null,
+            "name": "Gateway",
+            "cache_version": 1,
+            "created": "2014-04-01T12:42:43",
+            "level": 2,
+            "modified": "2014-04-01T12:42:43",
+            "created_by": null,
+            "lft": 57,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-network-device-pdu",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-network-device",
+            "rght": 60,
+            "modified_by": null,
+            "name": "PDU",
+            "cache_version": 1,
+            "created": "2014-04-01T12:19:36",
+            "level": 2,
+            "modified": "2014-04-01T12:19:36",
+            "created_by": null,
+            "lft": 59,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-network-device-rack",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-network-device",
+            "rght": 62,
+            "modified_by": null,
+            "name": "Rack",
+            "cache_version": 1,
+            "created": "2014-04-01T11:56:55",
+            "level": 2,
+            "modified": "2014-04-01T11:56:55",
+            "created_by": null,
+            "lft": 61,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-network-device-router",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-network-device",
+            "rght": 64,
+            "modified_by": null,
+            "name": "Router",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 63,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-network-device-switch",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-network-device",
+            "rght": 66,
+            "modified_by": null,
+            "name": "Switch",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 65,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-network-device-ups",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-network-device",
+            "rght": 68,
+            "modified_by": null,
+            "name": "UPS",
+            "cache_version": 1,
+            "created": "2014-04-01T11:18:28",
+            "level": 2,
+            "modified": "2014-04-01T11:18:28",
+            "created_by": null,
+            "lft": 67,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-back-office-other",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-back-office",
+            "rght": 131,
+            "modified_by": null,
+            "name": "OTHER",
+            "cache_version": 1,
+            "created": "2014-04-01T11:05:16",
+            "level": 1,
+            "modified": "2014-04-01T11:05:16",
+            "created_by": null,
+            "lft": 70,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-alarm-system",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 72,
+            "modified_by": null,
+            "name": "Alarm system",
+            "cache_version": 1,
+            "created": "2014-04-01T12:45:13",
+            "level": 2,
+            "modified": "2014-04-01T12:45:13",
+            "created_by": null,
+            "lft": 71,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-amplifier",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 74,
+            "modified_by": null,
+            "name": "Amplifier",
+            "cache_version": 1,
+            "created": "2014-04-01T11:15:04",
+            "level": 2,
+            "modified": "2014-04-01T11:15:04",
+            "created_by": null,
+            "lft": 73,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-audio-system",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 76,
+            "modified_by": null,
+            "name": "Audio system",
+            "cache_version": 1,
+            "created": "2014-04-01T12:21:37",
+            "level": 2,
+            "modified": "2014-04-01T12:21:37",
+            "created_by": null,
+            "lft": 75,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-audio-video",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 78,
+            "modified_by": null,
+            "name": "Audio video",
+            "cache_version": 1,
+            "created": "2014-04-01T11:59:16",
+            "level": 2,
+            "modified": "2014-04-01T11:59:16",
+            "created_by": null,
+            "lft": 77,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-barcode-scanner",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 80,
+            "modified_by": null,
+            "name": "Barcode scanner",
+            "cache_version": 1,
+            "created": "2014-04-01T12:08:50",
+            "level": 2,
+            "modified": "2014-04-01T12:08:50",
+            "created_by": null,
+            "lft": 79,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-board",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 82,
+            "modified_by": null,
+            "name": "Board",
+            "cache_version": 1,
+            "created": "2014-04-01T12:02:37",
+            "level": 2,
+            "modified": "2014-04-01T12:02:37",
+            "created_by": null,
+            "lft": 81,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-camera",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 84,
+            "modified_by": null,
+            "name": "Camera",
+            "cache_version": 1,
+            "created": "2014-04-01T11:16:29",
+            "level": 2,
+            "modified": "2014-04-01T11:16:29",
+            "created_by": null,
+            "lft": 83,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-degausser",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 86,
+            "modified_by": null,
+            "name": "Degausser",
+            "cache_version": 1,
+            "created": "2014-04-01T12:14:00",
+            "level": 2,
+            "modified": "2014-04-01T12:14:00",
+            "created_by": null,
+            "lft": 85,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-dvd-duplicator",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 88,
+            "modified_by": null,
+            "name": "DVD Duplicator",
+            "cache_version": 1,
+            "created": "2014-04-01T12:47:11",
+            "level": 2,
+            "modified": "2014-04-01T12:47:11",
+            "created_by": null,
+            "lft": 87,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-dvd-player",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 90,
+            "modified_by": null,
+            "name": "DVD Player",
+            "cache_version": 1,
+            "created": "2014-04-01T11:58:04",
+            "level": 2,
+            "modified": "2014-04-01T11:58:04",
+            "created_by": null,
+            "lft": 89,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-folder-inserter",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 92,
+            "modified_by": null,
+            "name": "Folder inserter",
+            "cache_version": 1,
+            "created": "2014-04-01T12:45:42",
+            "level": 2,
+            "modified": "2014-04-01T12:45:42",
+            "created_by": null,
+            "lft": 91,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-folding-machine",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 94,
+            "modified_by": null,
+            "name": "Folding machine",
+            "cache_version": 1,
+            "created": "2014-04-01T11:06:01",
+            "level": 2,
+            "modified": "2014-04-01T11:06:01",
+            "created_by": null,
+            "lft": 93,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-head",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 96,
+            "modified_by": null,
+            "name": "Head",
+            "cache_version": 1,
+            "created": "2014-04-01T12:46:03",
+            "level": 2,
+            "modified": "2014-04-01T12:46:03",
+            "created_by": null,
+            "lft": 95,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-holder",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 98,
+            "modified_by": null,
+            "name": "Holder",
+            "cache_version": 1,
+            "created": "2014-04-01T12:07:28",
+            "level": 2,
+            "modified": "2014-04-01T12:07:28",
+            "created_by": null,
+            "lft": 97,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-lens",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 100,
+            "modified_by": null,
+            "name": "Lens",
+            "cache_version": 1,
+            "created": "2014-04-01T11:15:26",
+            "level": 2,
+            "modified": "2014-04-01T11:15:26",
+            "created_by": null,
+            "lft": 99,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-light",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 102,
+            "modified_by": null,
+            "name": "Light",
+            "cache_version": 1,
+            "created": "2014-04-01T12:46:35",
+            "level": 2,
+            "modified": "2014-04-01T12:46:35",
+            "created_by": null,
+            "lft": 101,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-microphone",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 104,
+            "modified_by": null,
+            "name": "Microphone",
+            "cache_version": 1,
+            "created": "2014-04-01T11:43:44",
+            "level": 2,
+            "modified": "2014-04-01T11:43:44",
+            "created_by": null,
+            "lft": 103,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-mixer",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 106,
+            "modified_by": null,
+            "name": "Mixer",
+            "cache_version": 1,
+            "created": "2014-04-01T11:14:26",
+            "level": 2,
+            "modified": "2014-04-01T11:14:26",
+            "created_by": null,
+            "lft": 105,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-monitoring-system",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 108,
+            "modified_by": null,
+            "name": "Monitoring System",
+            "cache_version": 1,
+            "created": "2014-04-01T12:44:35",
+            "level": 2,
+            "modified": "2014-04-01T12:44:35",
+            "created_by": null,
+            "lft": 107,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-photo-set",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 110,
+            "modified_by": null,
+            "name": "Photo set",
+            "cache_version": 1,
+            "created": "2014-04-01T12:28:46",
+            "level": 2,
+            "modified": "2014-04-01T12:28:46",
+            "created_by": null,
+            "lft": 109,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-radiotelephone",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 112,
+            "modified_by": null,
+            "name": "Radiotelephone",
+            "cache_version": 1,
+            "created": "2014-04-01T12:26:53",
+            "level": 2,
+            "modified": "2014-04-01T12:26:53",
+            "created_by": null,
+            "lft": 111,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-screen",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 114,
+            "modified_by": null,
+            "name": "Screen",
+            "cache_version": 1,
+            "created": "2014-04-01T11:14:10",
+            "level": 2,
+            "modified": "2014-04-01T11:14:10",
+            "created_by": null,
+            "lft": 113,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-signal-processor",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 116,
+            "modified_by": null,
+            "name": "Signal processor",
+            "cache_version": 1,
+            "created": "2014-04-01T11:19:25",
+            "level": 2,
+            "modified": "2014-04-01T11:19:25",
+            "created_by": null,
+            "lft": 115,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-smart-pen",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 118,
+            "modified_by": null,
+            "name": "Smart pen",
+            "cache_version": 1,
+            "created": "2014-04-01T11:07:13",
+            "level": 2,
+            "modified": "2014-04-01T11:07:13",
+            "created_by": null,
+            "lft": 117,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-stand",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 120,
+            "modified_by": null,
+            "name": "Stand",
+            "cache_version": 1,
+            "created": "2014-04-01T12:28:03",
+            "level": 2,
+            "modified": "2014-04-01T12:28:03",
+            "created_by": null,
+            "lft": 119,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-tricaster",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 122,
+            "modified_by": null,
+            "name": "Tricaster",
+            "cache_version": 1,
+            "created": "2014-04-01T12:43:59",
+            "level": 2,
+            "modified": "2014-04-01T12:43:59",
+            "created_by": null,
+            "lft": 121,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-trolley",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 124,
+            "modified_by": null,
+            "name": "Trolley",
+            "cache_version": 1,
+            "created": "2014-04-01T12:01:58",
+            "level": 2,
+            "modified": "2014-04-01T12:01:58",
+            "created_by": null,
+            "lft": 123,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-tv-holder",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 126,
+            "modified_by": null,
+            "name": "TV holder",
+            "cache_version": 1,
+            "created": "2014-04-01T12:06:33",
+            "level": 2,
+            "modified": "2014-04-01T12:06:33",
+            "created_by": null,
+            "lft": 125,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-video-camera",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 128,
+            "modified_by": null,
+            "name": "Video camera",
+            "cache_version": 1,
+            "created": "2014-04-01T12:17:03",
+            "level": 2,
+            "modified": "2014-04-01T12:17:03",
+            "created_by": null,
+            "lft": 127,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-other-videoconference",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-other",
+            "rght": 130,
+            "modified_by": null,
+            "name": "Videoconference",
+            "cache_version": 1,
+            "created": "2014-04-01T12:20:49",
+            "level": 2,
+            "modified": "2014-04-01T12:20:49",
+            "created_by": null,
+            "lft": 129,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-back-office-printers",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-back-office",
+            "rght": 133,
+            "modified_by": null,
+            "name": "PRINTERS",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 1,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 132,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-back-office-workstation",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-back-office",
+            "rght": 141,
+            "modified_by": null,
+            "name": "WORKSTATION",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 1,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 134,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-workstation-notebook",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-workstation",
+            "rght": 136,
+            "modified_by": null,
+            "name": "Notebook",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 135,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-workstation-pc",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-workstation",
+            "rght": 138,
+            "modified_by": null,
+            "name": "PC",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 137,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "1-1-1-back-office-workstation-terminal",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "1-1-back-office-workstation",
+            "rght": 140,
+            "modified_by": null,
+            "name": "Terminal",
+            "cache_version": 1,
+            "created": "2014-04-01T11:19:01",
+            "level": 2,
+            "modified": "2014-04-01T11:19:01",
+            "created_by": null,
+            "lft": 139,
+            "is_blade": false,
+            "tree_id": 1,
+            "type": 1
+        }
+    },
+    {
+        "pk": "2-data-center",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": null,
+            "rght": 88,
+            "modified_by": null,
+            "name": "DATA CENTER",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 0,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 1,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-data-center-ats",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-data-center",
+            "rght": 3,
+            "modified_by": null,
+            "name": "ATS",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 1,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 2,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-data-center-device",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-data-center",
+            "rght": 47,
+            "modified_by": null,
+            "name": "DEVICE",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 1,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 4,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-device-blade-system",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-device",
+            "rght": 6,
+            "modified_by": null,
+            "name": "Blade System",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 5,
+            "is_blade": true,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-device-chassis-blade",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-device",
+            "rght": 8,
+            "modified_by": null,
+            "name": "Chassis blade",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 7,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-device-console-server",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-device",
+            "rght": 10,
+            "modified_by": null,
+            "name": "Console Server",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 9,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-device-console-switch",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-device",
+            "rght": 12,
+            "modified_by": null,
+            "name": "Console Switch",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 11,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-device-expansion-module",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-device",
+            "rght": 14,
+            "modified_by": null,
+            "name": "Expansion Module",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 13,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-device-firewall",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-device",
+            "rght": 16,
+            "modified_by": null,
+            "name": "Firewall",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 15,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-device-kvm",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-device",
+            "rght": 18,
+            "modified_by": null,
+            "name": "KVM",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 17,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-device-load-balancer",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-device",
+            "rght": 20,
+            "modified_by": null,
+            "name": "Load Balancer",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 19,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-device-management-module",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-device",
+            "rght": 22,
+            "modified_by": null,
+            "name": "Management Module",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 21,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-device-pdu",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-device",
+            "rght": 24,
+            "modified_by": null,
+            "name": "PDU",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 23,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-device-power-supply",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-device",
+            "rght": 26,
+            "modified_by": null,
+            "name": "Power Supply",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 25,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-device-rack",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-device",
+            "rght": 28,
+            "modified_by": null,
+            "name": "Rack",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 27,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-device-router",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-device",
+            "rght": 30,
+            "modified_by": null,
+            "name": "Router",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 29,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-device-server-blade",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-device",
+            "rght": 32,
+            "modified_by": null,
+            "name": "Server Blade",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 31,
+            "is_blade": true,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-device-server-rack",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-device",
+            "rght": 34,
+            "modified_by": null,
+            "name": "Server Rack",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 33,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-device-storage",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-device",
+            "rght": 36,
+            "modified_by": null,
+            "name": "Storage",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 35,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-device-switch-ethernet-blade",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-device",
+            "rght": 38,
+            "modified_by": null,
+            "name": "Switch Ethernet Blade",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 37,
+            "is_blade": true,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-device-switch-ethernet-rack",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-device",
+            "rght": 40,
+            "modified_by": null,
+            "name": "Switch Ethernet Rack",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 39,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-device-switch-fibre-channel-rack",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-device",
+            "rght": 44,
+            "modified_by": null,
+            "name": "Switch Fibre Channel Rack",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 43,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-device-tape-library",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-device",
+            "rght": 46,
+            "modified_by": null,
+            "name": "Tape Library",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 45,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-data-center-part",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-data-center",
+            "rght": 87,
+            "modified_by": null,
+            "name": "PART",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 1,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 48,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-part-eth-card",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-part",
+            "rght": 54,
+            "modified_by": null,
+            "name": "Eth Card",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 49,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-2-data-center-part-eth-card-eth-10gb",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-2-data-center-part-eth-card",
+            "rght": 51,
+            "modified_by": null,
+            "name": "Eth 10Gb",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 3,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 50,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-2-data-center-part-eth-card-eth-1gb",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-2-data-center-part-eth-card",
+            "rght": 53,
+            "modified_by": null,
+            "name": "Eth 1Gb",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 3,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 52,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-part-fc-card",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-part",
+            "rght": 60,
+            "modified_by": null,
+            "name": "FC Card",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 55,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-2-data-center-part-fc-card-fc-4gb",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-2-data-center-part-fc-card",
+            "rght": 57,
+            "modified_by": null,
+            "name": "FC 4Gb",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 3,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 56,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-2-data-center-part-fc-card-fc-8gb",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-2-data-center-part-fc-card",
+            "rght": 59,
+            "modified_by": null,
+            "name": "FC 8Gb",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 3,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 58,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-part-hdd",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-part",
+            "rght": 68,
+            "modified_by": null,
+            "name": "HDD",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 61,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-2-data-center-part-hdd-sas",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-2-data-center-part-hdd",
+            "rght": 63,
+            "modified_by": null,
+            "name": "SAS",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 3,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 62,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-2-data-center-part-hdd-sata",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-2-data-center-part-hdd",
+            "rght": 65,
+            "modified_by": null,
+            "name": "SATA",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 3,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 64,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-2-data-center-part-hdd-ssd",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-2-data-center-part-hdd",
+            "rght": 67,
+            "modified_by": null,
+            "name": "SSD",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 3,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 66,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-part-processor",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-part",
+            "rght": 70,
+            "modified_by": null,
+            "name": "Processor",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 69,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-part-raid-controller",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-part",
+            "rght": 74,
+            "modified_by": null,
+            "name": "RAID Controller",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 71,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-2-data-center-part-raid-controller-battery",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-2-data-center-part-raid-controller",
+            "rght": 73,
+            "modified_by": null,
+            "name": "Battery",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 3,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 72,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-part-ram",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-part",
+            "rght": 82,
+            "modified_by": null,
+            "name": "RAM",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 75,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-2-data-center-part-ram-ddr",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-2-data-center-part-ram",
+            "rght": 77,
+            "modified_by": null,
+            "name": "DDR",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 3,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 76,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-2-data-center-part-ram-ddr2",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-2-data-center-part-ram",
+            "rght": 79,
+            "modified_by": null,
+            "name": "DDR2",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 3,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 78,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-2-data-center-part-ram-ddr3",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-2-data-center-part-ram",
+            "rght": 81,
+            "modified_by": null,
+            "name": "DDR3",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 3,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 80,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-part-sfp-lc-10gb",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-part",
+            "rght": 84,
+            "modified_by": null,
+            "name": "SFP+ LC 10Gb",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 83,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-part-sfp-rj45-1gb",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-part",
+            "rght": 86,
+            "modified_by": null,
+            "name": "SFP RJ45 1GB",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 85,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-part-sfp-lc-1gb",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-part",
+            "rght": 86,
+            "modified_by": null,
+            "name": "SFP LC 1Gb",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 85,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
+        "pk": "2-2-2-data-center-part-twinax",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-part",
+            "rght": 88,
+            "modified_by": null,
+            "name": "Twinax",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 87,
+            "is_blade": false,
+            "tree_id": 2,
+            "type": 2
+        }
+    }
 ]
