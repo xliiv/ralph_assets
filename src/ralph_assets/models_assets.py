@@ -387,6 +387,7 @@ class Asset(
         decimal_places=2,
         max_digits=5,
         blank=True,
+        null=True,
         default=settings.DEFAULT_DEPRECATION_RATE,
     )
     force_deprecation = models.BooleanField(help_text=(
