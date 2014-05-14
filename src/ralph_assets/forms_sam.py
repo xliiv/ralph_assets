@@ -136,6 +136,17 @@ class AddLicenceForm(LicenceForm, MultivalFieldForm):
 
     class Meta(LicenceForm.Meta):
         model = models_sam.Licence
+        fieldset = OrderedDict([
+            ('Basic info', [
+                'asset_type', 'manufacturer', 'licence_type',
+                'software_category', 'parent', 'niw', 'sn', 'property_of',
+                'valid_thru',
+            ]),
+            ('Financial info', [
+                'order_no', 'invoice_date', 'invoice_no', 'price', 'provider',
+                'number_bought', 'accounting_id'
+            ]),
+        ])
         widgets = {
             'invoice_date': DateWidget,
             'valid_thru': DateWidget,
