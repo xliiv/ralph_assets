@@ -337,4 +337,3 @@ class XlsUploadView(SessionWizardView, AssetsBase):
 
         data['Model'] = AssetModel.objects.get_or_create(**kwargs)[0]
         return data
-
