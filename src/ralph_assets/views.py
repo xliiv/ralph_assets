@@ -882,6 +882,7 @@ class AddDevice(AssetsBase):
                 self.additional_info = OfficeForm(self.request.POST)
             else:
                 self.additional_info = OfficeForm()
+            self.asset_form.fields['deprecation_rate'].initial = ''
 
     def get(self, *args, **kwargs):
         self.asset_form = AddDeviceForm(mode=self.mode)
