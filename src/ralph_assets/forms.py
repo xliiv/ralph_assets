@@ -1131,15 +1131,7 @@ class AddDeviceForm(BaseAddAssetForm, MultivalFieldForm):
             rest of multivalues.
         """
         cleaned_data = super(AddDeviceForm, self).clean()
-        if self.data['sn'] or self.data['barcode']:
-            if self.different_multival_counters(cleaned_data):
-                for field in self.multival_fields:
-                    if field in cleaned_data:
-                        msg = "Fields: {} - require the same count".format(
-                            ', '.join(self.multival_fields)
-                        )
-                        self.errors.setdefault(field, []).append(msg)
-        else:
+        if not (self.data['sn'] or self.data['barcode']):
             msg = _('SN or BARCODE field is required')
             for field in ['sn', 'barcode']:
                 self.errors.setdefault(field, []).append(msg)

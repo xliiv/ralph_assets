@@ -39,9 +39,16 @@ from ralph_assets.views import AssetsBase
 from ralph_assets.models import (
     Asset,
     AssetCategory,
+    AssetCategoryType,
     AssetManufacturer,
     AssetModel,
 )
+
+
+MODE2ASSET_CATEGORY_TYPE = {
+    'dc': AssetCategoryType.data_center,
+    'back_office': AssetCategoryType.back_office,
+}
 
 
 class XlsUploadView(SessionWizardView, AssetsBase):
@@ -312,7 +319,10 @@ class XlsUploadView(SessionWizardView, AssetsBase):
 
         if category:
             try:
-                category = AssetCategory.objects.get(name=category)
+                category = AssetCategory.objects.get(
+                    name=category,
+                    type=MODE2ASSET_CATEGORY_TYPE[self.mode],
+                )
             except AssetCategory.DoesNotExist:
                 category = None
             else:
@@ -327,3 +337,4 @@ class XlsUploadView(SessionWizardView, AssetsBase):
 
         data['Model'] = AssetModel.objects.get_or_create(**kwargs)[0]
         return data
+

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
+import django.db
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
@@ -12,13 +13,12 @@ class Migration(SchemaMigration):
         db.delete_unique('ralph_assets_assetmodel', ['name'])
 
         # Removing index on 'AssetModel', fields ['name']
-        db.delete_index('ralph_assets_assetmodel', ['name'])
-
+        try:
+            db.delete_index('ralph_assets_assetmodel', ['name'])
+        except django.db.utils.DatabaseError:
+            pass
 
     def backwards(self, orm):
-        # Adding index on 'AssetModel', fields ['name']
-        db.create_index('ralph_assets_assetmodel', ['name'])
-
         # Adding unique constraint on 'AssetModel', fields ['name']
         db.create_unique('ralph_assets_assetmodel', ['name'])
 

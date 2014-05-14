@@ -118,3 +118,15 @@ p.help {
 .licence-niw {
     color: blue;
 }
+
+input[type=submit] {
+    padding: 0px;
+}
+
+div#sidebar_search input, div#sidebar_search select{
+    width: 90%;
+}
+
+form.form-inline {
+    display: inline;
+}
