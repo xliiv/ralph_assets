@@ -31,10 +31,10 @@ setup(
     package_dir={'': 'src'},
     zip_safe=False,  # because templates are loaded from file path
     install_requires=[
-        'ralph>=2.0.0rc1',
+        'ralph>=2.0.0-rc6',
         'django-mptt==0.5.5',
         'xlrd==0.9.2',
-        'inkpy==0.0.1-alpha',
+        'inkpy==0.0.2-alpha',
         'django-search-forms[ajax]==0.3',
     ],
     entry_points={

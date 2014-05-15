@@ -5,10 +5,24 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from django.conf.urls.defaults import patterns, url
+from django.conf.urls.defaults import include, patterns, url
 from django.contrib.auth.decorators import login_required
 from django.views.generic import RedirectView
+from tastypie.api import Api
 
+from ralph_assets.api import (
+    AssetManufacturerResource,
+    AssetModelResource,
+    AssetOwnerResource,
+    AssetsResource,
+    LicenceResource,
+    LicenceTypeResource,
+    ServiceResource,
+    SoftwareCategoryResource,
+    UserAssignmentsResource,
+    UserResource,
+    WarehouseResource,
+)
 from ralph_assets.views import (
     AddAttachment,
     AddDevice,
@@ -46,9 +60,26 @@ from ralph_assets.views_transition import (
     TransitionHistoryFileHandler,
 )
 
+v09_api = Api(api_name='v0.9')
+for r in (
+    AssetManufacturerResource,
+    AssetModelResource,
+    AssetOwnerResource,
+    AssetsResource,
+    LicenceResource,
+    LicenceTypeResource,
+    ServiceResource,
+    SoftwareCategoryResource,
+    UserAssignmentsResource,
+    UserResource,
+    WarehouseResource,
+):
+    v09_api.register(r())
+
 
 urlpatterns = patterns(
     '',
+    url(r'^api/', include(v09_api.urls)),
     url(r'^$',
         RedirectView.as_view(url='/assets/dc/search'),
         name='dc'),
