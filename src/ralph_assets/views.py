@@ -77,6 +77,7 @@ SEARCH_DELIMITERS = re.compile(r";|\|")
 
 logger = logging.getLogger(__name__)
 
+
 def remove_location(form):
     # XXX: temp solution until concept araise
     form.fieldsets['Basic Info'].remove('location')
