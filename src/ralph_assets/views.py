@@ -1453,6 +1453,8 @@ class AddPart(AssetsBase):
         self.initialize_vars()
         mode = self.mode
         self.asset_form = AddPartForm(self.request.POST, mode=mode)
+        if self.mode == 'dc':
+            remove_location(self.asset_form)
         self.part_info_form = BasePartForm(self.request.POST, mode=mode)
         if self.asset_form.is_valid() and self.part_info_form.is_valid():
             creator_profile = self.request.user.get_profile()
