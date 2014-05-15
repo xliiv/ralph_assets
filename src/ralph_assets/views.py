@@ -77,6 +77,10 @@ SEARCH_DELIMITERS = re.compile(r";|\|")
 
 logger = logging.getLogger(__name__)
 
+def remove_location(form):
+    # XXX: temp solution until concept araise
+    form.fieldsets['Basic Info'].remove('location')
+
 
 def _move_data(src, dst, fields):
     for field in fields:
@@ -877,6 +881,7 @@ class AddDevice(AssetsBase):
                     mode=self.mode,
                     exclude='create_stock',
                 )
+            remove_location(self.asset_form)
         elif self.mode == 'back_office':
             if self.request.method == 'POST':
                 self.additional_info = OfficeForm(self.request.POST)
@@ -1054,6 +1059,7 @@ class EditDevice(AssetsBase):
                     instance=self.asset.device_info,
                     mode=self.mode,
                 )
+            remove_location(self.asset_form)
         elif self.mode == 'back_office':
             # XXX: how do it better, differ only by one arg?
             if self.request.method == 'POST':
@@ -1192,6 +1198,8 @@ class EditPart(AssetsBase):
         if self.asset.device_info:  # it isn't part asset
             raise Http404()
         self.asset_form = EditPartForm(instance=self.asset, mode=self.mode)
+        if self.mode == 'dc':
+            remove_location(self.asset_form)
         self.write_office_info2asset_form()
         self.part_info_form = BasePartForm(
             instance=self.asset.part_info, mode=self.mode,
@@ -1429,14 +1437,15 @@ class AddPart(AssetsBase):
 
     def get(self, *args, **kwargs):
         self.initialize_vars()
-        mode = self.mode
-        self.asset_form = AddPartForm(mode=mode)
+        self.asset_form = AddPartForm(mode=self.mode)
+        if self.mode == 'dc':
+            remove_location(self.asset_form)
         self.device_id = self.request.GET.get('device')
         part_form_initial = {}
         if self.device_id:
             part_form_initial['device'] = self.device_id
         self.part_info_form = BasePartForm(
-            initial=part_form_initial, mode=mode)
+            initial=part_form_initial, mode=self.mode)
         return super(AddPart, self).get(*args, **kwargs)
 
     def post(self, *args, **kwargs):
