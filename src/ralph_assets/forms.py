@@ -1101,6 +1101,17 @@ class AddPartForm(BaseAddAssetForm, MultivalFieldForm):
         self.multival_fields = ['sn']
 
 
+class DataCenterAddPartForm(AddPartForm):
+
+    def __init__(self, *args, **kwargs):
+        super(DataCenterAddPartForm, self).__init__(*args, **kwargs)
+        self.fieldsets['Basic Info'].remove('location')
+
+
+class BackOfficeAddPartForm(AddPartForm):
+    pass
+
+
 class AddDeviceForm(BaseAddAssetForm, MultivalFieldForm):
     '''
         Add new device form
@@ -1156,7 +1167,9 @@ class BackOfficeAddDeviceForm(AddDeviceForm):
 
 
 class DataCenterAddDeviceForm(AddDeviceForm):
-    pass
+    def __init__(self, *args, **kwargs):
+        super(DataCenterAddDeviceForm, self).__init__(*args, **kwargs)
+        self.fieldsets['Basic Info'].remove('location')
 
 
 class OfficeForm(ModelForm):
@@ -1169,6 +1182,16 @@ class OfficeForm(ModelForm):
 
 
 class EditPartForm(BaseEditAssetForm):
+    pass
+
+
+class DataCenterEditPartForm(EditPartForm):
+    def __init__(self, *args, **kwargs):
+        super(DataCenterEditPartForm, self).__init__(*args, **kwargs)
+        self.fieldsets['Basic Info'].remove('location')
+
+
+class BackOfficeEditPartForm(EditPartForm):
     pass
 
 
@@ -1221,6 +1244,7 @@ class DataCenterEditDeviceForm(EditDeviceForm):
 
     def __init__(self, *args, **kwargs):
         super(DataCenterEditDeviceForm, self).__init__(*args, **kwargs)
+        self.fieldsets['Basic Info'].remove('location')
         for after, field in (
             ('status', 'slots'),
         ):

@@ -31,14 +31,11 @@ from rq import get_current_job
 
 from ralph_assets import forms as assets_forms
 from ralph_assets.forms import (
-    AddDeviceForm,
-    AddPartForm,
     AttachmentForm,
     BackOfficeSearchAssetForm,
     BasePartForm,
     DataCenterSearchAssetForm,
     DeviceForm,
-    EditPartForm,
     MoveAssetPartForm,
     OfficeForm,
     SearchUserForm,
@@ -225,24 +222,37 @@ class AssetsBase(Base):
                     getattr(self.asset.office_info, field, '')
                 )
 
-    def form_dispatcher(self, class_name):
+    def form_dispatcher(self, core_name):
         """
         Returns form class depending on view mode ('backoffice' or
-        'datacenter') and passed *class_name* arg.
+        'datacenter') and passed *core_name* arg.
 
-        :param class_name: base class name common for both views BO, DC
+        :param core_name: base class name common for both views BO, DC
         :returns class: form class from *ralph_assets.forms* module
         :rtype class:
         """
         mode_name = (
             'BackOffice' if self.mode == 'back_office' else 'DataCenter'
         )
-        form_class_name = "{}{}Form".format(mode_name, class_name)
+        form_class_name = "{}{}Form".format(mode_name, core_name)
         try:
             form_class = getattr(assets_forms, form_class_name)
         except AttributeError:
             raise Exception("No form class named: {}".format(form_class_name))
         return form_class
+
+    def set_asset_form(self, core_name, request_data=None):
+        """
+        Create and set form as attribute depending on *core_name* and
+        *request_data*.
+
+        :param core_name: see *core_name* in ``form_dispatcher`` method
+        :param request_data: request data like request.POST
+        """
+        form_class = self.form_dispatcher(core_name)
+        self.asset_form = form_class(
+            request_data, instance=self.asset, mode=self.mode
+        )
 
 
 class DataTableColumnAssets(DataTableColumn):
@@ -845,6 +855,7 @@ def _create_device(creator_profile, asset_data, cleaned_additional_info, mode):
         asset = Asset(created_by=creator_profile, **asset_data)
         office_info = OfficeInfo()
         office_info.__dict__.update(**cleaned_additional_info)
+        office_info.coa_oem_os = cleaned_additional_info['coa_oem_os']
         office_info.save(user=creator_profile.user)
         asset.office_info = office_info
     asset.save(user=creator_profile.user)
@@ -887,7 +898,6 @@ class AddDevice(AssetsBase):
                 self.additional_info = OfficeForm()
 
     def get(self, *args, **kwargs):
-        self.asset_form = AddDeviceForm(mode=self.mode)
         device_form_class = self.form_dispatcher('AddDevice')
         self.asset_form = device_form_class(mode=self.mode)
         self._set_additional_info_form()
@@ -1081,10 +1091,7 @@ class EditDevice(AssetsBase):
             Asset.admin_objects,
             id=kwargs.get('asset_id')
         )
-        device_form_class = self.form_dispatcher('EditDevice')
-        self.asset_form = device_form_class(
-            instance=self.asset, mode=self.mode
-        )
+        self.set_asset_form('EditDevice')
         self._set_additional_info_form()
         self.parts = Asset.objects.filter(part_info__device=self.asset)
         return super(EditDevice, self).get(*args, **kwargs)
@@ -1096,12 +1103,7 @@ class EditDevice(AssetsBase):
             Asset.admin_objects,
             id=kwargs.get('asset_id')
         )
-        device_form_class = self.form_dispatcher('EditDevice')
-        self.asset_form = device_form_class(
-            post_data,
-            instance=self.asset,
-            mode=self.mode,
-        )
+        self.set_asset_form('EditDevice', self.request.POST)
         self._set_additional_info_form()
         self.part_form = MoveAssetPartForm(post_data)
         if 'move_parts' in post_data.keys():
@@ -1194,7 +1196,7 @@ class EditPart(AssetsBase):
         )
         if self.asset.device_info:  # it isn't part asset
             raise Http404()
-        self.asset_form = EditPartForm(instance=self.asset, mode=self.mode)
+        self.set_asset_form('EditPart')
         self.write_office_info2asset_form()
         self.part_info_form = BasePartForm(
             instance=self.asset.part_info, mode=self.mode,
@@ -1206,15 +1208,10 @@ class EditPart(AssetsBase):
             Asset.admin_objects,
             id=kwargs.get('asset_id')
         )
-        mode = self.mode
-        self.asset_form = EditPartForm(
-            self.request.POST,
-            instance=self.asset,
-            mode=mode
-        )
+        self.set_asset_form('EditPart', self.request.POST)
         self.office_info_form = OfficeForm(
             self.request.POST, self.request.FILES)
-        self.part_info_form = BasePartForm(self.request.POST, mode=mode)
+        self.part_info_form = BasePartForm(self.request.POST, mode=self.mode)
         if all((
             self.asset_form.is_valid(),
             self.office_info_form.is_valid(),
@@ -1432,21 +1429,21 @@ class AddPart(AssetsBase):
 
     def get(self, *args, **kwargs):
         self.initialize_vars()
-        mode = self.mode
-        self.asset_form = AddPartForm(mode=mode)
+        part_form_class = self.form_dispatcher('AddPart')
+        self.asset_form = part_form_class(mode=self.mode)
         self.device_id = self.request.GET.get('device')
         part_form_initial = {}
         if self.device_id:
             part_form_initial['device'] = self.device_id
         self.part_info_form = BasePartForm(
-            initial=part_form_initial, mode=mode)
+            initial=part_form_initial, mode=self.mode)
         return super(AddPart, self).get(*args, **kwargs)
 
     def post(self, *args, **kwargs):
         self.initialize_vars()
-        mode = self.mode
-        self.asset_form = AddPartForm(self.request.POST, mode=mode)
-        self.part_info_form = BasePartForm(self.request.POST, mode=mode)
+        part_form_class = self.form_dispatcher('AddPart')
+        self.asset_form = part_form_class(self.request.POST, mode=self.mode)
+        self.part_info_form = BasePartForm(self.request.POST, mode=self.mode)
         if self.asset_form.is_valid() and self.part_info_form.is_valid():
             creator_profile = self.request.user.get_profile()
             asset_data = self.asset_form.cleaned_data

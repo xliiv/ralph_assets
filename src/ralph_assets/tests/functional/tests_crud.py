@@ -5,8 +5,10 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 
+from ralph_assets import models_assets
 from ralph_assets.models_assets import (
     AssetType,
     AssetSource,
@@ -18,6 +20,7 @@ from ralph_assets.tests.util import (
     create_model,
     create_warehouse,
 )
+from ralph_assets.tests import util as utils
 from ralph.ui.tests.global_utils import login_as_su
 import unittest
 
@@ -27,6 +30,7 @@ class TestAdding(TestCase):
 
     def setUp(self):
         self.client = login_as_su()
+        self.assetOwner = utils.create_asset_owner()
         self.category = create_category()
         self.model = create_model(
             category=self.category
@@ -35,10 +39,38 @@ class TestAdding(TestCase):
             'Model2',
             category=self.category,
         )
+        self.asset_service = utils.create_service()
+        self.user = utils.create_user()
         self.warehouse = create_warehouse()
         self.warehouse2 = create_warehouse('Warehouse2')
         self.asset = create_asset(
             sn='1111-1111-1111-1111'
+        )
+        self.common_asset_data = dict(
+            # base info
+            model=self.model.id,
+            niw='Inventory number',
+            warehouse=self.warehouse.id,
+            status=AssetStatus.new.id,
+            task_url='http://www.test.com/',
+            remarks='additional remarks',
+            service_name=self.asset_service.id,
+            property_of=self.assetOwner.id,
+            # financial info
+            order_no='Order no1',
+            invoice_date='2001-01-01',
+            invoice_no='Invoice No1',
+            price=11,
+            provider='Provider2',
+            deprecation_rate=0,
+            source=AssetSource.shipment.id,
+            request_date='2001-01-02',
+            provider_order_date='2001-01-05',
+            delivery_date='2001-01-03',
+            user=self.user.id,
+            owner=self.user.id,
+            sn='2222-2222-2222-2222',
+            barcode='bc-1111-1111-1111',
         )
 
     def get_common_add_form_data(self):
@@ -80,6 +112,21 @@ class TestAdding(TestCase):
             remarks='any remarks',
             asset=True,  # Button name
         )
+
+    def _check_fields(self, correct_data, properties_parent):
+        for prop_name, expected in correct_data:
+            assets_value = getattr(properties_parent, prop_name, '-')
+            try:
+                assets_value = assets_value.id
+            except AttributeError:
+                pass
+            assets_value, expected = (
+                unicode(assets_value), unicode(expected)
+            )
+            msg = 'Asset prop. "{}" is "{}" instead of "{}"'.format(
+                prop_name, repr(assets_value), repr(expected)
+            )
+            self.assertEqual(assets_value, expected, msg)
 
     def send_data_via_add_form(self):
         url = '/assets/dc/add/device/'
@@ -158,6 +205,72 @@ class TestAdding(TestCase):
     def test_send_data_via_add_and_edit_form(self):
         self.send_data_via_add_form()
         self.send_data_via_edit_form()
+
+    def test_add_dc_device(self):
+        """
+        1. add asset by post request
+        2. get asset from db
+        3. check that posted data match db's asset values
+        """
+        dc_asset_data = dict(
+            u_level='u_level',
+            u_height='u_height',
+            ralph_device_id='',  # TODO: fill it
+            # Force unlink,  # XXX what's this
+        )
+        asset_data = self.common_asset_data.copy()
+        asset_data['type'] = AssetType.data_center.id,
+        asset_data.update(dc_asset_data)
+        asset_id = models_assets.Asset.objects.reverse()[0].id + 1
+        mode = 'dc'
+        url = reverse('add_device', kwargs={'mode': mode})
+        send_post = self.client.post(url, asset_data)
+        self.assertRedirects(
+            send_post,
+            reverse('device_edit', kwargs={
+                'mode': mode, 'asset_id': asset_id
+            }),
+            status_code=302,
+            target_status_code=200,
+        )
+        asset = models_assets.Asset.objects.filter(pk=asset_id).get()
+        self._check_fields(self.common_asset_data.items(), asset)
+        # XXX: if ralph_device_id is empty asset_id is filled
+        dc_asset_data['ralph_device_id'] = asset_id
+        self._check_fields(dc_asset_data.items(), asset.device_info)
+
+    def test_add_bo_device(self):
+        """
+        1. add asset by post request
+        2. get asset from db
+        3. check that posted data match db's asset values
+        """
+        bo_asset_data = dict(
+            license_key='license_key',
+            coa_number='coa_number',
+            coa_oem_os=utils.create_coaoemos().id,
+        )
+        asset_data = self.common_asset_data.copy()
+        asset_data.update({
+            'type': AssetType.back_office.id,
+            'location': 'location',
+        })
+        asset_data.update(bo_asset_data)
+        asset_id = models_assets.Asset.objects.reverse()[0].id + 1
+        mode = 'back_office'
+        url = reverse('add_device', kwargs={'mode': mode})
+        send_post = self.client.post(url, asset_data)
+        self.assertRedirects(
+            send_post,
+            reverse('device_edit', kwargs={
+                'mode': mode, 'asset_id': asset_id
+            }),
+            status_code=302,
+            target_status_code=200,
+        )
+        asset = models_assets.Asset.objects.filter(pk=asset_id).get()
+        self._check_fields(self.common_asset_data.items(), asset)
+        self._check_fields(bo_asset_data.items(), asset.office_info)
 
     @unittest.skip("to be implement")
     def test_delete_asset(self):

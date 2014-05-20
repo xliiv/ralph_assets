@@ -41,6 +41,7 @@ DEFAULT_ASSET_DATA = dict(
 DEFAULT_BO_VALUE = {
     'license_key': 'bo-license-key',
     'coa_number': 'bo-coa-number',
+    'coa_oem_os': 'coa_oem_os',
     'imei': '1'*15,
     'purpose': models_assets.AssetPurpose.others,
 }
@@ -255,6 +256,13 @@ def create_service(name=DEFAULT_ASSET_DATA['service_name']):
 
 def create_asset_owner(name=DEFAULT_ASSET_DATA['asset_owner']):
     db_object, created = models_assets.AssetOwner.objects.get_or_create(
+        name=name
+    )
+    return db_object
+
+
+def create_coaoemos(name=DEFAULT_BO_VALUE['coa_oem_os']):
+    db_object, created = models_assets.CoaOemOs.objects.get_or_create(
         name=name
     )
     return db_object
