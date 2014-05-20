@@ -225,15 +225,22 @@ class XlsUploadView(SessionWizardView, AssetsBase):
 
         def get_or_create_asset_model(asset_data, asset=None):
             if model == 'ralph_assets.asset':
-                category_name = asset_data.get('Category')
-                try:
-                    asset_data = self.get_or_create_model(asset_data)
-                except AssetCategory.DoesNotExist:
-                    msg = "Category '{0}' does not exists".format(
-                        category_name
-                    )
-                    errors[asset or tuple(asset_data.values())] = msg
-                    return asset_data, False
+                category_key = [
+                    k for k, v in mappings.iteritems() if v == 'model.category'
+                ]
+                if category_key:
+                    category_name = [
+                        v for k, v in asset_data.iteritems()
+                        if slugify(k) == category_key[0]
+                    ][0]
+                    try:
+                        asset_data = self.get_or_create_model(asset_data)
+                    except AssetCategory.DoesNotExist:
+                        msg = "Category '{0}' does not exists".format(
+                            category_name
+                        )
+                        errors[asset or tuple(asset_data.values())] = msg
+                        return asset_data, False
             return asset_data, True
 
         if model == 'ralph_assets.asset':
@@ -332,9 +339,18 @@ class XlsUploadView(SessionWizardView, AssetsBase):
         Raise AssetCategory.DoesNotExist if category name is provided but not
         exists.
         """
-        model = data.get('Model', None)
-        category = data.pop('Category', None)
-        manufacturer = data.pop('Manufacturer', None)
+        slugified_names = {
+            slugify(k): k for k in data
+        }
+        mapping = {
+            v: slugified_names[k]
+            for k, v in self.storage.data['mappings'].iteritems()
+        }
+        get_name = mapping.get
+
+        model = data.get(mapping.get('model'), None)
+        category = data.pop(mapping.get('model.category'), None)
+        manufacturer = data.pop(mapping.get('model.manufacturer'), None)
 
         if not model:
             return data
@@ -357,5 +373,5 @@ class XlsUploadView(SessionWizardView, AssetsBase):
             manufacturer = None
         kwargs['manufacturer'] = manufacturer
 
-        data['Model'] = AssetModel.objects.get_or_create(**kwargs)[0]
+        data[get_name('model')] = AssetModel.objects.get_or_create(**kwargs)[0]
         return data

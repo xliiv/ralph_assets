@@ -134,15 +134,6 @@ class AssetsBase(Base):
                 href=reverse('user_list'),
             ),
         ]
-        if 'ralph_pricing' in settings.INSTALLED_APPS:
-            mainmenu.append(
-                MenuItem(
-                    label='Scrooge',
-                    fugue_icon='fugue-money-coin',
-                    name='scrooge',
-                    href='/scrooge/all-ventures/',
-                ),
-            )
         return mainmenu
 
     def get_sidebar_items(self, base_sidebar_caption):
