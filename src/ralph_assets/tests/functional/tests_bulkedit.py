@@ -150,14 +150,14 @@ class TestBulkEdit(TestCase):
         self.assertEqual(response.status_code, 200)
         for field_name, value in asset_data.items():
             form_val = unicode(
-                response.context['formset'].forms[0][field_name].value()
+                response.context['formset'].forms[0][field_name].value(),
             )
             try:
                 expected = value.id
             except AttributeError:
                 expected = value
             msg = 'Bulkedit field "{}" got "{}" instead of "{}"'.format(
-                field_name, form_val, expected
+                field_name, form_val, expected,
             )
             self.assertEqual(form_val, unicode(expected), msg)
 
@@ -167,7 +167,7 @@ class TestBulkEdit(TestCase):
         2. open asset in bulk mode,
         3. check if all fields are set like the added asset.
         """
-        dc_asset_data = self.common_asset_data
+        dc_asset_data = self.common_asset_data.copy()
         dc_asset_data.update({'sn': 'dc-sn-number'})
         dc_asset = create_asset(**dc_asset_data)
         self._test_showing_form_data(

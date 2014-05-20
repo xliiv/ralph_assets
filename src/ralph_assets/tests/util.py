@@ -112,7 +112,6 @@ def create_asset(sn, **kwargs):
             kwargs[field] = DEFAULT_ASSET_DATA[field]
     if not kwargs.get('model'):
         kwargs.update(model=create_model())
-    # TODO: make arg for DC|BO distinction
     if not kwargs.get('device_info'):
         kwargs.update(device_info=create_device())
     if not kwargs.get('support_period'):
@@ -122,7 +121,7 @@ def create_asset(sn, **kwargs):
     if not kwargs.get('warehouse'):
         kwargs.update(warehouse=create_warehouse())
     db_object, created = models_assets.Asset.objects.get_or_create(
-        sn=sn, defaults=kwargs
+        sn=sn, defaults=kwargs,
     )
     return db_object
 
@@ -132,7 +131,7 @@ def create_bo_asset(sn, **kwargs):
     Creates asset with office_info data included in kwargs or with defaults
     """
     bo_data = {}
-    for bo_field in 'license_key coa_number imei purpose'.split():
+    for bo_field in ['license_key', 'coa_number', 'imei', 'purpose']:
         if bo_field in kwargs:
             bo_value = kwargs.pop(bo_field)
         else:
@@ -256,7 +255,7 @@ def create_service(name=DEFAULT_ASSET_DATA['service_name']):
 
 def create_asset_owner(name=DEFAULT_ASSET_DATA['asset_owner']):
     db_object, created = models_assets.AssetOwner.objects.get_or_create(
-        name=name
+        name=name,
     )
     return db_object
 
