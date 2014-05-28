@@ -48,7 +48,10 @@ class ChoicesField(fields.ApiField):
     def dehydrate(self, bundle, **kwargs):
         field_name = self.field_name or self.instance_name
         field_value = getattr(bundle.obj, field_name)
-        return self.choices_class.from_id(field_value).name
+        if field_value:
+            return self.choices_class.from_id(field_value).name
+        else:
+            return None
 
 
 class AssetsField(fields.RelatedField):
@@ -88,6 +91,9 @@ class AssetManufacturerResource(ModelResource):
 
 
 class AssetModelResource(ModelResource):
+    category = fields.CharField(attribute='category', null=True)
+    manufacturer = fields.CharField(attribute='manufacturer', null=True)
+
     class Meta:
         queryset = AssetModel.objects.all()
         authentication = ApiKeyAuthentication()
@@ -178,7 +184,7 @@ class LicenceResource(ModelResource):
         AssetOwnerResource, 'property_of', null=True,
     )
     software_category = fields.ForeignKey(
-        SoftwareCategoryResource, 'software_category',
+        SoftwareCategoryResource, 'software_category', full=True,
     )
 
     class Meta:
@@ -212,8 +218,10 @@ class LicenceResource(ModelResource):
 class AssetsResource(ModelResource):
     asset_type = ChoicesField(AssetType, 'type')
     licences = fields.ToManyField(LicenceResource, 'licence_set', full=True)
-    manufacturer = fields.CharField(attribute="model__manufacturer")
-    model = fields.ForeignKey(AssetModelResource, 'model')
+    manufacturer = fields.ForeignKey(
+        AssetManufacturerResource, 'manufacturer', null=True,
+    )
+    model = fields.ForeignKey(AssetModelResource, 'model', full=True)
     owner = fields.ForeignKey(UserResource, 'owner', null=True)
     service_name = fields.ForeignKey(
         ServiceResource, 'service_name', null=True,

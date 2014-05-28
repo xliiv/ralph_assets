@@ -58,23 +58,23 @@ def get_licences_rows(filter_type='all'):
         queryset = Licence.objects.all()
     else:
         queryset = Licence.objects.filter(
-            type=MODE2ASSET_TYPE[filter_type]
+            asset_type=MODE2ASSET_TYPE[filter_type]
         )
     yield "{}, {}, {},single_cost, \n".format(
         ", ".join(LICENCES_COLUMNS),
         ", ".join(LICENCES_ASSETS_COLUMNS),
         ", ".join(LICENCES_USERS_COLUMNS),
     )
-    row = ""
     fill_empty_assets = ", " * len(LICENCES_ASSETS_COLUMNS)
     fill_empty_licences = ", " * len(LICENCES_USERS_COLUMNS)
     for licence in queryset:
+        row = ""
         for column in LICENCES_COLUMNS:
             row += "{}, ".format(getattr(licence, column))
         base_row = row
         row = "{}{}{}\n".format(row, fill_empty_assets, fill_empty_licences)
         yield row
-        if licence.number_bought > 0:
+        if licence.number_bought > 0 and licence.price:
             single_licence_cost = licence.price / licence.number_bought
         else:
             single_licence_cost = ''
@@ -102,8 +102,8 @@ def get_assets_rows(filter_type='all'):
             type=MODE2ASSET_TYPE[filter_type]
         ).values(*ASSETS_COLUMNS)
     yield "{},\n".format(", ".join(ASSETS_COLUMNS))
-    row = ""
     for asset in queryset:
+        row = ""
         for column in ASSETS_COLUMNS:
             row += "{}, ".format(asset.get(column))
         row = "{}\n".format(row)

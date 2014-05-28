@@ -8,10 +8,6 @@ from __future__ import unicode_literals
 from django.test import TestCase
 
 from ralph_assets.models_assets import (
-    AssetManufacturer,
-    AssetModel,
-    AssetOwner,
-    Warehouse,
     Asset,
     AssetStatus,
     LicenseType,
@@ -19,7 +15,13 @@ from ralph_assets.models_assets import (
     AssetType
 )
 from ralph_assets.models_history import AssetHistoryChange
-from ralph_assets.tests.util import create_category
+from ralph_assets.tests.utils.assets import (
+    AssetCategoryFactory,
+    AssetManufacturerFactory,
+    AssetOwnerFactory,
+    AssetModelFactory,
+    WarehouseFactory,
+)
 from ralph.business.models import Venture
 from ralph.discovery.models_device import Device, DeviceType
 from ralph.ui.tests.global_utils import login_as_su
@@ -28,19 +30,14 @@ from ralph.ui.tests.global_utils import login_as_su
 class HistoryAssetsView(TestCase):
     def setUp(self):
         self.client = login_as_su()
-        self.category = create_category(type='back_office')
-        self.manufacturer = AssetManufacturer(name='test_manufacturer')
-        self.owner = AssetOwner(name='ACME corporation')
-        self.owner.save()
-        self.manufacturer.save()
-        self.model = AssetModel(
-            name='test_model',
+        self.category = AssetCategoryFactory()
+        self.manufacturer = AssetManufacturerFactory()
+        self.owner = AssetOwnerFactory()
+        self.model = AssetModelFactory(
             manufacturer=self.manufacturer,
             category=self.category,
         )
-        self.model.save()
-        self.warehouse = Warehouse(name='test_warehouse')
-        self.warehouse.save()
+        self.warehouse = WarehouseFactory()
         self.asset_params = {
             'type': 101,
             'model': self.model.id,
@@ -132,17 +129,13 @@ class HistoryAssetsView(TestCase):
 class ConnectAssetWithDevice(TestCase):
     def setUp(self):
         self.client = login_as_su()
-        self.category = create_category()
-        self.manufacturer = AssetManufacturer(name='test_manufacturer')
-        self.manufacturer.save()
-        self.model = AssetModel(
-            name='test_model',
+        self.category = AssetCategoryFactory()
+        self.manufacturer = AssetManufacturerFactory()
+        self.model = AssetModelFactory(
             manufacturer=self.manufacturer,
             category=self.category,
         )
-        self.model.save()
-        self.warehouse = Warehouse(name='test_warehouse')
-        self.warehouse.save()
+        self.warehouse = WarehouseFactory()
         self.asset_params = {
             'type': AssetType.data_center.id,
             'model': self.model.id,
@@ -214,17 +207,13 @@ class ConnectAssetWithDevice(TestCase):
 class TestsStockDevice(TestCase):
     def setUp(self):
         self.client = login_as_su()
-        self.category = create_category()
-        self.manufacturer = AssetManufacturer(name='test_manufacturer')
-        self.manufacturer.save()
-        self.model = AssetModel(
-            name='test_model',
+        self.category = AssetCategoryFactory()
+        self.manufacturer = AssetManufacturerFactory()
+        self.model = AssetModelFactory(
             manufacturer=self.manufacturer,
             category=self.category,
         )
-        self.model.save()
-        self.warehouse = Warehouse(name='test_warehouse')
-        self.warehouse.save()
+        self.warehouse = WarehouseFactory()
         self.asset_params = {
             'type': AssetType.data_center.id,
             'model': self.model.id,

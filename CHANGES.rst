@@ -12,13 +12,13 @@ Change Log
 
 
 1.4.3
-~~~~~~~
+~~~~~
 
 * Added warning logger with cores count from ralph and assets
 
 
 1.4.2
-~~~~~~~
+~~~~~
 
 * Changed AssetModel schema. Now height_of_device is a float field
 
@@ -28,13 +28,13 @@ Change Log
 
 
 1.4.1
-~~~~~~~
+~~~~~
 
 * Added Warehouse column to template bulk_edit file
 
 
 1.4.0
-~~~~~~~
+~~~~~
 
 * Changed limit in sn field when add/edit new device
 
@@ -46,19 +46,19 @@ Change Log
 
 
 1.3.2
-~~~~~~~
+~~~~~
 
 * cores_count from Asset returns 0 instead of None
 
 
 1.3.1
-~~~~~~~
+~~~~~
 
 * Add invoice date column to search table
 
 
 1.3.0
-~~~~~~~
+~~~~~
 
 * Fix bulk edit autocomplete
 
@@ -76,25 +76,25 @@ Change Log
 
 
 1.2.13
-~~~~~~~
+~~~~~~
 
 * fixes of Discovered column. Also it shows now on csv reports.
 
 
 1.2.12
-~~~~~~~
+~~~~~~
 
 * Improved the csv exporting system
 
 
 1.2.11
-~~~~~~~
+~~~~~~
 
 * Basing deprecation on invoice date instead of delivery date
 
 
 1.2.10
-~~~~~~~~~~~
+~~~~~~
 
 * Pricing api uses only devices that existed on given date
 
@@ -102,7 +102,7 @@ Change Log
 
 
 1.2.9
-~~~~
+~~~~~
 
 * Merged the u_height and size attributes
 
