@@ -12,11 +12,11 @@ from ralph_assets.models_assets import (
     AssetSource,
     AssetStatus,
 )
-from ralph_assets.tests.util import (
-    create_asset,
-    create_category,
-    create_model,
-    create_warehouse,
+from ralph_assets.tests.utils.assets import (
+    AssetFactory,
+    AssetCategoryFactory,
+    AssetModelFactory,
+    WarehouseFactory,
 )
 from ralph.ui.tests.global_utils import login_as_su
 import unittest
@@ -27,19 +27,12 @@ class TestAdding(TestCase):
 
     def setUp(self):
         self.client = login_as_su()
-        self.category = create_category()
-        self.model = create_model(
-            category=self.category
-        )
-        self.model2 = create_model(
-            'Model2',
-            category=self.category,
-        )
-        self.warehouse = create_warehouse()
-        self.warehouse2 = create_warehouse('Warehouse2')
-        self.asset = create_asset(
-            sn='1111-1111-1111-1111'
-        )
+        self.category = AssetCategoryFactory()
+        self.model = AssetModelFactory(category=self.category)
+        self.model2 = AssetModelFactory(category=self.category)
+        self.warehouse = WarehouseFactory()
+        self.warehouse2 = WarehouseFactory()
+        self.asset = AssetFactory()
 
     def get_common_add_form_data(self):
         return dict(
@@ -103,8 +96,8 @@ class TestAdding(TestCase):
 
         # Overwriting variables to use the object to test the output.
         data_in_add_form.update(
-            model='Manufacturer1 Model1',
-            warehouse='Warehouse',
+            model=self.model,
+            warehouse=self.warehouse,
         )
         # Test comparison input data and output data
         for field in data_in_add_form:

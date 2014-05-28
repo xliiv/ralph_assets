@@ -222,6 +222,27 @@ class XlsUploadView(SessionWizardView, AssetsBase):
         errors = {}
         model = self.get_cleaned_data_for_step('upload')['model']
         self.Model = get_model_by_name(model)
+
+        def get_or_create_asset_model(asset_data, asset=None):
+            if model == 'ralph_assets.asset':
+                category_key = [
+                    k for k, v in mappings.iteritems() if v == 'model.category'
+                ]
+                if category_key:
+                    category_name = [
+                        v for k, v in asset_data.iteritems()
+                        if slugify(k) == category_key[0]
+                    ][0]
+                    try:
+                        asset_data = self.get_or_create_model(asset_data)
+                    except AssetCategory.DoesNotExist:
+                        msg = "Category '{0}' does not exists".format(
+                            category_name
+                        )
+                        errors[asset or tuple(asset_data.values())] = msg
+                        return asset_data, False
+            return asset_data, True
+
         if model == 'ralph_assets.asset':
             amd_field, amd_model = get_amendment_model(self.mode)
             self.AmdModel = get_model_by_name(amd_model)
@@ -229,11 +250,15 @@ class XlsUploadView(SessionWizardView, AssetsBase):
             amd_field = amd_model = self.AmdModel = None
         for sheet_name, sheet_data in update_per_sheet.items():
             for asset_id, asset_data in sheet_data.items():
-                asset_data = self.update_model(asset_data)
                 try:
                     asset = self.Model.objects.get(pk=asset_id)
                 except ObjectDoesNotExist:
                     failed_assets.append(asset_id)
+                    continue
+                asset_data, success = get_or_create_asset_model(
+                    asset_data, asset
+                )
+                if not success:
                     continue
                 try:
                     for key, value in asset_data.items():
@@ -246,7 +271,9 @@ class XlsUploadView(SessionWizardView, AssetsBase):
                     errors[asset_id] = repr(exc)
         for sheet_name, sheet_data in add_per_sheet.items():
             for asset_data in sheet_data:
-                asset_data = self.update_model(asset_data)
+                asset_data, success = get_or_create_asset_model(asset_data)
+                if not success:
+                    continue
                 not_found_messages = []
                 kwargs = {}
                 amd_kwargs = {}
@@ -306,11 +333,24 @@ class XlsUploadView(SessionWizardView, AssetsBase):
             ctx_data
         )
 
-    def update_model(self, data):
-        """Update/add AssetModel and clear asset_data from its fields."""
-        model = data.get('Model', None)
-        category = data.pop('Category', None)
-        manufacturer = data.pop('Manufacturer', None)
+    def get_or_create_model(self, data):
+        """Update/add AssetModel and clear asset_data from its fields.
+
+        Raise AssetCategory.DoesNotExist if category name is provided but not
+        exists.
+        """
+        slugified_names = {
+            slugify(k): k for k in data
+        }
+        mapping = {
+            v: slugified_names[k]
+            for k, v in self.storage.data['mappings'].iteritems()
+        }
+        get_name = mapping.get
+
+        model = data.get(mapping.get('model'), None)
+        category = data.pop(mapping.get('model.category'), None)
+        manufacturer = data.pop(mapping.get('model.manufacturer'), None)
 
         if not model:
             return data
@@ -318,22 +358,20 @@ class XlsUploadView(SessionWizardView, AssetsBase):
         kwargs = {'name': model, 'type': MODE2ASSET_TYPE[self.mode]}
 
         if category:
-            try:
-                category = AssetCategory.objects.get(
-                    name=category,
-                    type=MODE2ASSET_CATEGORY_TYPE[self.mode],
-                )
-            except AssetCategory.DoesNotExist:
-                category = None
-            else:
-                kwargs['category'] = category
+            category = AssetCategory.objects.get(
+                name=category,
+                type=MODE2ASSET_CATEGORY_TYPE[self.mode],
+            )
+        else:
+            category = None
+        kwargs['category'] = category
         if manufacturer:
-            try:
-                manufacturer = AssetManufacturer.objects.get(name=manufacturer)
-            except AssetManufacturer.DoesNotExist:
-                manufacturer = None
-            else:
-                kwargs['manufacturer'] = manufacturer
+            manufacturer = AssetManufacturer.objects.get_or_create(
+                name=manufacturer,
+            )[0]
+        else:
+            manufacturer = None
+        kwargs['manufacturer'] = manufacturer
 
-        data['Model'] = AssetModel.objects.get_or_create(**kwargs)[0]
+        data[get_name('model')] = AssetModel.objects.get_or_create(**kwargs)[0]
         return data

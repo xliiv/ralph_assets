@@ -26,12 +26,18 @@ Default slugs:
 
 Actions available in transitions:
 
-    * ``assign_user`` - assign new user into assets.
-    * ``assign_warehouse`` - assign new warehouse into assets.
+    * ``assign_loan_end_date`` - fill loan end date in form.
+    * ``assign_owner`` - assign new user into assets.
+    * ``assign_user`` - assign new owner into assets.
+    * ``assign_warehouse`` -  assign new warehouse into assets.
     * ``change_status`` - change status into defined in ``to_status`` Transition field.
     * ``release_report`` - generate release report file.
     * ``return_report`` - generate return report file.
+    * ``unassign_licences`` - remove all licences assigned into assets.
+    * ``unassign_loan_end_date`` - clear loan end date field in assets.
+    * ``unassign_owner`` - remove owner assigned into assets.
     * ``unassign_user`` - remove user assigned into assets.
+
 
 Reports
 -------

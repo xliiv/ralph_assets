@@ -66,7 +66,7 @@ def get_asset(device_id):
         'delivery_date': asset.delivery_date,
         'production_use_date': asset.production_use_date,
         'provider_order_date': asset.provider_order_date,
-        'category': asset.category.name,
+        'category': asset.model.category.name,
         'slots': asset.slots,
         'price': asset.price,
         'deprecation_rate': asset.deprecation_rate,

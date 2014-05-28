@@ -4,21 +4,18 @@ Installation
 1. Install Ralph.
 
 1. Install the ``ralph_assets`` package from PyPi by running::
-  
+
     pip install ralph_assets
 
 
-2. After installation add a line to the end of ``INSTALLED_APPS``::
+2. After installation add a line in settings ::
 
 
-    INSTALLED_APPS += (
-    ...
-    'ralph_assets',
-    )
+    PLUGGABLE_APPS = ['assets',]
 
 3. Run::
 
-    ralph migrate
+    ralph migrate ralph_assets
 
 
 That's it. Now just run Ralph as described in its documentation, and login to

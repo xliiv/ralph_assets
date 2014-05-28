@@ -8,18 +8,21 @@ from __future__ import unicode_literals
 from django.test import TestCase
 
 from ralph_assets.models_assets import Asset, AssetType, AssetStatus
-from ralph_assets.tests.util import (
-    create_model, create_warehouse, SCREEN_ERROR_MESSAGES,
-    create_category)
+from ralph_assets.tests.util import SCREEN_ERROR_MESSAGES
+from ralph_assets.tests.utils.assets import (
+    AssetCategoryFactory,
+    AssetModelFactory,
+    WarehouseFactory,
+)
 from ralph.ui.tests.global_utils import login_as_su
 
 
 class TestMultivalueFields(TestCase):
     def setUp(self):
         self.client = login_as_su()
-        self.warehouse = create_warehouse()
-        self.category = create_category()
-        self.model = create_model(category=self.category)
+        self.warehouse = WarehouseFactory()
+        self.category = AssetCategoryFactory()
+        self.model = AssetModelFactory(category=self.category)
         self.addform = '/assets/dc/add/device/'
         self.common_test_data = dict(
             type=AssetType.data_center.id,

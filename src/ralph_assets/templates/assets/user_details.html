@@ -59,6 +59,7 @@
                 <th>{% trans "Model" %}</th>
                 <th>{% trans "Sn" %}</th>
                 <th>{% trans "Barcode" %}</th>
+                <th>{% trans "Additional remarks" %}</th>
                 <th>{% trans "Link" %}</th>
             </tr>
         </thead>
@@ -66,11 +67,12 @@
             {% for asset in assigned_assets %}
             <tr>
                 <td>{{ forloop.counter }}</td>
-                <td>{{ asset.category }}</td>
+                <td>{{ asset.model.category }}</td>
                 <td>{{ asset.model.manufacturer }}</td>
                 <td>{{ asset.model }}</td>
                 <td>{{ asset.sn }}</td>
                 <td>{{ asset.barcode }}</td>
+                <td>{{ asset.remarks }}</td>
                 <td>
                     <a href="{% url device_edit mode='back_office' asset_id=asset.id %}">{% trans "go to asset" %}</a>
                 </td>

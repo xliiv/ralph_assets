@@ -6,9 +6,10 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from django.contrib import admin
 from django import forms
+from django.contrib import admin
 from django.core.exceptions import ValidationError
+from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 from lck.django.common.admin import ModelAdmin
@@ -107,9 +108,17 @@ admin.site.register(Asset, AssetAdmin)
 
 class AssetModelAdmin(ModelAdmin):
     save_on_top = True
-    list_display = ('name', 'type', 'category')
+    list_display = ('name', 'type', 'category', 'show_assets_count')
     list_filter = ('type', 'category')
     search_fields = ('name',)
+
+    def queryset(self, request):
+        return AssetModel.objects.annotate(assets_count=Count('asset'))
+
+    def show_assets_count(self, instance):
+        return instance.assets_count
+    show_assets_count.short_description = _('Assets count')
+    show_assets_count.admin_order_field = 'assets_count'
 
 
 admin.site.register(AssetModel, AssetModelAdmin)

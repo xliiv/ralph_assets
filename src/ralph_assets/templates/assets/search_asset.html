@@ -78,6 +78,9 @@
                             {% endif %}
                         </td>
                     {% endif %}
+                    {% if mode == 'back_office' %}
+                        <td>{{row.remarks|default:'-' }}</td>
+                    {% endif %}
                     {% if not asset_hide_action_search %}
                     <td>
                     <div class="btn-group">

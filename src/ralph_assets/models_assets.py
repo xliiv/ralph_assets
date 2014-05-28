@@ -200,11 +200,6 @@ class AssetModel(
         blank=True,
         default=0,
     )
-    height_of_device = models.FloatField(
-        verbose_name="Height of device",
-        blank=True,
-        default=0,
-    )
     type = models.PositiveIntegerField(choices=AssetType(), null=True)
 
     def __unicode__(self):
@@ -393,6 +388,7 @@ class Asset(
     force_deprecation = models.BooleanField(help_text=(
         'Check if you no longer want to bill for this asset'
     ))
+    deprecation_end_date = models.DateField(null=True, blank=True)
     production_year = models.PositiveSmallIntegerField(null=True, blank=True)
     slots = models.FloatField(
         verbose_name='Slots',
@@ -555,9 +551,12 @@ class Asset(
         date = date or datetime.date.today()
         if self.force_deprecation or not self.invoice_date:
             return True
-        deprecation_date = self.invoice_date + relativedelta(
-            months=self.get_deprecation_months(),
-        )
+        if self.deprecation_end_date:
+            deprecation_date = self.deprecation_end_date
+        else:
+            deprecation_date = self.invoice_date + relativedelta(
+                months=self.get_deprecation_months(),
+            )
         return deprecation_date < date
 
     def delete_with_info(self, *args, **kwargs):
@@ -579,10 +578,14 @@ class Asset(
             if self.part_info.device:
                 return self.part_info.device.is_discovered()
             return False
-        dev = self.device_info.get_ralph_device()
-        if not dev or not dev.model:
+        try:
+            dev = self.device_info.get_ralph_device()
+        except AttributeError:
             return False
-        return dev.model.type != DeviceType.unknown.id
+        else:
+            if not dev or not dev.model:
+                return False
+            return dev.model.type != DeviceType.unknown.id
 
     @property
     def url(self):

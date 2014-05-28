@@ -7,10 +7,14 @@ from __future__ import unicode_literals
 
 from django.test import TestCase
 
+from ralph_assets import models_assets
+from ralph_assets.tests.utils.assets import (
+    AssetFactory,
+    AssetCategoryFactory,
+    AssetModelFactory,
+    WarehouseFactory,
+)
 from ralph_assets.tests.util import (
-    create_asset,
-    create_category,
-    create_model,
     SCREEN_ERROR_MESSAGES,
     get_bulk_edit_post_data,
 )
@@ -25,19 +29,17 @@ class TestValidations(TestCase):
 
     def setUp(self):
         self.client = login_as_su()
-        self.category = create_category()
-        self.model = create_model(category=self.category)
-        self.first_asset = create_asset(
-            sn='1234-1234-1234-1234',
+        self.category = AssetCategoryFactory()
+        self.model = AssetModelFactory(category=self.category)
+        self.warehouse = WarehouseFactory()
+        self.first_asset = AssetFactory(
             model=self.model,
         )
-        self.second_asset = create_asset(
-            sn='5678-5678-5678-5678',
+        self.second_asset = AssetFactory(
             model=self.model,
         )
 
-        self.asset_with_duplicated_sn = create_asset(
-            sn='1111-1111-1111-1111',
+        self.asset_with_duplicated_sn = AssetFactory(
             model=self.model,
         )
 
@@ -47,7 +49,7 @@ class TestValidations(TestCase):
             ('asset_form', 'warehouse'),
         ]
 
-        self.model1 = create_model()
+        self.model1 = AssetModelFactory()
 
     def test_try_send_empty_add_form(self):
         send_post = self.client.post(
@@ -104,7 +106,7 @@ class TestValidations(TestCase):
         post_data = get_bulk_edit_post_data(
             {
                 'invoice_date': 'wrong_field_data',
-                'sn': '1111-1111-1111-1111',
+                'sn': self.asset_with_duplicated_sn.sn,
             },
             {
                 'invoice_date': '',
@@ -165,3 +167,40 @@ class TestValidations(TestCase):
         # if sn was duplicated, the message should be shown on the screen
         msg = SCREEN_ERROR_MESSAGES['duplicated_sn_or_bc']
         self.assertTrue(msg in send_post_with_empty_fields.content)
+
+    def test_add_part(self):
+        """
+        1. Add part
+        2. Add part again (with the same SN)
+        3. Check that error message about existing SN is shown
+        """
+        required_part_data = {
+            'type': 101,
+            'model': self.model.id,
+            'warehouse': self.warehouse.id,
+            'sn': 'sn',
+            'deprecation_rate': '5',
+        }
+        send_post = self.client.post(
+            '/assets/back_office/add/part/',
+            required_part_data,
+        )
+        self.assertEqual(send_post.status_code, 302)
+
+        send_post = self.client.post(
+            '/assets/back_office/add/part/',
+            required_part_data,
+        )
+        self.assertEqual(send_post.status_code, 200)
+        inserted_device = models_assets.Asset.objects.filter(
+            sn=required_part_data['sn']
+        ).get()
+        expected = (
+            'Following items already exist: <a href="'
+            '/assets/back_office/edit/device/{id}/">{id}</a>'.format(
+                id=inserted_device.id
+            )
+        )
+        self.assertEqual(
+            send_post.context['asset_form'].errors['sn'][0], expected
+        )

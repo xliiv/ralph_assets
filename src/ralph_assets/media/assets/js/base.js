@@ -42,7 +42,9 @@
         var ids = this.get_ids();
         var selected_all_pages = $('.selected-assets-info-box').data('selected');
         if (selected_all_pages) {
-            window.location.href = 'bulkedit' + window.location.search + '&from_query=1';
+            var search = window.location.search;
+            search += search ? "&" : "?";
+            window.location.href = 'bulkedit' + search + 'from_query=1';
         } else if (ids.length) {
             window.location.href = 'bulkedit?select=' + ids.join('&select=');
         }
