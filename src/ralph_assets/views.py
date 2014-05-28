@@ -6,7 +6,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import logging
-import re
 
 from collections import Counter
 from bob.data_table import DataTableColumn, DataTableMixin
@@ -62,6 +61,7 @@ from ralph_assets.models_assets import (
     ASSET_TYPE2MODE,
 )
 from ralph_assets.models_history import AssetHistoryChange
+from ralph_assets.views_search import AssetsSearchQueryableMixin
 from ralph.business.models import Venture
 from ralph.ui.views.common import Base
 from ralph.util.api_assets import get_device_components
@@ -72,8 +72,6 @@ HISTORY_PAGE_SIZE = 25
 MAX_PAGE_SIZE = 65535
 MAX_BULK_EDIT_SIZE = 40
 
-QUOTATION_MARKS = re.compile(r"^\".+\"$")
-SEARCH_DELIMITERS = re.compile(r";|\|")
 
 logger = logging.getLogger(__name__)
 
@@ -142,15 +140,6 @@ class AssetsBase(Base):
                 href=reverse('user_list'),
             ),
         ]
-        if 'ralph_pricing' in settings.INSTALLED_APPS:
-            mainmenu.append(
-                MenuItem(
-                    label='Scrooge',
-                    fugue_icon='fugue-money-coin',
-                    name='scrooge',
-                    href='/scrooge/all-ventures/',
-                ),
-            )
         return mainmenu
 
     def get_sidebar_items(self, base_sidebar_caption):
@@ -301,7 +290,7 @@ class GenericSearch(Report, AssetsBase, DataTableMixin):
         return query_set.all()
 
 
-class _AssetSearch(AssetsBase):
+class _AssetSearch(AssetsSearchQueryableMixin, AssetsBase):
 
     def set_mode(self, mode):
         self.header = 'Search {} Assets'.format(
@@ -347,207 +336,6 @@ class _AssetSearch(AssetsBase):
             for field in fields:
                 q |= Q(**{field: value})
         return q
-
-    def handle_search_data(self, *args, **kwargs):
-        search_fields = [
-            'id',
-            'niw',
-            'category',
-            'invoice_no',
-            'model',
-            'order_no',
-            'part_info',
-            'provider',
-            'sn',
-            'status',
-            'deleted',
-            'manufacturer',
-            'barcode',
-            'device_info',
-            'source',
-            'deprecation_rate',
-            'unlinked',
-            'ralph_device_id',
-            'task_url',
-            'imei',
-            'guardian',
-            'owner',
-            'location',
-            'company',
-            'employee_id',
-            'cost_center',
-            'profit_center',
-            'department',
-            'user',
-            'purpose',
-            'service_name',
-            'warehouse',
-        ]
-        # handle simple 'equals' search fields at once.
-        all_q = Q()
-        for field in search_fields:
-            field_value = self.request.GET.get(field)
-            if field_value:
-                exact = False
-                multi = False
-                # if search term is enclosed in "", we want exact matches
-                if isinstance(field_value, basestring) and \
-                        QUOTATION_MARKS.search(field_value):
-                    exact = True
-                    field_value = field_value[1:-1]
-                elif re.search(SEARCH_DELIMITERS, field_value):
-                    multi = True
-                if field == 'part_info':
-                    if field_value == 'device':
-                        all_q &= Q(part_info__isnull=True)
-                    elif field_value == 'part':
-                        all_q &= Q(part_info__gte=0)
-                elif field == 'model':
-                    if exact:
-                        all_q &= Q(model__name=field_value)
-                    else:
-                        all_q &= Q(model__name__icontains=field_value)
-                elif field == 'category':
-                    part = self.get_search_category_part(field_value)
-                    if part:
-                        all_q &= part
-                elif field == 'deleted':
-                    if field_value.lower() == 'on':
-                        all_q &= Q(deleted__in=(True, False))
-                elif field == 'manufacturer':
-                    if exact:
-                        all_q &= Q(model__manufacturer__name=field_value)
-                    else:
-                        all_q &= Q(
-                            model__manufacturer__name__icontains=field_value
-                        )
-                elif field == 'barcode':
-                    if exact:
-                        all_q &= Q(barcode=field_value)
-                    elif multi:
-                        all_q &= self._search_fields_or(
-                            ['barcode'],
-                            re.split(SEARCH_DELIMITERS, field_value),
-                        )
-                    else:
-                        all_q &= Q(barcode__contains=field_value)
-                elif field == 'sn':
-                    if exact:
-                        all_q &= Q(sn=field_value)
-                    elif multi:
-                        all_q &= self._search_fields_or(
-                            ['sn'],
-                            re.split(SEARCH_DELIMITERS, field_value),
-                        )
-                    else:
-                        all_q &= Q(sn__icontains=field_value)
-                elif field == 'niw':
-                    if exact:
-                        all_q &= Q(niw=field_value)
-                    elif multi:
-                        all_q &= self._search_fields_or(
-                            ['niw'],
-                            re.split(SEARCH_DELIMITERS, field_value),
-                        )
-                    else:
-                        all_q &= Q(niw__icontains=field_value)
-                elif field == 'provider':
-                    if exact:
-                        all_q &= Q(provider=field_value)
-                    else:
-                        all_q &= Q(provider__icontains=field_value)
-                elif field == 'order_no':
-                    if exact:
-                        all_q &= Q(order_no=field_value)
-                    else:
-                        all_q &= Q(order_no__icontains=field_value)
-                elif field == 'invoice_no':
-                    if exact:
-                        all_q &= Q(invoice_no=field_value)
-                    else:
-                        all_q &= Q(invoice_no__icontains=field_value)
-                elif field == 'warehouse':
-                    all_q &= Q(warehouse__id=field_value)
-                elif field == 'owner':
-                    all_q &= Q(owner__id=field_value)
-                elif field == 'location':
-                    all_q &= Q(location__icontains=field_value)
-                elif field == 'employee_id':
-                    all_q &= Q(owner__profile__employee_id=field_value)
-                elif field == 'company':
-                    all_q &= Q(owner__profile__company__icontains=field_value)
-                elif field == 'profit_center':
-                    all_q &= Q(owner__profile__profit_center=field_value)
-                elif field == 'cost_center':
-                    all_q &= Q(owner__profile__cost_center=field_value)
-                elif field == 'department':
-                    all_q &= Q(
-                        owner__profile__department__icontains=field_value
-                    )
-                elif field == 'user':
-                    all_q &= Q(user__id=field_value)
-                elif field == 'guardian':
-                    all_q &= Q(guardian__id=field_value)
-                elif field == 'deprecation_rate':
-                    deprecation_rate_query_map = {
-                        'null': Q(deprecation_rate__isnull=True),
-                        'deprecated': Q(deprecation_rate=0),
-                        '6': Q(deprecation_rate__gt=0,
-                               deprecation_rate__lte=6),
-                        '12': Q(deprecation_rate__gt=6,
-                                deprecation_rate__lte=12),
-                        '24': Q(deprecation_rate__gt=12,
-                                deprecation_rate__lte=24),
-                        '48': Q(deprecation_rate__gt=24,
-                                deprecation_rate__lte=48),
-                        '48<': Q(deprecation_rate__gt=48),
-                    }
-                    all_q &= deprecation_rate_query_map[field_value]
-                elif field == 'unlinked' and field_value.lower() == 'on':
-                        all_q &= ~Q(device_info=None)
-                        all_q &= Q(device_info__ralph_device_id=None)
-                elif field == 'ralph_device_id':
-                    if exact:
-                        all_q &= Q(device_info__ralph_device_id=field_value)
-                    else:
-                        all_q &= Q(
-                            device_info__ralph_device_id__icontains=field_value
-                        )
-                elif field == 'task_url':
-                    if exact:
-                        all_q &= Q(task_url=field_value)
-                    else:
-                        all_q &= Q(task_url__icontains=field_value)
-                elif field == 'id':
-                        all_q &= Q(
-                            id__in=[int(id) for id in field_value.split(",")],
-                        )
-                elif field == 'imei':
-                    if exact:
-                        all_q &= Q(office_info__imei=field_value)
-                    else:
-                        all_q &= Q(office_info__imei__icontains=field_value)
-                elif field == 'service_name':
-                    all_q &= Q(service_name=field_value)
-                elif field == 'purpose':
-                    all_q &= Q(office_info__purpose=field_value)
-                else:
-                    q = Q(**{field: field_value})
-                    all_q = all_q & q
-
-        # now fields within ranges.
-        search_date_fields = [
-            'invoice_date', 'request_date', 'delivery_date',
-            'production_use_date', 'provider_order_date', 'loan_end_date',
-        ]
-        for date in search_date_fields:
-            start = self.request.GET.get(date + '_from')
-            end = self.request.GET.get(date + '_to')
-            if start:
-                all_q &= Q(**{date + '__gte': start})
-            if end:
-                all_q &= Q(**{date + '__lte': end})
-        return all_q
 
 
 class _AssetSearchDataTable(_AssetSearch, DataTableMixin):
@@ -608,6 +396,9 @@ class _AssetSearchDataTable(_AssetSearch, DataTableMixin):
               bob_tag=True, export=True),
             _('Order no.', field='order_no', sort_expression='order_no',
               bob_tag=True, export=True, show_conditions=show_dc),
+            _('Additional remarks', field='remarks',
+              sort_expression='remarks', bob_tag=True, export=True,
+              show_conditions=show_back_office),
             _('Price', field='price', sort_expression='price',
               bob_tag=True, export=True, show_conditions=show_dc),
             _('Venture', field='venture', sort_expression='venture',
@@ -1005,9 +796,20 @@ class EditDevice(AssetsBase):
     template_name = 'assets/edit_device.html'
     sidebar_selected = 'edit device'
 
-    def initialize_vars(self):
-        self.parts = []
-        self.asset = None
+    def initialize_vars(self, *args, **kwargs):
+        self.asset = get_object_or_404(
+            Asset.admin_objects,
+            id=kwargs.get('asset_id'),
+        )
+        self.parts = Asset.objects.filter(part_info__device=self.asset)
+        device_form_class = self.form_dispatcher('EditDevice')
+        self.asset_form = device_form_class(
+            self.request.POST or None,
+            instance=self.asset,
+            mode=self.mode,
+        )
+        self.part_form = MoveAssetPartForm(self.request.POST or None)
+        self._set_additional_info_form()
 
     def get_context_data(self, **kwargs):
         ret = super(EditDevice, self).get_context_data(**kwargs)
@@ -1017,7 +819,7 @@ class EditDevice(AssetsBase):
         ret.update({
             'asset_form': self.asset_form,
             'additional_info': self.additional_info,
-            'part_form': MoveAssetPartForm(),
+            'part_form': self.part_form,
             'form_id': 'edit_device_asset_form',
             'edit_mode': True,
             'status_history': status_history,
@@ -1080,34 +882,13 @@ class EditDevice(AssetsBase):
                         )
 
     def get(self, *args, **kwargs):
-        self.initialize_vars()
-        self.asset = get_object_or_404(
-            Asset.admin_objects,
-            id=kwargs.get('asset_id')
-        )
-        device_form_class = self.form_dispatcher('EditDevice')
-        self.asset_form = device_form_class(
-            instance=self.asset, mode=self.mode
-        )
-        self._set_additional_info_form()
-        self.parts = Asset.objects.filter(part_info__device=self.asset)
+        self.initialize_vars(*args, **kwargs)
         return super(EditDevice, self).get(*args, **kwargs)
 
     def post(self, *args, **kwargs):
-        self.initialize_vars()
         post_data = self.request.POST
-        self.asset = get_object_or_404(
-            Asset.admin_objects,
-            id=kwargs.get('asset_id')
-        )
-        device_form_class = self.form_dispatcher('EditDevice')
-        self.asset_form = device_form_class(
-            post_data,
-            instance=self.asset,
-            mode=self.mode,
-        )
-        self._set_additional_info_form()
-        self.part_form = MoveAssetPartForm(post_data)
+        self.initialize_vars(*args, **kwargs)
+        self.part_form = MoveAssetPartForm(post_data or None)
         if 'move_parts' in post_data.keys():
             destination_asset = post_data.get('new_asset')
             if not destination_asset or not Asset.objects.filter(
@@ -1123,11 +904,19 @@ class EditDevice(AssetsBase):
                     _("You can't move parts to the same device"),
                 )
             else:
-                for part_id in post_data.get('part_ids'):
-                    info_part = PartInfo.objects.get(asset=part_id)
-                    info_part.device_id = destination_asset
-                    info_part.save()
-                messages.success(self.request, _("Selected parts was moved."))
+                if post_data.getlist('part_ids'):
+                    for part_id in post_data.getlist('part_ids'):
+                        info_part = PartInfo.objects.get(asset=part_id)
+                        info_part.device_id = destination_asset
+                        info_part.save()
+                    messages.success(
+                        self.request, _("Selected parts was moved."),
+                    )
+                    self.part_form = MoveAssetPartForm()
+                else:
+                    messages.error(
+                        self.request, _("Please select one or more parts."),
+                    )
         elif 'asset' in post_data.keys():
             if all((
                 self.asset_form.is_valid(),

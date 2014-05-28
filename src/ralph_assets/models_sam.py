@@ -28,6 +28,7 @@ from ralph_assets.models_assets import (
     AssetType,
     ASSET_TYPE2MODE,
     CreatableFromString,
+    Service,
 )
 from ralph_assets.models_util import WithForm
 from ralph.discovery.models_util import SavingUser
@@ -98,10 +99,11 @@ class Licence(
         verbose_name=_('Parent licence'),
     )
     niw = models.CharField(
-        max_length=50,
+        max_length=200,
         verbose_name=_('Inventory number'),
         null=False,
         unique=True,
+        default='N/A',
     )
     invoice_date = models.DateField(
         verbose_name=_('Invoice date'),
@@ -142,6 +144,15 @@ class Licence(
     invoice_no = models.CharField(
         max_length=128, db_index=True, null=True, blank=True
     )
+    remarks = models.CharField(
+        verbose_name=_('Additional remarks'),
+        max_length=1024,
+        null=True,
+        blank=True,
+        default=None,
+    )
+    service_name = models.ForeignKey(Service, null=True, blank=True)
+
     _used = None
 
     def __unicode__(self):

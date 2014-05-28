@@ -5,12 +5,12 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from django.template.defaultfilters import slugify
-
 from random import randint
 
+from django.template.defaultfilters import slugify
+
+from ralph_assets import models_assets
 from ralph_assets.models_assets import (
-    Asset,
     AssetCategory,
     AssetCategoryType,
     AssetModel,
@@ -23,6 +23,13 @@ from ralph_assets.models_assets import (
 )
 
 import cgi
+import warnings
+
+
+with warnings.catch_warnings():
+    warnings.simplefilter('default', DeprecationWarning)
+    warnings.warn('Please use factories from tests.utils.', DeprecationWarning)
+
 
 DEFAULT_ASSET_DATA = dict(
     manufacturer='Manufacturer1',
@@ -34,7 +41,16 @@ DEFAULT_ASSET_DATA = dict(
     status=AssetStatus.new,
     source=AssetSource.shipment,
     category='Category1',
+    asset_owner='AssetOwner',
+    service_name='ServiceName',
 )
+
+DEFAULT_BO_VALUE = {
+    'license_key': 'bo-license-key',
+    'coa_number': 'bo-coa-number',
+    'imei': '1' * 15,
+    'purpose': models_assets.AssetPurpose.others,
+}
 
 SCREEN_ERROR_MESSAGES = dict(
     duplicated_sn_or_bc=cgi.escape((
@@ -97,26 +113,41 @@ def create_device(size=1):
 
 
 def create_asset(sn, **kwargs):
-    if not kwargs.get('type'):
-        kwargs.update(type=DEFAULT_ASSET_DATA['type'])
+    for field in ['status', 'source', 'type']:
+        if field not in kwargs:
+            kwargs[field] = DEFAULT_ASSET_DATA[field]
     if not kwargs.get('model'):
         kwargs.update(model=create_model())
     if not kwargs.get('device_info'):
         kwargs.update(device_info=create_device())
-    if not kwargs.get('status'):
-        kwargs.update(status=DEFAULT_ASSET_DATA['status'])
-    if not kwargs.get('source'):
-        kwargs.update(source=DEFAULT_ASSET_DATA['source'])
     if not kwargs.get('support_period'):
         kwargs.update(support_period=24)
     if not kwargs.get('support_type'):
         kwargs.update(support_type='standard')
     if not kwargs.get('warehouse'):
         kwargs.update(warehouse=create_warehouse())
-    kwargs.update(sn=sn)
-    asset = Asset(**kwargs)
-    asset.save()
-    return asset
+    db_object, created = models_assets.Asset.objects.get_or_create(
+        sn=sn, defaults=kwargs,
+    )
+    return db_object
+
+
+def create_bo_asset(sn, **kwargs):
+    """
+    Creates asset with office_info data included in kwargs or with defaults
+    """
+    bo_data = {}
+    for bo_field in ['license_key', 'coa_number', 'imei', 'purpose']:
+        if bo_field in kwargs:
+            bo_value = kwargs.pop(bo_field)
+        else:
+            bo_value = DEFAULT_BO_VALUE[bo_field]
+        bo_data[bo_field] = bo_value
+    bo_info = models_assets.OfficeInfo(**bo_data)
+    bo_info.save()
+    kwargs['office_info'] = bo_info
+    db_object = create_asset(sn, **kwargs)
+    return db_object
 
 
 def create_category(type='data_center', name=DEFAULT_ASSET_DATA['category']):
@@ -162,36 +193,36 @@ def get_bulk_edit_post_data_part(*args, **kwargs):
         warehouse_id = warehouse.id
 
     return {
-        'form-{0}-id'.format(id-1): id,
-        'form-{0}-type'.format(id-1):
+        'form-{0}-id'.format(id - 1): id,
+        'form-{0}-type'.format(id - 1):
         kwargs.get('type', AssetType.data_center.id),
-        'form-{0}-model'.format(id-1): model_id,
-        'form-{0}-invoice_no'.format(id-1):
+        'form-{0}-model'.format(id - 1): model_id,
+        'form-{0}-invoice_no'.format(id - 1):
         kwargs.get('invoice_no', 'Invoice No0'),
-        'form-{0}-invoice_date'.format(id-1):
+        'form-{0}-invoice_date'.format(id - 1):
         kwargs.get('invoice_date', '2014-01-01'),
-        'form-{0}-order_no'.format(id-1):
+        'form-{0}-order_no'.format(id - 1):
         kwargs.get('order_no', 'Order No0'),
-        'form-{0}-sn'.format(id-1): sn,
-        'form-{0}-barcode'.format(id-1): barcode,
-        'form-{0}-support_period'.format(id-1):
+        'form-{0}-sn'.format(id - 1): sn,
+        'form-{0}-barcode'.format(id - 1): barcode,
+        'form-{0}-support_period'.format(id - 1):
         kwargs.get('support_period', 24),
-        'form-{0}-support_type'.format(id-1):
+        'form-{0}-support_type'.format(id - 1):
         kwargs.get('support_type', 'standard0'),
-        'form-{0}-support_void_reporting'.format(id-1):
+        'form-{0}-support_void_reporting'.format(id - 1):
         kwargs.get('support_void_reporting', 'on'),
-        'form-{0}-provider'.format(id-1):
+        'form-{0}-provider'.format(id - 1):
         kwargs.get('provider', 'Provider 0'),
-        'form-{0}-status'.format(id-1):
+        'form-{0}-status'.format(id - 1):
         kwargs.get('status', AssetStatus.in_progress.id),
-        'form-{0}-source'.format(id-1):
+        'form-{0}-source'.format(id - 1):
         kwargs.get('source', AssetSource.shipment.id),
-        'form-{0}-ralph_device_id'.format(id-1):
+        'form-{0}-ralph_device_id'.format(id - 1):
         kwargs.get('ralph_device_id', ''),
-        'form-{0}-price'.format(id-1):
+        'form-{0}-price'.format(id - 1):
         kwargs.get('price', 10),
-        'form-{0}-warehouse'.format(id-1): warehouse_id,
-        'form-{0}-deprecation_rate'.format(id-1):
+        'form-{0}-warehouse'.format(id - 1): warehouse_id,
+        'form-{0}-deprecation_rate'.format(id - 1):
         kwargs.get('deprecation_rate', 25),
     }
 
@@ -206,3 +237,30 @@ def get_bulk_edit_post_data(*args, **kwargs):
         data['id'] = i + 1
         post_data.update(get_bulk_edit_post_data_part(**data))
     return post_data
+
+
+def create_user(username='user', defaults=None):
+    if not defaults:
+        defaults = {
+            'username': username,
+            'email': 'user@test.local',
+            'is_staff': False,
+            'first_name': 'Elmer',
+            'last_name': 'Stevens',
+        }
+    db_object, created = models_assets.User.objects.get_or_create(
+        username=username, defaults=defaults,
+    )
+    return db_object
+
+
+def create_service(name=DEFAULT_ASSET_DATA['service_name']):
+    db_object, created = models_assets.Service.objects.get_or_create(name=name)
+    return db_object
+
+
+def create_asset_owner(name=DEFAULT_ASSET_DATA['asset_owner']):
+    db_object, created = models_assets.AssetOwner.objects.get_or_create(
+        name=name,
+    )
+    return db_object

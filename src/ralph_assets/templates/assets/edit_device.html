@@ -58,7 +58,7 @@
             <tr>
                 <td><input type="checkbox" name="part_ids" value="{{ part.id }}"></td>
                 <td><a href="{% url part_edit mode=mode asset_id=part.id %}">{{ part }}</a></td>
-                <td><a href="{% url device_edit mode=mode asset_id=part.part_info.source_device.id %}">{{ part.part_info.source_device|default:'-'}}</a></td>
+                <td><a href="{% if part.part_info.source_device %}{% url device_edit mode=mode asset_id=part.part_info.source_device.id %}{% endif %}">{{ part.part_info.source_device|default:'-'}}</a></td>
                 <td>{{ part.user|default:'-'}}</td>
             </tr>
         {% endfor %}

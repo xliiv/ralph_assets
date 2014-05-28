@@ -9,7 +9,8 @@ from django.test import TestCase
 
 import datetime
 
-from ralph_assets.tests.util import create_asset, create_model
+from ralph_assets.tests.util import create_model
+from ralph_assets.tests.utils.assets import AssetFactory
 from ralph_assets.models_assets import AssetStatus
 from ralph.ui.tests.global_utils import login_as_su
 
@@ -21,7 +22,7 @@ class TestSearchForm(TestCase):
     """
     def setUp(self):
         self.client = login_as_su()
-        self.first_asset = create_asset(
+        self.first_asset = AssetFactory(
             invoice_no='Invoice No1',
             order_no='Order No2',
             invoice_date=datetime.date(2001, 1, 1),
@@ -31,7 +32,7 @@ class TestSearchForm(TestCase):
             barcode='bc1',
         )
 
-        self.second_asset = create_asset(
+        self.second_asset = AssetFactory(
             invoice_no='Invoice No2',
             order_no='Order No1',
             invoice_date=datetime.date(2001, 1, 1),
@@ -43,7 +44,7 @@ class TestSearchForm(TestCase):
 
         asset_model = create_model(name='Model2')
         asset_status = AssetStatus.used.id
-        self.third_asset = create_asset(
+        self.third_asset = AssetFactory(
             model=asset_model,
             invoice_no='Invoice No1',
             order_no='Order No1',
@@ -56,8 +57,6 @@ class TestSearchForm(TestCase):
         )
 
     def test_model_field(self):
-        self.assertEqual(self.first_asset.model.name, 'Model1')
-
         url = '/assets/dc/search?model=%s' % self.first_asset.model.name
         content = self.client.get(url)
         self.assertEqual(content.status_code, 200)
@@ -68,7 +67,7 @@ class TestSearchForm(TestCase):
         # Test if search form find correct data
         self.assertItemsEqual(
             [asset.model.name for asset in rows_from_table],
-            ['Model1', 'Model1']
+            [self.first_asset.model.name, self.second_asset.model.name]
         )
         self.assertItemsEqual(
             [asset.sn for asset in rows_from_table],
@@ -195,17 +194,17 @@ class TestSearchForm(TestCase):
 class TestSearchInvoiceDateFields(TestCase):
     def setUp(self):
         self.client = login_as_su()
-        self.first_asset = create_asset(
+        self.first_asset = AssetFactory(
             invoice_date=datetime.date(2001, 1, 1),
             sn='1234-1234-1234-1234',
         )
 
-        self.second_asset = create_asset(
+        self.second_asset = AssetFactory(
             invoice_date=datetime.date(2002, 1, 1),
             sn='1235-1235-1235-1235',
         )
 
-        self.third_asset = create_asset(
+        self.third_asset = AssetFactory(
             invoice_date=datetime.date(2003, 1, 1),
             sn='1236-1236-1236-1236',
         )
@@ -268,17 +267,17 @@ class TestSearchProviderDateFields(TestCase):
         self.client = login_as_su()
         self.base_url = '/assets/dc/search'
 
-        self.first_asset = create_asset(
+        self.first_asset = AssetFactory(
             provider_order_date=datetime.date(2001, 1, 1),
             sn='1234-1234-1234-1234',
         )
 
-        self.second_asset = create_asset(
+        self.second_asset = AssetFactory(
             provider_order_date=datetime.date(2002, 1, 1),
             sn='1235-1235-1235-1235',
         )
 
-        self.third_asset = create_asset(
+        self.third_asset = AssetFactory(
             provider_order_date=datetime.date(2003, 1, 1),
             sn='1236-1236-1236-1236',
         )
@@ -340,17 +339,17 @@ class TestSearchDeliveryDateFields(TestCase):
     def setUp(self):
         self.client = login_as_su()
 
-        self.first_asset = create_asset(
+        self.first_asset = AssetFactory(
             delivery_date=datetime.date(2001, 1, 1),
             sn='1234-1234-1234-1234',
         )
 
-        self.second_asset = create_asset(
+        self.second_asset = AssetFactory(
             delivery_date=datetime.date(2002, 1, 1),
             sn='1235-1235-1235-1235',
         )
 
-        self.third_asset = create_asset(
+        self.third_asset = AssetFactory(
             delivery_date=datetime.date(2003, 1, 1),
             sn='1236-1236-1236-1236',
         )
@@ -412,17 +411,17 @@ class TestSearchRequestDateFields(TestCase):
     def setUp(self):
         self.client = login_as_su()
 
-        self.first_asset = create_asset(
+        self.first_asset = AssetFactory(
             request_date=datetime.date(2001, 1, 1),
             sn='1234-1234-1234-1234',
         )
 
-        self.second_asset = create_asset(
+        self.second_asset = AssetFactory(
             request_date=datetime.date(2002, 1, 1),
             sn='1235-1235-1235-1235',
         )
 
-        self.third_asset = create_asset(
+        self.third_asset = AssetFactory(
             request_date=datetime.date(2003, 1, 1),
             sn='1236-1236-1236-1236',
         )
@@ -485,17 +484,17 @@ class TestSearchProductionUseDateFields(TestCase):
         self.client = login_as_su()
         self.base_url = '/assets/dc/search'
 
-        self.first_asset = create_asset(
+        self.first_asset = AssetFactory(
             production_use_date=datetime.date(2001, 1, 1),
             sn='1234-1234-1234-1234',
         )
 
-        self.second_asset = create_asset(
+        self.second_asset = AssetFactory(
             production_use_date=datetime.date(2002, 1, 1),
             sn='1235-1235-1235-1235',
         )
 
-        self.third_asset = create_asset(
+        self.third_asset = AssetFactory(
             production_use_date=datetime.date(2003, 1, 1),
             sn='1236-1236-1236-1236',
         )

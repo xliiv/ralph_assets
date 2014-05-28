@@ -26,6 +26,7 @@ from ralph_assets.models import (
 )
 from ralph_assets.views import _get_return_link, GenericSearch
 from ralph_assets.views_sam import LicenseSelectedMixin
+from ralph_assets.views_search import AssetsSearchQueryableMixin
 
 
 logger = logging.getLogger(__name__)
@@ -153,7 +154,7 @@ class BaseInvoiceReport(GenericSearch):
         return data
 
 
-class AssetInvoiceReport(BaseInvoiceReport):
+class AssetInvoiceReport(AssetsSearchQueryableMixin, BaseInvoiceReport):
 
     def get_all_items(self, *args, **kwargs):
         if self.request.GET.get('from_query'):

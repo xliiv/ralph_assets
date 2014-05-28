@@ -118,7 +118,7 @@ urlpatterns = patterns(
         name='part_history'),
     url(r'(?P<mode>(back_office|dc))/bulkedit/$',
         login_required(BulkEdit.as_view()),
-        name='dc'),
+        name='bulkedit'),
     url(r'(?P<mode>(back_office|dc))/delete/asset/$',
         login_required(DeleteAsset.as_view()),
         name='dc'),
