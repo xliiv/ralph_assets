@@ -10,6 +10,7 @@ import cStringIO
 import textwrap
 
 from django.core.management.base import BaseCommand
+from django.utils.encoding import smart_str
 from optparse import make_option
 
 from ralph_assets.others import get_assets_rows, get_licences_rows
@@ -65,13 +66,9 @@ class Command(BaseCommand):
         writer = csv.writer(output)
         if only_assets and not only_licences:
             for row in get_assets_rows(filter_type):
-                writer.writerow(
-                    [unicode(item).encode("utf-8") for item in row if item]
-                )
+                writer.writerow([smart_str(item) for item in row if item])
             self.stdout.write(output.getvalue())
         elif only_licences and not only_assets:
             for row in get_licences_rows(filter_type, only_assigned_licences):
-                writer.writerow(
-                    [unicode(item).encode("utf-8") for item in row]
-                )
+                writer.writerow([smart_str(item) for item in row])
             self.stdout.write(output.getvalue())

@@ -5,6 +5,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from django.utils.encoding import smart_str
+
 from ralph_assets.models import Asset, Licence
 from ralph_assets.models_assets import MODE2ASSET_TYPE
 
@@ -88,12 +90,18 @@ def get_licences_rows(filter_type='all', only_assigned=False):
         for asset in licence.assets.all().values(*LICENCES_ASSETS_COLUMNS):
             row = []
             row = [
-                str(asset.get(column)) for column in LICENCES_ASSETS_COLUMNS
+                smart_str(
+                    asset.get(column),
+                ) for column in LICENCES_ASSETS_COLUMNS
             ]
             yield base_row + row + fill_empty_assets + fill_empty_licences
         for user in licence.users.all().values(*LICENCES_USERS_COLUMNS):
             row = []
-            row = [str(user.get(column)) for column in LICENCES_USERS_COLUMNS]
+            row = [
+                smart_str(
+                    user.get(column),
+                ) for column in LICENCES_USERS_COLUMNS
+            ]
             yield base_row + fill_empty_assets + row + [single_licence_cost]
 
 
