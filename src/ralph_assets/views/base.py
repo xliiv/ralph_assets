@@ -37,7 +37,7 @@ class ACLGateway(Base):
     """
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.has_perm(Perm.has_assets_access):
+        if not request.user.get_profile().has_perm(Perm.has_assets_access):
             raise PermissionDenied
         return super(ACLGateway, self).dispatch(request, *args, **kwargs)
 
