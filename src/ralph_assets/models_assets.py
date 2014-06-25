@@ -604,6 +604,11 @@ class Asset(
         return super(Asset, self).delete(*args, **kwargs)
 
     @property
+    def type_name(self):
+        type_name = AssetType.NameFromID(self.type)
+        return type_name
+
+    @property
     def is_discovered(self):
         if self.part_info:
             if self.part_info.device:

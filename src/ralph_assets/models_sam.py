@@ -177,6 +177,11 @@ class Licence(
         )
 
     @property
+    def asset_type_name(self):
+        asset_type_name = AssetType.NameFromID(self.asset_type)
+        return asset_type_name
+
+    @property
     def url(self):
         return reverse('edit_licence', kwargs={
             'licence_id': self.id,
