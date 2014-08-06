@@ -21,7 +21,6 @@ from django.views.generic import TemplateView
 from inkpy.api import generate_pdf
 from lck.django.common import nested_commit_on_success
 
-
 from ralph_assets import signals
 from ralph_assets.forms_transitions import TransitionForm
 from ralph_assets.models import ReportOdtSource, Transition, TransitionsHistory

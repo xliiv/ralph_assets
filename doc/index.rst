@@ -1,5 +1,5 @@
-Overview
---------
+Ralph Assets
+------------
 
 The Ralph Assets module brings offline stock management functionality to Ralph.
 It maintains placing orders, purchasing and releasing of devices to the users.
@@ -11,11 +11,6 @@ In this module, you can also manage licenses and supports.
 Ralph is an asset management system for your data center. It lets you see what
 hardware and software is installed. It also lets you keep track of who is using
 every device, for what, and how much it costs.
-
-Assets
-------
-
-See: quickstart.rst and installation.rst
 
 .. toctree::
    :maxdepth: 2

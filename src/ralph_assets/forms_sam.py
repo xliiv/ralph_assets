@@ -120,7 +120,7 @@ class LicenceForm(forms.ModelForm):
         )
     )
     assets = AutoCompleteSelectMultipleField(
-        LOOKUPS['asset'], required=False, label=_('Assigned Assets')
+        LOOKUPS['linked_device'], required=False, label=_('Assigned Assets')
     )
     users = AutoCompleteSelectMultipleField(
         LOOKUPS['asset_user'], required=False, label=_('Assigned Users')
