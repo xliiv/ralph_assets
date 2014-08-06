@@ -1,6 +1,25 @@
 Change Log
 ----------
 
+dev
+~~~~~~~~~
+
+* assets in license forms are autocompleted by device's hostname
+
+2.1.0
+~~~~~~~~~
+Released on August 1, 2014
+
+* Added new reports feature,
+* New change-hostname transition,
+* Transitions send signals,
+* Updated documentation,
+* Updated api_ralph (assigned supports),
+* Expired information in support lookup,
+* Removed useless fields from BackOffice edit form,
+* Bugfix - wrong order in exported CSV in Assets,
+
+
 2.0.2-rc3
 ~~~~~~~~~
 Released on July 9, 2014
