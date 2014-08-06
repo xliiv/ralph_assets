@@ -6,10 +6,12 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import datetime
+import tempfile
 import uuid
 from decimal import Decimal
-from dj.choices import Country
+from urllib import urlencode
 
+from dj.choices import Country
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -860,6 +862,105 @@ class TestSupportsView(BaseViewsTest):
             self._assert_field_in_form(form_url, required_fields)
 
 
+class TestAttachments(BaseViewsTest):
+    """This test case concern all attachments views."""
+
+    def setUp(self):
+        self.client = login_as_su()
+
+    def test_cant_add_empty_attachment(self):
+        """
+        create asset a1
+        send post with blank file
+        assert that message about blank error exists
+        """
+        parent = BOAssetFactory()
+        add_attachment_url = reverse('add_attachment', kwargs={
+            'mode': 'back_office',
+            'parent': 'asset',
+        })
+        full_url = "{}?{}".format(
+            add_attachment_url,
+            urlencode({'select': obj.id for obj in [parent]}),
+        )
+        with tempfile.TemporaryFile() as test_file:
+            data = {
+                "form-TOTAL_FORMS": 1,
+                "form-INITIAL_FORMS": 1,
+                "form-MAX_NUM_FORMS": 1,
+                "form-0-file": test_file,
+            }
+            response = self.client.post(full_url, data, follow=True)
+        self.assertIn(
+            'The submitted file is empty.',
+            response.context['formset'][0].errors['file'],
+        )
+
+    def test_add_bo_asset_attachment(self):
+        add_attachment_url = reverse('add_attachment', kwargs={
+            'mode': 'back_office',
+            'parent': 'asset',
+        })
+        self.add_attachment(BOAssetFactory(), add_attachment_url)
+
+    def test_add_dc_asset_attachment(self):
+        add_attachment_url = reverse('add_attachment', kwargs={
+            'mode': 'dc',
+            'parent': 'asset',
+        })
+        self.add_attachment(DCAssetFactory(), add_attachment_url)
+
+    def test_add_license_attachment(self):
+        add_attachment_url = reverse('add_attachment', kwargs={
+            'mode': 'back_office',  # TODO: to rm if modes are cleaned
+            'parent': 'license',
+        })
+        self.add_attachment(LicenceFactory(), add_attachment_url)
+
+    def test_add_support_attachment(self):
+        add_attachment_url = reverse('add_attachment', kwargs={
+            'mode': 'back_office',  # TODO: to rm if modes are cleaned
+            'parent': 'support',
+        })
+        self.add_attachment(
+            support_utils.BOSupportFactory(),
+            add_attachment_url,
+        )
+
+    def add_attachment(self, parent, add_attachment_url):
+        """
+        Checks if attachment can be added.
+        """
+        file_content = 'anything'
+        full_url = "{}?{}".format(
+            add_attachment_url,
+            urlencode({'select': obj.id for obj in [parent]}),
+        )
+
+        asset = parent.__class__.objects.get(pk=parent.id)
+        self.assertEqual(asset.attachments.count(), 0)
+
+        with tempfile.TemporaryFile() as test_file:
+            saved_filename = test_file.name
+            test_file.write(file_content)
+            test_file.seek(0)
+            data = {
+                "form-TOTAL_FORMS": 1,
+                "form-INITIAL_FORMS": 1,
+                "form-MAX_NUM_FORMS": 1,
+                "form-0-file": test_file,
+            }
+            response = self.client.post(full_url, data, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        asset = parent.__class__.objects.get(pk=parent.id)
+        self.assertEqual(asset.attachments.count(), 1)
+        attachment = asset.attachments.all()[0]
+        self.assertEqual(attachment.original_filename, saved_filename)
+        with attachment.file as attachment_file:
+            self.assertEqual(attachment_file.read(), file_content)
+
+
 class DeviceEditViewTest(TestCase):
 
     def setUp(self):
@@ -1009,35 +1110,6 @@ class DeviceEditViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, msg_error)
         self.assertContains(response, part)
-
-
-class ACLInheritanceTest(TestCase):
-
-    def test_all_views_inherits_acls(self):
-        """
-        - get all views from url.py except these urls:
-            - api (until it clarifies)
-            - redirections
-        - assert if each view has ACLClass in mro
-        """
-        from ralph_assets import urls
-        from ralph_assets.views.base import ACLGateway
-        excluded_urls_by_regexp = [
-            '^api/'  # skip it until api authen./author. is resolved
-        ]
-        for urlpattern in urls.urlpatterns:
-            if urlpattern._regex in excluded_urls_by_regexp:
-                continue
-            elif urlpattern.callback.func_name == 'RedirectView':
-                continue
-            module_name = urlpattern._callback.__module__
-            class_name = urlpattern._callback.__name__
-            imported_module = __import__(module_name, fromlist=[class_name])
-            found_class = getattr(imported_module, class_name)
-            msg = "View '{}' doesn't inherit from acl class".format(
-                '.'.join([module_name, class_name])
-            )
-            self.assertIn(ACLGateway, found_class.__mro__, msg)
 
 
 class TestImport(TestCase):

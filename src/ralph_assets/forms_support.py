@@ -135,3 +135,4 @@ class SupportSearchForm(SearchForm):
     description = TextSearchField()
     date_from = DateRangeSearchField()
     date_to = DateRangeSearchField()
+    additional_notes = TextSearchField()

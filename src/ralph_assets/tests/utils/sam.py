@@ -49,7 +49,7 @@ class SoftwareCategoryFactory(Factory):
 class LicenceFactory(Factory):
     FACTORY_FOR = Licence
     accounting_id = ''
-    asset_type = AssetType.back_office.id  # TODO: remove it?
+    asset_type = AssetType.back_office.id
     # assets: probabbly it should be set as kwargs during creation?
     budget_info = SubFactory(BudgetInfoFactory)
     invoice_date = fuzzy.FuzzyDate(datetime.date(2008, 1, 1))

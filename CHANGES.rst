@@ -5,6 +5,7 @@ dev
 ~~~~~~~~~
 
 * assets in license forms are autocompleted by device's hostname
+* added *additional notes* field to license search
 
 2.1.0
 ~~~~~~~~~
