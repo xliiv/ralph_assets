@@ -41,7 +41,7 @@ class ACLGateway(object):
     perms = [
         {
             'perm': Perm.has_assets_access,
-            'msg': _("You don't have permission to see Assets."),
+            'msg': _("You don't have permission to access Assets."),
         },
     ]
 
