@@ -7,22 +7,24 @@ from __future__ import unicode_literals
 
 import logging
 
+from django.conf import settings
+from django.core.urlresolvers import reverse
+from django.db.models import Q
+from django.utils.translation import ugettext_lazy as _
+from django.views.generic import (
+    TemplateView,
+)
+
 from bob.menu import MenuItem, MenuHeader
 from bob.data_table import DataTableColumn
 from bob.views.bulk_edit import BulkEditBase as BobBulkEditBase
 
-from django.conf import settings
-from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
-from django.db.models import Q
-from django.utils.translation import ugettext_lazy as _
-
-from ralph.account.models import Perm
+from ralph.account.models import Perm, ralph_permission
+from ralph_assets import VERSION
 from ralph_assets import forms as assets_forms
 from ralph_assets.models_assets import AssetType
 from ralph_assets.models import Asset
 from ralph_assets.forms import OfficeForm
-from ralph.ui.views.common import Base
 
 logger = logging.getLogger(__name__)
 
@@ -31,81 +33,71 @@ def get_return_link(mode):
     return "/assets/%s/" % mode
 
 
-class ACLGateway(Base):
+class ACLGateway(object):
     """
     Assets module class which mainly checks user access to page.
     """
 
+    perms = [
+        {
+            'perm': Perm.has_assets_access,
+            'msg': _("You don't have permission to see Assets."),
+        },
+    ]
+
+    @ralph_permission(perms)
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.get_profile().has_perm(Perm.has_assets_access):
-            raise PermissionDenied
         return super(ACLGateway, self).dispatch(request, *args, **kwargs)
 
 
-class AssetsBase(ACLGateway):
-    template_name = "assets/base.html"
-    sidebar_selected = None
-    mainmenu_selected = None
+class AssetsBase(ACLGateway, TemplateView):
 
-    def get_context_data(self, *args, **kwargs):
-        ret = super(AssetsBase, self).get_context_data(**kwargs)
-        base_sidebar_caption = ''
+    columns = []
+    section = None
+    status = ''
+    mode = None
+    mainmenu_selected = None
+    sidebar_selected = None
+    template_name = "assets/base.html"
+
+    def dispatch(self, request, mode=None, *args, **kwargs):
+        self.request = request
+        self.set_mode(mode)
+        self.set_asset_objects(mode)
+        return super(AssetsBase, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(AssetsBase, self).get_context_data(**kwargs)
         self.mainmenu_selected = self.mainmenu_selected or self.mode
         if self.mode == 'back_office':
             base_sidebar_caption = _('Back office actions')
         elif self.mode == 'dc':
             base_sidebar_caption = _('Data center actions')
-        ret.update({
+        else:
+            base_sidebar_caption = ''
+        context.update({
+            'asset_reports_enable': settings.ASSETS_REPORTS['ENABLE'],
+            'columns': self.columns,
+            'details': self.kwargs.get('details', 'info'),
+            'footer_items': self.get_footer_items(
+                self.kwargs.get('details', 'info'),
+            ),
             'mainmenu_items': self.get_mainmenu_items(),
-            'section': self.mainmenu_selected,
-            'sidebar_items': self.get_sidebar_items(base_sidebar_caption),
-            'sidebar_selected': self.sidebar_selected,
             'mode': self.mode,
             'multivalues_fields': ['sn', 'barcode', 'imei'],
-            'asset_reports_enable': settings.ASSETS_REPORTS['ENABLE'],
+            'search_url': reverse('search', args=[
+                self.kwargs.get('details', 'info'), ''
+            ]),
+            'section': self.mainmenu_selected,
+            'show_bulk': self.request.user.get_profile().has_perm(
+                Perm.bulk_edit
+            ),
+            'sidebar_items': self.get_sidebar_items(base_sidebar_caption),
+            'sidebar_selected': self.sidebar_selected,
+            'url_query': self.request.GET,
+            'user': self.request.user,
         })
-        return ret
-
-    def get_mainmenu_items(self):
-        mainmenu = [
-            MenuItem(
-                label=_('Data center'),
-                name='dc',
-                fugue_icon='fugue-building',
-                href='/assets/dc',
-            ),
-            MenuItem(
-                label=_('BackOffice'),
-                fugue_icon='fugue-printer',
-                name='back_office',
-                href='/assets/back_office',
-            ),
-            MenuItem(
-                label=_('Licences'),
-                fugue_icon='fugue-cheque',
-                name='licences',
-                href=reverse('licence_list'),
-            ),
-            MenuItem(
-                label=_('User list'),
-                fugue_icon='fugue-user-green-female',
-                name='user list',
-                href=reverse('user_list'),
-            ),
-            MenuItem(
-                label='Supports',
-                fugue_icon='fugue-lifebuoy',
-                name=_('supports'),
-                href=reverse('support_list'),
-            ),
-            MenuItem(
-                label='Reports',
-                fugue_icon='fugue-table',
-                name=_('reports'),
-                href=reverse('reports'),
-            ),
-        ]
-        return mainmenu
+        return context
 
     def get_sidebar_items(self, base_sidebar_caption):
         if self.mode in ('back_office', 'dc'):
@@ -167,12 +159,6 @@ class AssetsBase(ACLGateway):
     def set_mode(self, mode):
         self.mode = mode
 
-    def dispatch(self, request, mode=None, *args, **kwargs):
-        self.request = request
-        self.set_mode(mode)
-        self.set_asset_objects(mode)
-        return super(AssetsBase, self).dispatch(request, *args, **kwargs)
-
     def write_office_info2asset_form(self):
         """
         Writes fields from office_info form to asset form.
@@ -205,6 +191,99 @@ class AssetsBase(ACLGateway):
         except AttributeError:
             raise Exception("No form class named: {}".format(form_class_name))
         return form_class
+
+    def get_mainmenu_items(self):
+        mainmenu = [
+            MenuItem(
+                fugue_icon='fugue-building',
+                href=reverse('asset_search', kwargs={'mode': 'dc'}),
+                label=_('Data center'),
+                name='dc',
+            ),
+            MenuItem(
+                fugue_icon='fugue-printer',
+                href=reverse('asset_search', kwargs={'mode': 'back_office'}),
+                label=_('BackOffice'),
+                name='back_office',
+            ),
+            MenuItem(
+                fugue_icon='fugue-lifebuoy',
+                href=reverse('support_list'),
+                label=_('Supports'),
+                name='supports',
+            ),
+            MenuItem(
+                fugue_icon='fugue-user-green-female',
+                href=reverse('user_list'),
+                label=_('User list'),
+                name='user list',
+            ),
+            MenuItem(
+                fugue_icon='fugue-cheque',
+                href=reverse('licence_list'),
+                label=_('Licences'),
+                name='licences',
+            ),
+            MenuItem(
+                fugue_icon='fugue-table',
+                href=reverse('reports'),
+                label=_('Reports'),
+                name='reports',
+            ),
+        ]
+        return mainmenu
+
+    def get_footer_items(self, details):
+        footer_items = []
+        if settings.BUGTRACKER_URL:
+            footer_items.append(
+                MenuItem(
+                    fugue_icon='fugue-bug',
+                    href=settings.BUGTRACKER_URL,
+                    label=_('Report a bug'),
+                    pull_right=True,
+                )
+            )
+        footer_items.append(
+            MenuItem(
+                fugue_icon='fugue-document-number',
+                href=settings.ASSETS_CHANGELOG_URL,
+                label=_(
+                    "Version {version}".format(
+                        version='.'.join((str(part) for part in VERSION)),
+                    ),
+                ),
+            )
+        )
+        if self.request.user.is_staff:
+            footer_items.append(
+                MenuItem(
+                    fugue_icon='fugue-toolbox',
+                    href='/admin',
+                    label=_('Admin'),
+                )
+            )
+        footer_items.append(
+            MenuItem(
+                fugue_icon='fugue-user',
+                href=reverse('user_preference', args=[]),
+                label=_('{user} (preference)'.format(user=self.request.user)),
+                pull_right=True,
+                view_args=[details or 'info', ''],
+                view_name='preference',
+            )
+        )
+        footer_items.append(
+            MenuItem(
+                fugue_icon='fugue-door-open-out',
+                href=settings.LOGOUT_URL,
+                label=_('logout'),
+                pull_right=True,
+                view_args=[details or 'info', ''],
+                view_name='logout',
+            )
+        )
+        return footer_items
 
 
 class DataTableColumnAssets(DataTableColumn):
