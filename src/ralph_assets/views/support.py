@@ -42,6 +42,7 @@ class SupportView(AssetsBase):
 
     def _get_form(self, data=None, **kwargs):
         self.form = self.form_class(
+            # TODO:: easy rm
             mode=self.mode, data=data, **kwargs
         )
 
@@ -53,6 +54,7 @@ class SupportView(AssetsBase):
             'edit_mode': False,
             'caption': self.caption,
             'support': getattr(self, 'support', None),
+            # TODO:: attachments use it, need RESEARCH
             'mode': self.mode,
         })
         return ret
@@ -61,6 +63,7 @@ class SupportView(AssetsBase):
         try:
             support = self.form.save(commit=False)
             if support.asset_type is None:
+                # TODO:: easy rm
                 support.asset_type = MODE2ASSET_TYPE[self.mode]
             support.save(user=self.request.user)
             self.form.save_m2m()
@@ -91,6 +94,7 @@ class AddSupportView(SupportView):
             self.form.instance.pk = None
             support = self.form.save(commit=False)
             if support.asset_type is None:
+                # TODO:: easy rm
                 support.asset_type = MODE2ASSET_TYPE[self.mode]
             support.save(user=self.request.user)
             messages.success(self.request, self.message)
@@ -157,6 +161,7 @@ class SupportList(GenericSearch):
                 asset_type=MODE2ASSET_TYPE[self.mode],
             )
         else:
+            # TODO:: easy rm, use it always
             data['supports'] = Support.objects.all()
         return data
 
@@ -193,9 +198,11 @@ class DeleteSupportView(AssetsBase):
             support = Support.objects.get(pk=record_id)
         except Asset.DoesNotExist:
             messages.error(self.request, _("Selected asset doesn't exists."))
+            # TODO:: redirect to supports list and show all or only
             return HttpResponseRedirect(get_return_link(self.mode))
         self.back_to = reverse(
             'support_list',
+            # TODO:: rm DEFINITELY
             kwargs={'mode': ASSET_TYPE2MODE[support.asset_type]},
         )
         support.delete(user=self.request.user)
@@ -233,6 +240,7 @@ class HistorySupport(AssetsBase):
                 'edit_support',
                 kwargs={
                     'support_id': support.id,
+                    # TODO:: easy rm
                     'mode': self.mode,
                 }
             ),

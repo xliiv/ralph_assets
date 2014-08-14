@@ -21,8 +21,12 @@ from django.test.utils import override_settings
 from ralph_assets import models_assets
 from ralph_assets import models_support
 from ralph_assets import models_sam
-from ralph_assets.tests.utils import UserFactory, AjaxClient, ClientMixin
-from ralph_assets.tests.utils import AttachmentFactory, UserFactory
+from ralph_assets.tests.utils import (
+    AjaxClient,
+    AttachmentFactory,
+    ClientMixin,
+    UserFactory,
+)
 from ralph_assets.tests.utils import assets as assets_utils
 from ralph_assets.tests.utils import sam as sam_utils
 from ralph_assets.tests.utils.assets import (
@@ -39,7 +43,6 @@ from ralph_assets.tests.utils.supports import (
     DCSupportFactory,
     SupportTypeFactory,
 )
-from ralph.ui.tests.global_utils import login_as_su
 
 
 def update(_dict, obj, keys):

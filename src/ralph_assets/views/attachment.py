@@ -35,6 +35,7 @@ class AddAttachment(AssetsBase):
         parent = parent.title()
         self.Parent = getattr(assets_models, parent.title())
         return super(AddAttachment, self).dispatch(
+            #TODO:: mode = ''?
             request, mode, *args, **kwargs
         )
 
@@ -43,6 +44,7 @@ class AddAttachment(AssetsBase):
         ret.update({
             'selected_parents': self.selected_parents,
             'formset': self.attachments_formset,
+            # TODO:: research: used in add_attachment and delete_attachment
             'mode': self.mode,
         })
         return ret
@@ -54,6 +56,7 @@ class AddAttachment(AssetsBase):
         )
         if not self.selected_parents.exists():
             messages.warning(self.request, _("Nothing to edit."))
+            # TODO:: easy, just other dst
             return HttpResponseRedirect(get_return_link(self.mode))
 
         AttachmentFormset = formset_factory(
@@ -81,6 +84,7 @@ class AddAttachment(AssetsBase):
                 for parent in self.selected_parents:
                     parent.attachments.add(attachment)
             messages.success(self.request, _("Changes saved."))
+            # TODO:: easy: better redirection
             return HttpResponseRedirect(get_return_link(self.mode))
         messages.error(self.request, _("Please correct the errors."))
         return super(AddAttachment, self).get(*args, **kwargs)
@@ -102,6 +106,7 @@ class DeleteAttachment(AssetsBase):
         self.Parent = getattr(assets_models, parent.title())
         self.parent_name = parent
         return super(DeleteAttachment, self).dispatch(
+            # TODO:: mode=None? check it
             request, mode, *args, **kwargs
         )
 
