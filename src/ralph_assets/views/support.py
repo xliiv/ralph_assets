@@ -163,6 +163,7 @@ class SupportList(GenericSearch):
 
 class EditSupportView(SupportView):
     """Edit support"""
+    detect_changes = True
 
     def __init__(self, *args, **kwargs):
         self.form_class = EditSupportForm

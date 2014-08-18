@@ -12,6 +12,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
 
+from ralph.discovery.tests.util import DeviceFactory
 from ralph_assets.models import AssetManufacturer
 from ralph_assets import models_assets
 from ralph_assets.models_sam import (
@@ -29,8 +30,10 @@ from ralph_assets.tests.util import (
 from ralph_assets.tests.utils import UserFactory
 from ralph_assets.tests.utils.assets import (
     AssetCategoryFactory,
-    BOAssetFactory,
     AssetModelFactory,
+    BOAssetFactory,
+    DCAssetFactory,
+    DeviceInfoFactory,
 )
 from ralph_assets.utils import iso2_to_iso3, iso3_to_iso2
 
@@ -335,3 +338,22 @@ class TestHostnameAssigning(TestCase):
         old_hostname = asset.hostname
         asset._try_assign_hostname(True)
         self.assertEqual(asset.hostname, old_hostname)
+
+
+class TestLinkedDevice(TestCase):
+    def test_bo_asset(self):
+        asset = BOAssetFactory()
+        self.assertEqual(asset.linked_device, None)
+
+    def test_dc_asset_with_linked_device(self):
+        core_device = DeviceFactory()
+        device_info = DeviceInfoFactory(ralph_device_id=core_device.id)
+        asset = DCAssetFactory(device_info=device_info)
+        self.assertEqual(asset.linked_device, core_device)
+
+    def test_dc_asset_without_linked_device(self):
+        asset = DCAssetFactory()
+        # device is auto-assigned when asset is created, so force none
+        asset.device_info.ralph_device_id = None
+        asset.save()
+        self.assertEqual(asset.linked_device, None)

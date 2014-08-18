@@ -57,7 +57,7 @@ class LicenceFactory(Factory):
     licence_type = SubFactory(LicenceTypeFactory)
     license_details = Sequence(lambda n: 'Licence-details-%s' % n)
     manufacturer = SubFactory(AssetManufacturerFactory)
-    number_bought = randint(0, 150)
+    number_bought = 5
     order_no = Sequence(lambda n: 'ORDER-NUMBER-%s' % n)
     parent = None
     price = 0

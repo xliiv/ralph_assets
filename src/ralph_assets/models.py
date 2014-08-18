@@ -105,6 +105,18 @@ class LinkedDeviceNameLookup(DeviceLookup):
         )
         return self.get_base_objects().filter(query).order_by()[:10]
 
+    def format_item_display(self, obj):
+        item = super(LinkedDeviceNameLookup, self).format_item_display(obj)
+        try:
+            hostname = obj.linked_device.name
+        except AttributeError:
+            pass
+        else:
+            item += '<span class="device-hostname">{hostname}</span>'.format(
+                hostname=escape(hostname),
+            )
+        return item
+
 
 class FreeLicenceLookup(RestrictedLookupChannel):
     """Lookup the licences that have any specimen left."""

@@ -8,13 +8,15 @@ from __future__ import unicode_literals
 
 from ajax_select.fields import AutoCompleteSelectMultipleField
 from collections import OrderedDict
+from django import forms
+from django.forms.widgets import Textarea
+from django.utils.translation import ugettext_lazy as _
+
 from django_search_forms.fields import (
     DateRangeSearchField,
     RelatedSearchField,
     TextSearchField,
 )
-from django import forms
-from django.forms.widgets import Textarea
 from django_search_forms.form import SearchForm
 
 from ralph.ui.widgets import DateWidget
@@ -136,3 +138,6 @@ class SupportSearchForm(SearchForm):
     date_from = DateRangeSearchField()
     date_to = DateRangeSearchField()
     additional_notes = TextSearchField()
+    assets = TextSearchField(
+        filter_field='assets__sn', label=_('by sn (of assigned asset)'),
+    )

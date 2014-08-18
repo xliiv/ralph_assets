@@ -35,7 +35,7 @@ setup(
         'django-mptt==0.5.5',
         'xlrd==0.9.2',
         'inkpy==0.1.0-alpha',
-        'django-search-forms[ajax]==0.4',
+        'django-search-forms[ajax]==0.5',
         'factory-boy==2.3.1',
     ],
     entry_points={

@@ -1,58 +1,11 @@
-{% extends 'assets/base.html' %}
+{% extends 'assets/search.html' %}
 {% load bob %}
 {% load i18n %}
 
-{% block content %}
-<div class="row-fluid">
-  <h3>{% trans "Licence list" %}</h3>
+{% block extra_actions %}
+<div class="btn-group pull-left">
+    <a class="btn dropdown-toggle btn-success ajax summary" href="{% url count_licences %}?{{ get_query }}">
+        {% trans 'Summary' %}
+    </a>
 </div>
-<table class="table tree table-bordered">
-    <thead>
-        <th>{% trans "Name" %}</th>
-        <th>{% trans "Used" %}</th>
-        <th>{% trans "Actions" %}</th>
-    </thead>
-    {% for category in categories %}
-        <tr class="treegrid-{{ forloop.counter }}">
-            <td>{{ category.name }}</td>
-            <td>{{ category.used }} / {{ category.total }}</td>
-            <td></td>
-        </tr>
-        {% for licence in category.licences_annotated %}
-            <tr class="treegrid-parent-{{ forloop.parentloop.counter }}">
-                <td><a href="{{ licence.url }}">{{ licence }}</a></td>
-                <td>{{ licence.used }} / {{ licence.number_bought }}</td>
-                <td>
-                    <div class="btn-group">
-                      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-                        Action
-                        <span class="caret"></span>
-                      </a>
-                      <ul class="dropdown-menu pull-right">
-                            <li>
-                                <form class='form-inline' method="POST" action="delete/">
-                                    {% csrf_token %}
-                                    <input type='hidden' name='record_id' value='{{ licence.id }}'>
-                                    <input class='btn btn-link del-asset-btn' value='Delete' type='submit'>
-                                </form>
-                            </li>
-                        </ul>
-                    </div>
-                </td>
-            </tr>
-        {% endfor %}
-    {% endfor %}
- </table>
-{% pagination categories url_query=url_query show_all=0 fugue_icons=1 %}
 {% endblock %}
-
-{% block scripts %}
-{{ block.super }}
-<script type="text/javascript">
-$(function() {
-    $('.tree').treegrid({
-        'initialState': 'collapsed'
-    });
-});
-</script>
-{% endblock scripts %}

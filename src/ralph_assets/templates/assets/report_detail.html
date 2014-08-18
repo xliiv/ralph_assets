@@ -11,22 +11,35 @@
         <li><a class="collapse-all" href="#">{% trans 'Collapse all' %}</a></li>
       </ul>
     </div>
-    <div class="pagination">
-      <ul>
-        {% for report_mode in modes %}
-          <li{% if mode == report_mode.name %} class="active"{% endif %}><a href="{% url report_detail report_mode.name slug %}">{{ report_mode.verbose_name }}</a></li>
-        {% endfor %}
-      </ul>
-    </div>
+    {% if report.with_modes %}
+      <div class="pagination">
+        <ul>
+          {% for report_mode in modes %}
+            <li{% if mode == report_mode.name %} class="active"{% endif %}><a href="{% url report_detail report_mode.name slug %}">{{ report_mode.verbose_name }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
     {% cache 3600 report cache_key %}
       <p>{% trans 'Last update:' %} {% now "SHORT_DATETIME_FORMAT" %}</p>
-      <ul class="report-list">
-        {%for node in result %}
-          {% with level=0 %}
-            {%include "assets/report_tree.html" %}
-          {% endwith %}
-        {%endfor%}
-      </ul>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>{% trans 'Info' %}</th>
+            <th>{% trans 'Count' %}</th>
+            {% if report.links %}
+              <th>{% trans 'Link' %}</th>
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for node in result %}
+            {% with level=0 parent=0 %}
+              {% include "assets/report_tree.html" %}
+            {% endwith %}
+          {% endfor %}
+        </tbody>
+      </table>
     {% endcache %}
   </div>
   {% endspaceless %}
