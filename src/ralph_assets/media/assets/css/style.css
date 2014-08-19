@@ -135,59 +135,35 @@ form.form-inline {
     min-width: 150px;
 }
 .report {
-  width: 35%;
+  width: 50%;
   margin-top:15px;
 }
-.report .count {
-  float: right;
-}
-.report li:last-child {
-  border-bottom: 0;
-  margin-bottom: 5px;
-}
-.report li.zero {
-  cursor: default;
-}
-.report li.icon:before {
+.report .icon:before {
   content:'';
   display: inline-block;
   width: 16px;
   height: 16px;
   background-image: url('../../fugue-icons.png');
+  margin-right: 5px;
 }
-.report li.icon.collapsed > ul {
-  display: none;
-}
-.report li.icon.expanded > ul {
-  display: block;
-}
-.report li.icon.collapsed:before {
-  background-position: -864px -192px;
-}
-.report li.icon.expanded:before {
+.report .collapsed .icon:before, .report .root .icon:before {
   background-position: -912px -192px;
 }
-.report .level-1 li:hover {
-  background: #f8f8f8;
+.report .expanded .icon:before {
+  background-position: -864px -192px;
 }
-.report .level-2 li:hover {
-  background: #f0f0f0;
-}
-.report .level-3 li:hover {
-  background: #e8e8e8;
-}
-.report .level-4 li:hover {
-  background: #e0e0e0;
-}
-.report .report-list ul, li {
-    line-height:140%;
-    list-style: none;
+.report tr td.icon {
     cursor: pointer;
 }
-.report .report-list ul:last-child li {
-    list-style: none;
-    cursor: normal;
-}
-.report .report-list > li {
-    line-height:200%;
-}
+.hide {display: none;}
+.root {display: table-row;}
+.report .level-1 .zero .indented {margin-left: 0;}
+.report .level-1 .icon:before {margin-left: 0;}
+.report .level-2 .zero .indented {margin-left: 36px;}
+.report .level-2 .icon:before {margin-left: 20px;}
+.report .level-3 .zero .indented {margin-left: 56px;}
+.report .level-3 .icon:before {margin-left: 40px;}
+.report .level-4 .zero .indented {margin-left: 76px;}
+.report .level-4 .icon:before {margin-left: 60px;}
+.report .level-5 .zero .indented {margin-left: 96px;}
+.report .level-5 .icon:before {margin-left: 80px;}

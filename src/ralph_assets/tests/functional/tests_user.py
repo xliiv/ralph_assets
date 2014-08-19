@@ -7,12 +7,13 @@ from __future__ import unicode_literals
 
 
 from django.core.urlresolvers import reverse
+from django.test import TestCase
 
 from ralph.ui.tests.global_utils import login_as_su
 from ralph_assets.tests.utils import MessagesTestMixin, UserFactory
 
 
-class TestUserListView(MessagesTestMixin):
+class TestUserListView(MessagesTestMixin, TestCase):
 
     def setUp(self):
         self.client = login_as_su()
@@ -26,7 +27,7 @@ class TestUserListView(MessagesTestMixin):
         self.assertTrue(user_page_url in response.content)
 
 
-class TestUserDetailView(MessagesTestMixin):
+class TestUserDetailView(MessagesTestMixin, TestCase):
     def setUp(self):
         self.client = login_as_su()
 

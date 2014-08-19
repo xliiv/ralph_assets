@@ -42,18 +42,19 @@
                 {% trans "Bulk actions..." %}
                 <span class="caret"></span>
             </a>
-        <ul class="dropdown-menu">
-            {% if asset_reports_enable %}
+            <ul class="dropdown-menu">
+                {% if asset_reports_enable %}
+                    <li>
+                        <a href="#" id='post_invoice_report_selected'>
+                            {% trans "Invoice report from selected" %}
+                        </a>
+                    </li>
+                    <li class="divider"></li>
+                {% endif %}
                 <li>
-                    <a href="#" id='post_invoice_report_selected'>
-                        {% trans "Invoice report from selected" %}
-                    </a>
+                    <a href="#" id='post_edit_all'>{% trans "Edit selected" %}</a>
                 </li>
-                <li class="divider"></li>
-            {% endif %}
-            <li>
-                <a href="#" id='post_edit_all'>{% trans "Edit selected" %}</a>
-            </li>
-        </ul>
-    </div>
+            </ul>
+        </div>
+        {% block extra_actions %}{% endblock %}
 {% endblock %}

@@ -6,6 +6,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import logging
+import uuid
 
 from bob.menu import MenuItem, MenuHeader
 from django.core.urlresolvers import reverse
@@ -13,11 +14,13 @@ from django.db.models import Count
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 
+from ralph.discovery.models_device import Device
 from ralph_assets.views.base import AssetsBase
 from ralph_assets.models_assets import (
     Asset,
     AssetModel,
     AssetStatus,
+    DeviceInfo,
     MODE2ASSET_TYPE,
 )
 
@@ -25,14 +28,21 @@ from ralph_assets.models_assets import (
 logger = logging.getLogger(__name__)
 
 
+def get_desc(choices_class, key, default='------'):
+    return choices_class.from_id(key) if key else default
+
+
 class ReportNode(object):
     """The basic report node. It is simple object which store name, count,
     parent and children."""
-    def __init__(self, name, count=0, parent=None, children=[], **kwargs):
+    def __init__(self, name, count=0, parent=None, children=[],
+                 link=None, **kwargs):
         self.name = name
         self.count = count
         self.parent = parent
         self.children = []
+        self.link = link
+        self.uid = uuid.uuid1()
 
     def add_child(self, child):
         self.children.append(child)
@@ -76,7 +86,7 @@ class ReportContainer(list):
             created = True
         return node, created
 
-    def add(self, name, count=0, parent=None, unique=True):
+    def add(self, name, count=0, parent=None, unique=True, link=None):
         if unique:
             new_node, created = self.get_or_create(name)
         else:
@@ -86,10 +96,11 @@ class ReportContainer(list):
         new_node.count = count
         if parent:
             if not isinstance(parent, ReportNode):
-                parent, _ = self.get_or_create(parent)
+                parent, __ = self.get_or_create(parent)
         if created:
             parent.add_child(new_node)
-        return new_node
+        new_node.link = link
+        return new_node, parent
 
     @property
     def roots(self):
@@ -111,6 +122,10 @@ class ReportContainer(list):
 
 class BaseReport(object):
     """Each report must inherit from this class."""
+    with_modes = True
+    with_counter = True
+    links = False
+
     def __init__(self):
         self.report = ReportContainer()
 
@@ -167,12 +182,12 @@ class CategoryModelStatusReport(BaseReport):
         for item in queryset:
             parent = item['model__category__name'] or 'Without category'
             name = item['model__name']
-            node = self.report.add(
+            node, __ = self.report.add(
                 name=name,
                 parent=parent,
             )
             self.report.add(
-                name=AssetStatus.from_id(item['status']),
+                name=get_desc(AssetStatus, item['status']),
                 parent=node,
                 count=item['num'],
                 unique=False
@@ -197,13 +212,13 @@ class ManufacturerCategoryModelReport(BaseReport):
 
         for item in queryset:
             manufacturer = item['manufacturer__name'] or 'Without manufacturer'
-            parent = self.report.add(
+            node, __ = self.report.add(
                 name=item['category__name'],
                 parent=manufacturer,
             )
             self.report.add(
                 name=item['name'],
-                parent=parent,
+                parent=node,
                 count=item['num'],
             )
 
@@ -226,8 +241,98 @@ class StatusModelReport(BaseReport):
             self.report.add(
                 name=item['model__name'],
                 count=item['num'],
-                parent=AssetStatus.DescFromID(item['status']),
+                parent=get_desc(AssetStatus, item['status']),
             )
+
+
+class LinkedDevicesReport(BaseReport):
+    slug = 'asset-device'
+    name = _('Asset - device')
+    with_modes = False
+    links = True
+
+    def prepare(self, mode=None):
+        assets = Asset.objects.raw("""
+        SELECT a.*
+        FROM
+            ralph_assets_asset a
+        JOIN
+            ralph_assets_deviceinfo di ON di.id=a.device_info_id
+        JOIN
+            discovery_device e on a.sn=e.sn or a.barcode=e.barcode
+        WHERE
+            di.ralph_device_id IS NULL
+            OR di.ralph_device_id=0
+            AND a.deleted=0
+        """)
+
+        ids = []
+        root = None
+        for asset in assets:
+            ids.append(str(asset.id))
+            link = {
+                'label': 'go to asset',
+                'url': asset.url,
+            }
+
+            node, root = self.report.add(
+                parent=_('Matched SN or barcode but without linked device'),
+                name='SN: %s, barcode: %s' % (asset.sn, asset.barcode),
+                count=1,
+                link=link,
+                unique=False,
+            )
+        if root:
+            root.link = {
+                'label': 'go to search',
+                'url': '/assets/dc/search?id={}'.format(','.join(ids)),
+            }
+
+        assets = Asset.objects.raw("""
+        SELECT a.*
+        FROM
+            ralph_assets_asset a
+        JOIN
+            ralph_assets_deviceinfo di ON di.id=a.device_info_id
+        WHERE
+            di.ralph_device_id IS NULL
+            AND a.deleted=0
+        """)
+        ids = []
+        for asset in assets:
+            ids.append(str(asset.id))
+            link = {
+                'label': 'go to asset',
+                'url': asset.url,
+            }
+            node, root = self.report.add(
+                parent=_('Assets without linked device'),
+                name='SN: %s, barcode: %s' % (asset.sn, asset.barcode),
+                count=1,
+                link=link,
+                unique=False,
+            )
+        if root:
+            root.link = {
+                'label': 'go to search',
+                'url': '/assets/dc/search?id={}'.format(','.join(ids)),
+            }
+
+        device_info_ids = DeviceInfo.objects.exclude(
+            ralph_device_id=None
+        ).values_list(
+            'ralph_device_id', flat=True
+        )
+        devices = Device.objects.exclude(id__in=device_info_ids)
+        node, root = self.report.add(
+            parent=_('Devices without linked asset'),
+            name=str('Total'),
+            count=devices.count()
+        )
+        root.link = {
+            'label': 'go to search',
+            'url': '/ui/search/info/?without_asset=on'
+        }
 
 
 class ReportViewBase(AssetsBase):
@@ -237,6 +342,7 @@ class ReportViewBase(AssetsBase):
         CategoryModelStatusReport,
         ManufacturerCategoryModelReport,
         StatusModelReport,
+        LinkedDevicesReport,
     ]
     modes = [
         {
@@ -258,12 +364,12 @@ class ReportViewBase(AssetsBase):
         sidebar_menu += [MenuHeader(_('Reports'))]
         sidebar_menu += [
             MenuItem(
-                label=r.name, href=reverse('report_detail', kwargs={
+                label=report.name, href=reverse('report_detail', kwargs={
                     'mode': 'all',
-                    'slug': r.slug,
+                    'slug': report.slug,
                 })
             )
-            for r in self.reports
+            for report in self.reports
         ]
         sidebar_menu.extend(super(ReportViewBase, self).get_sidebar_items(
             base_sidebar_caption

@@ -1,3 +1,5 @@
+# url which leads to changelog page
+ASSETS_CHANGELOG_URL = ''  # TODO: set it, when it's formed
 DEFAULT_DEPRECATION_RATE = 25
 
 ASSETS_REPORTS = {

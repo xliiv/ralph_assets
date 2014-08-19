@@ -10,7 +10,9 @@ import urllib
 import django.dispatch
 from dj.choices import Country
 from django.core.urlresolvers import reverse
+from django.test import TestCase
 from django.test.utils import override_settings
+
 
 from ralph.ui.tests.global_utils import login_as_su
 from ralph_assets import signals
@@ -34,7 +36,7 @@ ASSETS_TRANSITIONS = {
 
 @override_settings(ASSETS_AUTO_ASSIGN_HOSTNAME=True)
 @override_settings(ASSETS_TRANSITIONS=ASSETS_TRANSITIONS)
-class TestTransitionHostname(MessagesTestMixin):
+class TestTransitionHostname(MessagesTestMixin, TestCase):
 
     def setUp(self):
         self.client = login_as_su()

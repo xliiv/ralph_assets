@@ -11,10 +11,11 @@ import urllib
 from bob.data_table import DataTableColumn
 
 from django.contrib import messages
-from django.http import HttpResponseRedirect
-from django.utils.translation import ugettext_lazy as _
 from django.core.paginator import Paginator
 from django.core.urlresolvers import reverse
+from django.db.models import Sum, Count
+from django.http import HttpResponseRedirect
+from django.utils.translation import ugettext_lazy as _
 
 from ralph_assets.forms_sam import (
     SoftwareCategorySearchForm,
@@ -35,7 +36,13 @@ from ralph_assets.views.asset import (
     HISTORY_PAGE_SIZE,
     MAX_PAGE_SIZE,
 )
-from ralph_assets.views.base import AssetsBase, get_return_link, BulkEditBase
+from ralph_assets.views.base import (
+    AssetsBase,
+    AjaxMixin,
+    BulkEditBase,
+    JsonResponseMixin,
+    get_return_link,
+)
 from ralph_assets.views.search import GenericSearch
 
 
@@ -101,6 +108,7 @@ class CheckBoxColumn(DataTableColumn):
 class LicenceList(LicenseSelectedMixin, GenericSearch):
     """Displays a list of licences."""
 
+    template_name = 'assets/licence_list.html'
     Model = Licence
     Form = LicenceSearchForm
     columns = [
@@ -172,13 +180,16 @@ class LicenceList(LicenseSelectedMixin, GenericSearch):
             field='valid_thru',
             sort_expression='valid_thru',
         ),
-
     ]
+
+    def get_context_data(self, **kwargs):
+        context = super(LicenceList, self).get_context_data(**kwargs)
+        context.update({'get_query': self.request.GET.urlencode()})
+        return context
 
 
 class LicenceFormView(LicenceBaseView):
     """Base view that displays licence form."""
-
     template_name = 'assets/add_licence.html'
 
     def _get_form(self, data=None, **kwargs):
@@ -244,7 +255,7 @@ class AddLicence(LicenceFormView):
 
 class EditLicence(LicenceFormView):
     """Edit licence"""
-
+    detect_changes = True
     caption = _('Edit Licence')
     message = _('Licence changed')
     Form = EditLicenceForm
@@ -316,3 +327,21 @@ class HistoryLicence(AssetsBase):
             'title': _('History licence'),
         })
         return ret
+
+
+class CountLicence(AjaxMixin, JsonResponseMixin, GenericSearch):
+    mainmenu_selected = 'licences'  # required by AssetBase
+    Model = Licence
+    Form = LicenceSearchForm
+
+    def get(self, request, *args, **kwargs):
+        self.form = self.Form(request.GET)
+        qs = self.handle_search_data(request)
+        summary = qs.aggregate(total=Sum('number_bought'))
+        summary.update(qs.annotate(assets_count=Count('assets')).aggregate(
+            used_by_assets=Sum('assets_count'),
+        ))
+        summary.update(qs.annotate(users_count=Count('users')).aggregate(
+            used_by_users=Sum('users_count'),
+        ))
+        return self.render_json_response(summary)

@@ -109,6 +109,7 @@ class AddPart(AssetsBase):
 
 
 class EditPart(AssetsBase):
+    detect_changes = True
     template_name = 'assets/edit_part.html'
 
     def initialize_vars(self):

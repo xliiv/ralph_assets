@@ -15,6 +15,7 @@ from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from tastypie.resources import ModelResource
 from tastypie.throttle import CacheThrottle
 
+from ralph.urls import LATEST_API
 from ralph_assets.models import (
     Asset,
     AssetManufacturer,
@@ -50,6 +51,24 @@ class ChoicesField(fields.ApiField):
         field_value = getattr(bundle.obj, field_name)
         if field_value:
             return self.choices_class.from_id(field_value).name
+        else:
+            return None
+
+
+class LinkedField(fields.ApiField):
+    """A field representing an linked resource object"""
+
+    def __init__(self, field_name, resource_name, *args, **kwargs):
+        self.field_name = field_name
+        self.resource_name = resource_name
+        super(LinkedField, self).__init__(*args, **kwargs)
+
+    def dehydrate(self, bundle, **kwargs):
+        obj = getattr(bundle.obj, self.field_name)
+        if obj:
+            return LATEST_API.canonical_resource_for(
+                self.resource_name
+            ).get_resource_uri(obj)
         else:
             return None
 
@@ -230,6 +249,12 @@ class AssetsResource(ModelResource):
     status = ChoicesField(AssetStatus)
     user = fields.ForeignKey(UserResource, 'user', null=True)
     warehouse = fields.ForeignKey(WarehouseResource, 'warehouse')
+    linked_device = LinkedField(
+        field_name='linked_device', resource_name='dev', null=True,
+    )
+    venture = LinkedField(
+        field_name='venture', resource_name='venture', null=True,
+    )
 
     class Meta:
         queryset = Asset.objects.all()

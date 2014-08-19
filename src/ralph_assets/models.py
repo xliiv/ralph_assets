@@ -91,6 +91,33 @@ class DeviceLookup(RestrictedLookupChannel):
         return self.model.objects
 
 
+class LinkedDeviceNameLookup(DeviceLookup):
+    model = Asset
+
+    def get_query(self, text, request):
+        matched_devices_ids = Device.objects.values_list(
+            'id', flat=True
+        ).filter(name__icontains=text)
+        query = Q(
+            Q(barcode__icontains=text)
+            | Q(sn__icontains=text)
+            | Q(device_info__ralph_device_id__in=matched_devices_ids)
+        )
+        return self.get_base_objects().filter(query).order_by()[:10]
+
+    def format_item_display(self, obj):
+        item = super(LinkedDeviceNameLookup, self).format_item_display(obj)
+        try:
+            hostname = obj.linked_device.name
+        except AttributeError:
+            pass
+        else:
+            item += '<span class="device-hostname">{hostname}</span>'.format(
+                hostname=escape(hostname),
+            )
+        return item
+
+
 class FreeLicenceLookup(RestrictedLookupChannel):
     """Lookup the licences that have any specimen left."""
 

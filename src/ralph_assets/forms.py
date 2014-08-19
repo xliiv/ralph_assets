@@ -147,6 +147,7 @@ asset_search_dc_fieldsets = lambda: OrderedDict([
 LOOKUPS = {
     'asset': ('ralph_assets.models', 'DeviceLookup'),
     'asset_all': ('ralph_assets.models', 'AssetLookup'),
+    'linked_device': ('ralph_assets.models', 'LinkedDeviceNameLookup'),
     'asset_bodevice': ('ralph_assets.models', 'BODeviceLookup'),
     'asset_bomodel': ('ralph_assets.models', 'BOAssetModelLookup'),
     'asset_dcdevice': ('ralph_assets.models', 'DCDeviceLookup'),

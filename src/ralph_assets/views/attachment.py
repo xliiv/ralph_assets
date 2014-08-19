@@ -88,11 +88,13 @@ class AddAttachment(AssetsBase):
 
 class DeleteAttachment(AssetsBase):
 
-    parent2url_name = {
-        'licence': 'edit_licence',
-        'asset': 'device_edit',
-        'support': 'edit_support',
-    }
+    def get_back_url(self, parent, mode, parent_id):
+        parent2url_name = {
+            'asset': reverse('device_edit', args=(self.mode, parent_id)),
+            'licence': reverse('edit_licence', args=(parent_id)),
+            'support': reverse('edit_support', args=(self.mode, parent_id)),
+        }
+        return parent2url_name[parent]
 
     def dispatch(self, request, mode=None, parent=None, *args, **kwargs):
         if parent == 'license':
@@ -105,8 +107,8 @@ class DeleteAttachment(AssetsBase):
 
     def post(self, *args, **kwargs):
         parent_id = self.request.POST.get('parent_id')
-        self.back_url = reverse(
-            self.parent2url_name[self.parent_name], args=(self.mode, parent_id)
+        self.back_url = self.get_back_url(
+            self.parent_name, self.mode, parent_id,
         )
         attachment_id = self.request.POST.get('attachment_id')
         try:
