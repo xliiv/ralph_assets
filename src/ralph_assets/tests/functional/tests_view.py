@@ -934,7 +934,6 @@ class TestAttachments(BaseViewsTest):
         """
         parent = BOAssetFactory()
         add_attachment_url = reverse('add_attachment', kwargs={
-            'mode': 'back_office',
             'parent': 'asset',
         })
         full_url = "{}?{}".format(
@@ -956,28 +955,24 @@ class TestAttachments(BaseViewsTest):
 
     def test_add_bo_asset_attachment(self):
         add_attachment_url = reverse('add_attachment', kwargs={
-            'mode': 'back_office',
             'parent': 'asset',
         })
         self.add_attachment(BOAssetFactory(), add_attachment_url)
 
     def test_add_dc_asset_attachment(self):
         add_attachment_url = reverse('add_attachment', kwargs={
-            'mode': 'dc',
             'parent': 'asset',
         })
         self.add_attachment(DCAssetFactory(), add_attachment_url)
 
     def test_add_license_attachment(self):
         add_attachment_url = reverse('add_attachment', kwargs={
-            'mode': 'back_office',  # TODO: to rm if modes are cleaned
             'parent': 'license',
         })
         self.add_attachment(LicenceFactory(), add_attachment_url)
 
     def test_add_support_attachment(self):
         add_attachment_url = reverse('add_attachment', kwargs={
-            'mode': 'back_office',  # TODO: to rm if modes are cleaned
             'parent': 'support',
         })
         self.add_attachment(
@@ -1020,7 +1015,6 @@ class TestAttachments(BaseViewsTest):
 
     def test_delete_one_bo_asset_attachment(self):
         self.delete_attachment_check(
-            mode='back_office',
             parent_name='asset',
             parents=[BOAssetFactory()],
             delete_type='from_one',
@@ -1028,7 +1022,6 @@ class TestAttachments(BaseViewsTest):
 
     def test_delete_one_bo_licence_attachment(self):
         self.delete_attachment_check(
-            mode='back_office',
             parent_name='license',
             parents=[LicenceFactory()],
             delete_type='from_one',
@@ -1036,7 +1029,6 @@ class TestAttachments(BaseViewsTest):
 
     def test_delete_one_bo_support_attachment(self):
         self.delete_attachment_check(
-            mode='back_office',
             parent_name='support',
             parents=[BOSupportFactory()],
             delete_type='from_one',
@@ -1044,7 +1036,6 @@ class TestAttachments(BaseViewsTest):
 
     def test_delete_all_bo_asset_attachment(self):
         self.delete_attachment_check(
-            mode='back_office',
             parent_name='asset',
             parents=[BOAssetFactory(), BOAssetFactory(), BOAssetFactory()],
             delete_type='from_all',
@@ -1052,7 +1043,6 @@ class TestAttachments(BaseViewsTest):
 
     def test_delete_all_bo_licence_attachment(self):
         self.delete_attachment_check(
-            mode='back_office',
             parent_name='license',
             parents=[LicenceFactory(), LicenceFactory(), LicenceFactory()],
             delete_type='from_all',
@@ -1060,7 +1050,6 @@ class TestAttachments(BaseViewsTest):
 
     def test_delete_all_bo_support_attachment(self):
         self.delete_attachment_check(
-            mode='back_office',
             parent_name='support',
             parents=[
                 BOSupportFactory(), BOSupportFactory(), BOSupportFactory(),
@@ -1070,7 +1059,6 @@ class TestAttachments(BaseViewsTest):
 
     def test_delete_one_dc_asset_attachment(self):
         self.delete_attachment_check(
-            mode='dc',
             parent_name='asset',
             parents=[DCAssetFactory()],
             delete_type='from_one',
@@ -1078,7 +1066,6 @@ class TestAttachments(BaseViewsTest):
 
     def test_delete_one_dc_licence_attachment(self):
         self.delete_attachment_check(
-            mode='dc',
             parent_name='license',
             parents=[LicenceFactory()],
             delete_type='from_one',
@@ -1086,7 +1073,6 @@ class TestAttachments(BaseViewsTest):
 
     def test_delete_one_dc_support_attachment(self):
         self.delete_attachment_check(
-            mode='dc',
             parent_name='support',
             parents=[DCSupportFactory()],
             delete_type='from_one',
@@ -1094,7 +1080,6 @@ class TestAttachments(BaseViewsTest):
 
     def test_delete_all_dc_asset_attachment(self):
         self.delete_attachment_check(
-            mode='dc',
             parent_name='asset',
             parents=[DCAssetFactory(), DCAssetFactory(), DCAssetFactory()],
             delete_type='from_all',
@@ -1102,7 +1087,6 @@ class TestAttachments(BaseViewsTest):
 
     def test_delete_all_dc_licence_attachment(self):
         self.delete_attachment_check(
-            mode='dc',
             parent_name='license',
             parents=[LicenceFactory(), LicenceFactory(), LicenceFactory()],
             delete_type='from_all',
@@ -1110,7 +1094,6 @@ class TestAttachments(BaseViewsTest):
 
     def test_delete_all_dc_support_attachment(self):
         self.delete_attachment_check(
-            mode='dc',
             parent_name='support',
             parents=[
                 DCSupportFactory(), DCSupportFactory(), DCSupportFactory(),
@@ -1118,9 +1101,7 @@ class TestAttachments(BaseViewsTest):
             delete_type='from_all',
         )
 
-    def delete_attachment_check(
-        self, mode, parent_name, parents, delete_type
-    ):
+    def delete_attachment_check(self, parent_name, parents, delete_type):
         attachment = AttachmentFactory()
         for parent in parents:
             parent.attachments.add(attachment)
@@ -1128,7 +1109,6 @@ class TestAttachments(BaseViewsTest):
 
         parent = parents[0]  # each one is suitable, so take the first
         full_url = reverse('delete_attachment', kwargs={
-            'mode': mode,
             'parent': parent_name,
         })
         data = {

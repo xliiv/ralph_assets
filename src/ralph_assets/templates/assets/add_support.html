@@ -19,7 +19,7 @@
     {% if support %}{% object_list_search support 'assets' %}{% endif %}
     </div>
     <div class="span6">
-      {% include 'assets/attachment_table.html' with attachment_parent=support mode=mode parent_name='support' %}
+      {% include 'assets/attachment_table.html' with attachment_parent=support parent_name='support' %}
       {% if support %}
         <h6>
           <a href="{% url support_history mode support.id %}">
@@ -38,7 +38,7 @@
   </div>
 </form>
 
-{% include 'assets/attachment_deletion.html' with attachment_parent=support mode=mode parent_name='support'%}
+{% include 'assets/attachment_deletion.html' with attachment_parent=support parent_name='support'%}
 {% endblock %}
 
 

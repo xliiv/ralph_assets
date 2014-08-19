@@ -152,12 +152,7 @@ urlpatterns = patterns(
         name='transition',
     ),
     url(
-        r'(?P<mode>(back_office|dc))/add_attachment/(?P<parent>(asset|license|support))/$',  # noqa
-        login_required(AddAttachment.as_view()),
-        name='add_attachment'
-    ),
-    url(
-        r'add_attachment/(?P<parent>(asset|license))/$',  # noqa
+        r'add_attachment/(?P<parent>(asset|license|support))/$',
         login_required(AddAttachment.as_view()),
         name='add_attachment'
     ),
@@ -228,7 +223,7 @@ urlpatterns = patterns(
         name='delete_licence',
     ),
     url(
-        r'(?P<mode>(back_office|dc|administration|other))/delete/(?P<parent>(asset|license|support))/attachment/$',  # noqa
+        r'delete/(?P<parent>(asset|license|support))/attachment/$',
         login_required(DeleteAttachment.as_view()),
         name='delete_attachment',
     ),
