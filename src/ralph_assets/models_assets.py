@@ -749,6 +749,10 @@ class Asset(
         if commit:
             self.save()
 
+    @property
+    def asset_type(self):
+        return self.type
+
 
 @receiver(post_save, sender=Asset, dispatch_uid='ralph.create_asset')
 def create_asset_post_save(sender, instance, created, **kwargs):
