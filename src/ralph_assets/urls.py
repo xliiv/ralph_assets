@@ -98,7 +98,7 @@ urlpatterns = patterns(
         name='dc'),
     url(r'back_office/$',
         RedirectView.as_view(url='/assets/back_office/search'),
-        name='dc'),
+        name='bo'),
 
     url(r'(?P<mode>(back_office|dc))/search',
         login_required(AssetSearch.as_view()),
@@ -192,27 +192,27 @@ urlpatterns = patterns(
         name='count_licences',
     ),
     url(
-        r'sup/supports/$',
+        r'support/$',
         login_required(SupportList.as_view()),
         name='support_list',
     ),
     url(
-        r'sup/add_support/$',
+        r'support/add/$',
         login_required(AddSupportView.as_view()),
         name='add_support',
     ),
     url(
-        r'sup/edit_support/(?P<support_id>[0-9]+)$',
+        r'support/edit/(?P<support_id>[0-9]+)$',
         login_required(EditSupportView.as_view()),
         name='edit_support',
     ),
     url(
-        r'history/support/(?P<support_id>[0-9]+)/$',
+        r'support/history/(?P<support_id>[0-9]+)/$',
         login_required(HistorySupport.as_view()),
         name='support_history',
     ),
     url(
-        r'sup/delete/$',
+        r'support/delete/$',
         login_required(DeleteSupportView.as_view()),
         name='delete_support',
     ),

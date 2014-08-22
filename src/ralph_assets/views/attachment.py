@@ -15,7 +15,7 @@ from django.http import HttpResponseRedirect
 
 from ralph_assets import models as assets_models
 from ralph_assets.forms import AttachmentForm
-from ralph_assets.models_assets import Attachment, ASSET_TYPE2MODE
+from ralph_assets.models_assets import Attachment
 from ralph_assets.views.base import AssetsBase
 
 
@@ -32,34 +32,18 @@ class BaseAttachment(AssetsBase):
         }
         return reverse(mapping[parent_name])
 
-    def get_parent_mode(self, parent, parent_pk):
-        parent_obj = parent.objects.get(pk=parent_pk)
-        mode = ASSET_TYPE2MODE[parent_obj.asset_type]
-        return mode
-
-    def get_parent_pk(self, request):
-        if 'select' in request.GET:
-            parent_pk = request.GET.get('select')
-        elif 'parent_id' in request.POST:
-            parent_pk = request.POST.get('parent_id')
-        return parent_pk
-
-    def set_mainmenu_selection(self, mode, parent):
+    def set_mainmenu_selection(self, parent):
         if parent in set(['licence', 'support']):
             self.mainmenu_selected = parent + 's'
-        else:
-            self.mainmenu_selected = mode
 
     def dispatch(self, request, parent, *args, **kwargs):
         if parent == 'license':
             parent = 'licence'
         self.Parent = getattr(assets_models, parent.title())
         self.parent_name = parent
-        parent_pk = self.get_parent_pk(request)
-        self.mode = self.get_parent_mode(self.Parent, parent_pk)
-        self.set_mainmenu_selection(self.mode, parent)
+        self.set_mainmenu_selection(parent)
         return super(BaseAttachment, self).dispatch(
-            request, self.mode, *args, **kwargs
+            request, mode='', *args, **kwargs
         )
 
 

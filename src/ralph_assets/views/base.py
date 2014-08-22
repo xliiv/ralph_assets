@@ -58,7 +58,7 @@ class AssetsBase(ACLGateway, TemplateView):
     section = None
     status = ''
     mode = None
-    mainmenu_selected = None
+    mainmenu_selected = ''
     sidebar_selected = None
     detect_changes = False
     template_name = "assets/base.html"
