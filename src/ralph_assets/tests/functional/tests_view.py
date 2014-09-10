@@ -192,7 +192,10 @@ class TestDevicesView(ClientMixin, TestCase):
             'asset_id': asset.id,
         })
         form_data = self.get_object_form_data(url, 'asset_form')
-        asset.device_info.delete()
+        if asset.device_info:
+            asset.device_info.delete()
+        elif asset.office_info:
+            asset.office_info.delete()
         asset.delete()
         return form_data
 
