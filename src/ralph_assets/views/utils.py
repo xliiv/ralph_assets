@@ -23,11 +23,8 @@ def _create_device(creator_profile, asset_data, cleaned_additional_info, mode):
     if mode == 'dc':
         asset = Asset(created_by=creator_profile, **asset_data)
         device_info = DeviceInfo()
-        device_info.ralph_device_id = cleaned_additional_info[
-            'ralph_device_id'
-        ]
-        device_info.u_level = cleaned_additional_info['u_level']
-        device_info.u_height = cleaned_additional_info['u_height']
+        for field in ['ralph_device_id', 'u_level', 'u_height']:
+            setattr(device_info, field, cleaned_additional_info[field])
         device_info.save(user=creator_profile.user)
         asset.device_info = device_info
     elif mode == 'back_office':
