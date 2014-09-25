@@ -256,15 +256,6 @@ class EditDevice(HardwareModeMixin, SubmoduleModeMixin, AssetsBase):
                 force_unlink = self.additional_info.cleaned_data.get(
                     'force_unlink', None,
                 )
-                if self.validate_barcodes(
-                    [self.asset_form.cleaned_data['barcode']]
-                ) and not force_unlink:
-                    msg = _(
-                        "Device with barcode already exist, check"
-                        " 'force unlink' option to relink it."
-                    )
-                    messages.error(self.request, msg)
-                    return super(EditDevice, self).get(*args, **kwargs)
                 modifier_profile = self.request.user.get_profile()
                 self.asset = _update_asset(
                     modifier_profile, self.asset, self.asset_form.cleaned_data
