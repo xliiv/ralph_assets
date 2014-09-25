@@ -188,7 +188,6 @@ class TestBulkEdit(TestCase):
         bo_asset_data.update({
             'sn': 'bo-sn-number',
             'type': models_assets.AssetType.back_office,
-            'office_info': OfficeInfoFactory(),
             'provider': 'provider',
         })
 
