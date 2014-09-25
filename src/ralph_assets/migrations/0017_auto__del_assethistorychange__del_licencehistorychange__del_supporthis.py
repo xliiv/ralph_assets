@@ -5,26 +5,130 @@ from south.v2 import SchemaMigration
 from django.db import models
 
 
+DEFAULT_HISTORY_FIELD_EXCLUDE = ('created', 'modified', 'cache_version',
+                                 'rght', 'level', 'lft', 'tree_id')
+
+
+def get_old_history_model(orm, name, model=None):
+    model_name = model or name
+    foreign_name = 'ralph_assets.' + name.capitalize().replace('_', '')
+
+    class OldHistoryChange(models.Model):
+        obj = models.ForeignKey(foreign_name)
+        user = models.ForeignKey(orm['auth.User'])
+        field_name = models.CharField(max_length=64, default='')
+        old_value = models.TextField(default='')
+        new_value = models.TextField(default='')
+        date = models.DateTimeField(default=datetime.datetime.now)
+
+    meta = OldHistoryChange._meta
+    meta.db_table = 'ralph_assets_{}historychange'.format(model_name.lower())
+    meta.fields[1].db_column = '{}_id'.format(name.lower())
+    meta.fields[1].column = '{}_id'.format(name.lower())
+
+    return OldHistoryChange
+
+
+def create_history_item(orm, Model, content_type, limit=1000):
+    create_history_item.history = []
+
+    def bulk_create():
+        if create_history_item.history:
+            orm.History.objects.bulk_create(create_history_item.history)
+            create_history_item.history = []
+
+    for index, history in enumerate(Model.objects.all(), 1):
+        if history.field_name in DEFAULT_HISTORY_FIELD_EXCLUDE or not history.obj_id:
+            continue
+        create_history_item.history.append(
+            orm.History(
+                id=None,
+                object_id=history.obj_id,
+                content_type=content_type,
+                user_id=history.user_id,
+                field_name=history.field_name,
+                old_value=history.old_value,
+                new_value=history.new_value,
+                date=history.date,
+            )
+        )
+        if index % limit == 0:
+            bulk_create()
+    bulk_create()
+
+
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        db.add_column('ralph_assets_licence_assets', 'quantity',
-                      self.gf('django.db.models.fields.PositiveIntegerField')(default=1),
+        """
+        Please manually drop or archive above tables.
+
+            ralph_assets_supporthistorychange
+            ralph_assets_licencehistorychange
+            ralph_assets_assethistorychange
+        """
+        # Adding model 'History'
+        db.create_table(u'ralph_assets_history', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('date', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(default=None, to=orm['auth.User'], null=True, on_delete=models.SET_NULL, blank=True)),
+            ('content_type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contenttypes.ContentType'])),
+            ('object_id', self.gf('django.db.models.fields.PositiveIntegerField')()),
+            ('field_name', self.gf('django.db.models.fields.CharField')(default=u'', max_length=64)),
+            ('old_value', self.gf('django.db.models.fields.TextField')(default=u'')),
+            ('new_value', self.gf('django.db.models.fields.TextField')(default=u'')),
+        ))
+        db.send_create_signal(u'ralph_assets', ['History'])
+
+        # Adding field 'Asset.service'
+        db.add_column('ralph_assets_asset', 'service',
+                      self.gf('django.db.models.fields.related.ForeignKey')(default=None, to=orm['cmdb.CI'], null=True, on_delete=models.PROTECT),
                       keep_default=False)
 
-        db.add_column('ralph_assets_licence_users', 'quantity',
-                      self.gf('django.db.models.fields.PositiveIntegerField')(default=1),
+        # Adding field 'Asset.device_environment'
+        db.add_column('ralph_assets_asset', 'device_environment',
+                      self.gf('django.db.models.fields.related.ForeignKey')(default=None, to=orm['cmdb.CI'], null=True, on_delete=models.PROTECT),
                       keep_default=False)
 
-        db.create_unique(u'ralph_assets_licence_assets', ['asset_id', 'licence_id'])
-        db.create_unique(u'ralph_assets_licence_users', ['user_id', 'licence_id'])
+        if not db.dry_run:
+            content_types = {}
+            model_field_mapper = {
+                'licence': 'licence',
+                'support': 'support',
+                'asset': 'asset',
+                'deviceinfo': 'device_info',
+                'partinfo': 'part_info',
+                'officeinfo': 'office_info',
+            }
+            for model in model_field_mapper.keys():
+                content_types[model] = orm['contenttypes.ContentType'].objects.get(
+                    app_label='ralph_assets',
+                    model=model,
+                )
+            # migrate licences and supports histories to content type
+            for model in ('licence', 'support'):
+                content_type = content_types[model]
+                Model = get_old_history_model(orm, model)
+                create_history_item(orm, Model, content_type)
+
+            # migrate assets (and related models) histories to content type
+            for model in ('asset', 'deviceinfo', 'partinfo', 'officeinfo'):
+                content_type = content_types[model]
+                Model = get_old_history_model(orm, model_field_mapper[model], 'asset')
+                create_history_item(orm, Model, content_type)
+
+            print(self.forwards.__doc__)
 
     def backwards(self, orm):
-        db.delete_column('ralph_assets_licence_assets', 'quantity')
-        db.delete_column('ralph_assets_licence_users', 'quantity')
+        # Deleting model 'History'
+        db.delete_table(u'ralph_assets_history')
 
-        db.delete_unique(u'ralph_assets_licence_users', ['user_id', 'licence_id'])
-        db.delete_unique(u'ralph_assets_licence_assets', ['asset_id', 'licence_id'])
+        # Deleting field 'Asset.service'
+        db.delete_column('ralph_assets_asset', 'service_id')
+
+        # Deleting field 'Asset.device_environment'
+        db.delete_column('ralph_assets_asset', 'device_environment_id')
+
 
     models = {
         'account.profile': {
@@ -77,6 +181,77 @@ class Migration(SchemaMigration):
             'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
             'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
         },
+        'cmdb.ci': {
+            'Meta': {'unique_together': "((u'content_type', u'object_id'),)", 'object_name': 'CI'},
+            'added_manually': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'barcode': ('django.db.models.fields.CharField', [], {'default': 'None', 'max_length': '255', 'unique': 'True', 'null': 'True', 'blank': 'True'}),
+            'business_service': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'cache_version': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
+            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']", 'null': 'True', 'blank': 'True'}),
+            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'layers': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['cmdb.CILayer']", 'symmetrical': 'False'}),
+            'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
+            'object_id': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'owners': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['cmdb.CIOwner']", 'through': "orm['cmdb.CIOwnership']", 'symmetrical': 'False'}),
+            'pci_scope': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'relations': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['cmdb.CI']", 'through': "orm['cmdb.CIRelation']", 'symmetrical': 'False'}),
+            'state': ('django.db.models.fields.IntegerField', [], {'default': '2', 'max_length': '11'}),
+            'status': ('django.db.models.fields.IntegerField', [], {'default': '2', 'max_length': '11'}),
+            'technical_service': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['cmdb.CIType']"}),
+            'uid': ('django.db.models.fields.CharField', [], {'max_length': '100', 'unique': 'True', 'null': 'True', 'blank': 'True'}),
+            'zabbix_id': ('django.db.models.fields.CharField', [], {'max_length': '30', 'null': 'True', 'blank': 'True'})
+        },
+        'cmdb.cilayer': {
+            'Meta': {'ordering': "(u'name',)", 'object_name': 'CILayer'},
+            'cache_version': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
+            'connected_types': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['cmdb.CIType']", 'symmetrical': 'False', 'blank': 'True'}),
+            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'icon': (u'dj.choices.fields.ChoiceField', [], {'unique': 'False', 'primary_key': 'False', 'db_column': 'None', 'blank': 'True', u'default': 'None', 'null': 'True', '_in_south': 'True', 'db_index': 'False'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '50', 'db_index': 'True'})
+        },
+        'cmdb.ciowner': {
+            'Meta': {'object_name': 'CIOwner'},
+            'cache_version': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
+            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'profile': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['account.Profile']", 'unique': 'True'})
+        },
+        'cmdb.ciownership': {
+            'Meta': {'object_name': 'CIOwnership'},
+            'cache_version': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
+            'ci': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['cmdb.CI']"}),
+            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'owner': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['cmdb.CIOwner']"}),
+            'type': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1'})
+        },
+        'cmdb.cirelation': {
+            'Meta': {'unique_together': "((u'parent', u'child', u'type'),)", 'object_name': 'CIRelation'},
+            'cache_version': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
+            'child': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'child'", 'to': "orm['cmdb.CI']"}),
+            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'parent': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'parent'", 'to': "orm['cmdb.CI']"}),
+            'readonly': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'type': ('django.db.models.fields.IntegerField', [], {'max_length': '11'})
+        },
+        'cmdb.citype': {
+            'Meta': {'object_name': 'CIType'},
+            'cache_version': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
+            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'icon_class': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'name': ('django.db.models.fields.SlugField', [], {'max_length': '50'})
+        },
         'contenttypes.contenttype': {
             'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
             'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
@@ -101,6 +276,7 @@ class Migration(SchemaMigration):
             'delivery_date': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'deprecation_end_date': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'deprecation_rate': ('django.db.models.fields.DecimalField', [], {'default': '25', 'max_digits': '5', 'decimal_places': '2', 'blank': 'True'}),
+            'device_environment': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['cmdb.CI']", 'null': 'True', 'on_delete': 'models.PROTECT'}),
             'device_info': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['ralph_assets.DeviceInfo']", 'unique': 'True', 'null': 'True', 'blank': 'True'}),
             'force_deprecation': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'hostname': ('django.db.models.fields.CharField', [], {'default': 'None', 'max_length': '16', 'unique': 'True', 'null': 'True', 'blank': 'True'}),
@@ -127,6 +303,7 @@ class Migration(SchemaMigration):
             'remarks': ('django.db.models.fields.CharField', [], {'max_length': '1024', 'blank': 'True'}),
             'request_date': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'required_support': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'service': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['cmdb.CI']", 'null': 'True', 'on_delete': 'models.PROTECT'}),
             'service_name': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['ralph_assets.Service']", 'null': 'True', 'blank': 'True'}),
             'slots': ('django.db.models.fields.FloatField', [], {'default': '0', 'max_length': '64'}),
             'sn': ('django.db.models.fields.CharField', [], {'max_length': '200', 'unique': 'True', 'null': 'True', 'blank': 'True'}),
@@ -158,20 +335,6 @@ class Migration(SchemaMigration):
             'slug': ('django.db.models.fields.SlugField', [], {'unique': 'True', 'max_length': '100', 'primary_key': 'True'}),
             'tree_id': ('django.db.models.fields.PositiveIntegerField', [], {'db_index': 'True'}),
             'type': ('django.db.models.fields.PositiveIntegerField', [], {})
-        },
-        'ralph_assets.assethistorychange': {
-            'Meta': {'object_name': 'AssetHistoryChange'},
-            'asset': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['ralph_assets.Asset']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
-            'comment': ('django.db.models.fields.TextField', [], {'null': 'True'}),
-            'date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'device_info': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['ralph_assets.DeviceInfo']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
-            'field_name': ('django.db.models.fields.CharField', [], {'default': "u''", 'max_length': '64'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'new_value': ('django.db.models.fields.CharField', [], {'default': "u''", 'max_length': '255'}),
-            'office_info': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['ralph_assets.OfficeInfo']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
-            'old_value': ('django.db.models.fields.CharField', [], {'default': "u''", 'max_length': '255'}),
-            'part_info': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['ralph_assets.PartInfo']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['auth.User']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'})
         },
         'ralph_assets.assetlasthostname': {
             'Meta': {'unique_together': "((u'prefix', u'postfix'),)", 'object_name': 'AssetLastHostname'},
@@ -251,6 +414,17 @@ class Migration(SchemaMigration):
             'u_height': ('django.db.models.fields.CharField', [], {'max_length': '10', 'null': 'True', 'blank': 'True'}),
             'u_level': ('django.db.models.fields.CharField', [], {'max_length': '10', 'null': 'True', 'blank': 'True'})
         },
+        u'ralph_assets.history': {
+            'Meta': {'ordering': "(u'-date',)", 'object_name': 'History'},
+            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
+            'date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
+            'field_name': ('django.db.models.fields.CharField', [], {'default': "u''", 'max_length': '64'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'new_value': ('django.db.models.fields.TextField', [], {'default': "u''"}),
+            'object_id': ('django.db.models.fields.PositiveIntegerField', [], {}),
+            'old_value': ('django.db.models.fields.TextField', [], {'default': "u''"}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['auth.User']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'})
+        },
         'ralph_assets.importproblem': {
             'Meta': {'object_name': 'ImportProblem'},
             'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
@@ -263,7 +437,7 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Licence'},
             'accounting_id': ('django.db.models.fields.CharField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
             'asset_type': ('django.db.models.fields.PositiveSmallIntegerField', [], {}),
-            'assets': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['ralph_assets.Asset']", 'through': "orm['ralph_assets.LicenceAsset']", 'symmetrical': 'False'}),
+            'assets': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['ralph_assets.Asset']", 'symmetrical': 'False'}),
             'attachments': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['ralph_assets.Attachment']", 'null': 'True', 'blank': 'True'}),
             'budget_info': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['ralph_assets.BudgetInfo']", 'null': 'True', 'on_delete': 'models.PROTECT', 'blank': 'True'}),
             'cache_version': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
@@ -290,37 +464,13 @@ class Migration(SchemaMigration):
             'sn': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'software_category': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['ralph_assets.SoftwareCategory']", 'on_delete': 'models.PROTECT'}),
             'tree_id': ('django.db.models.fields.PositiveIntegerField', [], {'db_index': 'True'}),
-            'users': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.User']", 'through': "orm['ralph_assets.LicenceUser']", 'symmetrical': 'False'}),
+            'users': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.User']", 'symmetrical': 'False'}),
             'valid_thru': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'})
-        },
-        'ralph_assets.licenceasset': {
-            'Meta': {'object_name': 'LicenceAsset', 'db_table': "u'ralph_assets_licence_assets'"},
-            'asset': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['ralph_assets.Asset']"}),
-            'quantity': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'licence': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['ralph_assets.Licence']"})
-        },
-        'ralph_assets.licencehistorychange': {
-            'Meta': {'object_name': 'LicenceHistoryChange'},
-            'date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'field_name': ('django.db.models.fields.CharField', [], {'default': "u''", 'max_length': '64'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'licence': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['ralph_assets.Licence']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
-            'new_value': ('django.db.models.fields.CharField', [], {'default': "u''", 'max_length': '255'}),
-            'old_value': ('django.db.models.fields.CharField', [], {'default': "u''", 'max_length': '255'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['auth.User']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'})
         },
         'ralph_assets.licencetype': {
             'Meta': {'object_name': 'LicenceType'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '75', 'db_index': 'True'})
-        },
-        'ralph_assets.licenceuser': {
-            'Meta': {'object_name': 'LicenceUser', 'db_table': "u'ralph_assets_licence_users'"},
-            'quantity': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'licence': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['ralph_assets.Licence']"}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
         },
         'ralph_assets.officeinfo': {
             'Meta': {'object_name': 'OfficeInfo'},
@@ -403,16 +553,6 @@ class Migration(SchemaMigration):
             'status': ('django.db.models.fields.PositiveSmallIntegerField', [], {'default': '1'}),
             'supplier': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
             'support_type': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['ralph_assets.SupportType']", 'null': 'True', 'on_delete': 'models.PROTECT', 'blank': 'True'})
-        },
-        'ralph_assets.supporthistorychange': {
-            'Meta': {'object_name': 'SupportHistoryChange'},
-            'date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'field_name': ('django.db.models.fields.CharField', [], {'default': "u''", 'max_length': '64'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'new_value': ('django.db.models.fields.CharField', [], {'default': "u''", 'max_length': '255'}),
-            'old_value': ('django.db.models.fields.CharField', [], {'default': "u''", 'max_length': '255'}),
-            'support': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['ralph_assets.Support']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['auth.User']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'})
         },
         'ralph_assets.supporttype': {
             'Meta': {'object_name': 'SupportType'},
