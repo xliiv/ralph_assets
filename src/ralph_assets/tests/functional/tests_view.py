@@ -1435,6 +1435,72 @@ class TestImport(ClientMixin, TestCase):
         response = self.client.post(self.url, step3_post)
         self.assertContains(response, 'Import done')
 
+    def _add_asset_by_csv(self, data):
+        self.client.get(self.url)
+        field = data[0][0]
+        csv_data = '"{}"\n"{}"'.format(field, data[0][1])
+
+        step1_post = {
+            'upload-asset_type': AssetType.back_office.id,
+            'upload-model': 'ralph_assets.asset',
+            'upload-file': SimpleUploadedFile('test.csv', csv_data),
+            'xls_upload_view-current_step': 'upload',
+        }
+        response = self.client.post(self.url, step1_post)
+        self.assertContains(response, 'column_choice')
+        self.assertContains(response, 'step 2/3')
+
+        step2_post = {
+            'column_choice-%s' % field: field,
+            'xls_upload_view-current_step': 'column_choice',
+        }
+        response = self.client.post(self.url, step2_post)
+        open('tmp.html', 'wb').write(response.content.encode('utf8'))
+        self.assertContains(response, 'step 3/3')
+
+        step3_post = {
+            'xls_upload_view-current_step': 'confirm',
+        }
+        response = self.client.post(self.url, step3_post)
+        self.assertContains(response, 'Import done')
+
+    def test_adding_asset_by_csv(self):
+        #self.client.get(self.url)
+        #asset = BOAssetFactory()
+
+        #for field in [
+        #    'barcode', 'invoice_no', 'order_no', 'sn', 'remarks', 'niw'
+        #]:
+        #    new_value = str(uuid.uuid1())
+        #    self._update_asset_by_csv(asset, field, new_value)
+        #    updated_asset = models_assets.Asset.objects.get(id=asset.id)
+        #    self.assertEqual(
+        #        getattr(updated_asset, field), new_value
+        #    )
+
+        from django.forms import ModelForm
+        class AssetForm(ModelForm):
+            class Meta:
+                model = models_assets.Asset
+                #fields = ['pub_date', 'headline', 'content', 'reporter']
+        asset = DCAssetFactory()
+        form = AssetForm(instance=asset)
+        import pdb;pdb.set_trace()
+        csv_data = """
+        """
+
+
+        data = [
+            ('barcode', str(uuid.uuid1())),
+        ]
+        self._add_asset_by_csv(data)
+        asset = Asset.objects.get(barcode=data[0][1])
+        for field, csv_value in data.iteritems():
+            addeded_asset_value = getattr(asset, field)
+            self.asserEqual(added_asset_field, csv_value)
+
+
+
     def test_import_csv_asset_back_office_update(self):
         self.client.get(self.url)
         asset = BOAssetFactory()
@@ -2061,3 +2127,78 @@ class TestLicenceConnection(BaseViewsTest):
         response = self.client.post(url, form_data)
         self.assertEqual(len(response.context_data['formset'].errors), 0)
         self.assertEqual(LicenceUser.objects.count(), 0)
+
+
+class TestDataImporter(ClientMixin, TestCase):
+    def setUp(self):
+        self.login_as_superuser()
+        self.url = reverse('xls_upload')
+
+    def _update_asset_by_csv(self, asset, field, value):
+        self.client.get(self.url)
+        csv_data = '"id","{}"\n"{}","{}"'.format(field, asset.id, value)
+
+        step1_post = {
+            'upload-asset_type': AssetType.back_office.id,
+            'upload-model': 'ralph_assets.asset',
+            'upload-file': SimpleUploadedFile('test.csv', csv_data),
+            'xls_upload_view-current_step': 'upload',
+        }
+        response = self.client.post(self.url, step1_post)
+        self.assertContains(response, 'column_choice')
+        self.assertContains(response, 'step 2/3')
+
+        step2_post = {
+            'column_choice-%s' % field: field,
+            'xls_upload_view-current_step': 'column_choice',
+        }
+        response = self.client.post(self.url, step2_post)
+        self.assertContains(response, 'step 3/3')
+
+        step3_post = {
+            'xls_upload_view-current_step': 'confirm',
+        }
+        response = self.client.post(self.url, step3_post)
+        self.assertContains(response, 'Import done')
+
+    def test_import_csv_asset_back_office_update(self):
+        self.client.get(self.url)
+        asset = BOAssetFactory()
+
+        for field in [
+            'barcode', 'invoice_no', 'order_no', 'sn', 'remarks', 'niw'
+        ]:
+            new_value = str(uuid.uuid1())
+            self._update_asset_by_csv(asset, field, new_value)
+            updated_asset = models_assets.Asset.objects.get(id=asset.id)
+            self.assertEqual(
+                getattr(updated_asset, field), new_value
+            )
+
+    def test_simple_fields_are_imported(self):
+        import_data = {
+            'accounting_id': '',
+            'asset_type': '',
+            # 'cache_version': '',
+            'created': '',
+            # 'id': '',
+            'invoice_date': '',
+            'invoice_no': '',
+            'level': '',
+            # 'lft': '',
+            'license_details': '',
+            'modified': '',
+            'niw': '',
+            'number_bought': '',
+            'order_no': '',
+            'price': '',
+            'provider': '',
+            'remarks': '',
+            # 'rght': '',
+            'sn': '',
+            # 'tree_id': '',
+            'valid_thru': '',
+        }
+        import pdb;pdb.set_trace()
+
+# get

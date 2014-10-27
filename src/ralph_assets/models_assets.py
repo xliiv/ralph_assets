@@ -145,6 +145,122 @@ MODE2ASSET_TYPE = {
 ASSET_TYPE2MODE = {v: k for k, v in MODE2ASSET_TYPE.items()}
 
 
+class TODONoName(object):
+    def update_model(self, object_data):
+        """
+        updates model with all crap.. especially should handle such ridiculous
+        crap like (device|office)_info
+        """
+        #TODO:: hardcoded type
+        self.type = AssetType.data_center
+        for field_name, field_value in object_data.iteritems():
+            setattr(self, field_name, field_value)
+        self.save()
+        return self
+
+    def text2field_value(self, field_name, value):
+        """Transform a pure string into the value to be put into the field."""
+        from django.core.exceptions import MultipleObjectsReturned
+        from ralph_assets.data_importer.views import RequiredFieldError
+        from django.db.models.fields import (
+            CharField,
+            DateField,
+            DecimalField,
+            TextField,
+        )
+        from django.db.models.fields.related import RelatedField, ManyToManyField
+        from ralph_assets.forms_import import (
+            get_model_by_name,
+            get_amendment_model,
+        )
+        #TODO:: tmp hardcode
+        from ralph_assets.models_assets import MODE2ASSET_TYPE
+        mode = AssetCategoryType.data_center.id
+        #mode = MODE2ASSET_TYPE[AssetCategoryType.data_center]
+        #amd_field, amd_model = get_amendment_model(self.mode)
+        #TODO:: tmp hardcod
+        amd_field, amd_model = 'device_info', 'ralph_assets.deviceinfo'
+        self.AmdModel = get_model_by_name(amd_model)
+
+
+        if '.' in field_name:
+            Model = self.AmdModel
+            _, field_name = field_name.split('.', 1)
+        else:
+            Model = self
+
+        field = Model._meta.get_field_by_name(field_name)[0]
+        if not value:
+            if isinstance(field, ManyToManyField):
+                return []
+            elif (
+                isinstance(field, (TextField, CharField)) and
+                field_name not in ('imei', 'sn', 'barcode')
+            ):
+                return ''
+            else:
+                return
+        if isinstance(field, DecimalField):
+            if value.count(',') == 1 and '.' not in value:
+                value = value.replace(',', '.')
+        if isinstance(field, DateField):
+            if ' ' in value:
+                # change "2012-5-30 13:23:54" to "2012-5-30"
+                value = value.split()[0]
+        if field.choices:
+            value_lower = value.lower().strip()
+            for k, v in field.choices:
+                if value_lower == v.lower().strip():
+                    value = k
+                    break
+
+        if (
+            isinstance(value, basestring) and
+            isinstance(field, RelatedField) and
+            issubclass(
+                field.rel.to, (
+                    Named, Named.NonUnique, User, Sluggy, DeviceEnvironment,
+                    ServiceCatalog,
+                )
+            )
+
+        ):
+            try:
+                if issubclass(field.rel.to, User):
+                    value = field.rel.to.objects.get(username__iexact=value)
+                elif issubclass(field.rel.to, Sluggy):
+                    value = field.rel.to.objects.get(slug=value)
+                elif issubclass(field.rel.to, ServiceCatalog) or issubclass(field.rel.to, DeviceEnvironment):  # noqa
+                    try:
+                        value = field.rel.to.objects.get(name__iexact=value)
+                    except field.rel.to.DoesNotExist:
+                        msg = 'Couldn\'t find value {!r} for key {!r}'.format(
+                            value, field.name,
+                        )
+                        raise RequiredFieldError(msg)
+                    except MultipleObjectsReturned:
+                        msg = 'Not ambiguous value {} for key {}'.format(
+                            value, field.name,
+                        )
+                        raise RequiredFieldError(msg)
+                else:
+                    value = field.rel.to.objects.get(name__iexact=value)
+            except field.rel.to.DoesNotExist:
+                if issubclass(field.rel.to, CreatableFromString):
+                    value = field.rel.to.create_from_string(
+                        #asset_type=self.mode,
+                        #TODO:: tmp hardcode
+                        asset_type='dc',
+                        s=value
+                    )
+                    value.save()
+                else:
+                    raise
+        if isinstance(field, ManyToManyField):
+            value = [value]
+        return value
+
+
 class AssetPurpose(Choices):
     _ = Choices.Choice
 
@@ -397,6 +513,7 @@ class AssetLastHostname(models.Model):
 
 
 class Asset(
+    TODONoName,
     AttachmentMixin,
     HistoryMixin,
     TimeTrackable,

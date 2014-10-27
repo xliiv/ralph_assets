@@ -36,7 +36,8 @@ from ralph_assets.views.ajax import (
     CategoryDependencyView,
     ModelDependencyView,
 )
-from ralph_assets.views.data_import import XlsUploadView
+#from ralph_assets.views.data_import import XlsUploadView
+from ralph_assets.data_importer.views import XlsUploadView
 from ralph_assets.views.support import (
     SupportList,
     AddSupportView,

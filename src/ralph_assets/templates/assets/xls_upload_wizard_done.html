@@ -5,6 +5,7 @@
 {% block content %}
 <h1>{% trans "Import done" %}</h1>
 
+{% comment %}
 {% if failed_assets %}
   <h4> {% trans "The following assets couldn't be found:" %} </h4>
   <ul>
@@ -23,6 +24,15 @@
     </tr>
     {% endfor %}
   </table>
+{% endif %}
+{% endcomment %}
+
+{% if errors %}
+    <ul>
+    {% for error in errors %}
+      <li>{{error}}</li>
+    {% endfor %}
+    </ul>
 {% endif %}
 
 {% endblock %}
