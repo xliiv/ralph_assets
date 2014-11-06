@@ -13,13 +13,14 @@ from urllib import urlencode
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
-
 from ralph.discovery.tests.util import DeviceFactory
+from ralph.ui.tests.global_utils import login_as_su
+
 from ralph_assets.tests.utils.assets import (
     BOAssetFactory,
     DCAssetFactory,
 )
-from ralph.ui.tests.global_utils import login_as_su
+from ralph_assets.tests.utils.licences import LicenceFactory
 
 
 class BaseLookupsTest(TestCase):
@@ -62,6 +63,23 @@ class TestPerms(BaseLookupsTest):
         url = self._generate_url('ralph_assets.models', 'DeviceLookup')
         response = self.client.get(url + '?term=test')
         self.assertEqual(response.status_code, 200)
+
+
+class TestFreeLicenceLookup(BaseLookupsTest):
+
+    def setUp(self):
+        super(TestFreeLicenceLookup, self).setUp()
+        self.base_url = self._generate_url(
+            'ralph_assets.models', 'FreeLicenceLookup',
+        )
+
+    def test_licence_found_by_category_name(self):
+        licence = LicenceFactory()
+        self._check_lookup_count(
+            self.base_url,
+            searched_term=licence.software_category.name,
+            expected_count=1,
+        )
 
 
 class TestAssetLookup(BaseLookupsTest):
