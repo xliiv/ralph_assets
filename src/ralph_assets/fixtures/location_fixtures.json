@@ -1,0 +1,51 @@
+[
+    {
+        "pk": 1,
+        "model": "ralph_assets.data_center",
+        "fields": {
+            "name": "DC2"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "ralph_assets.data_center",
+        "fields": {
+            "name": "DC4"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "ralph_assets.orientation",
+        "fields": {
+            "name": "front"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "ralph_assets.orientation",
+        "fields": {
+            "name": "back"
+        }
+    },
+    {
+        "pk": 3,
+        "model": "ralph_assets.orientation",
+        "fields": {
+            "name": "middle"
+        }
+    },
+    {
+        "pk": 4,
+        "model": "ralph_assets.orientation",
+        "fields": {
+            "name": "left"
+        }
+    },
+    {
+        "pk": 5,
+        "model": "ralph_assets.orientation",
+        "fields": {
+            "name": "right"
+        }
+    }
+]

@@ -1333,6 +1333,7 @@ class BackOfficeEditDeviceForm(ReadOnlyFieldsMixin, EditDeviceForm):
     readonly_fields = ('created',)
 
     class Meta(BaseEditAssetForm.Meta):
+        #TODO:: move it to editdeviceform?
         fields = BaseEditAssetForm.Meta.fields + (
             'device_environment', 'hostname', 'service', 'created',
             'hostname', 'created', 'segment',
@@ -1343,6 +1344,7 @@ class BackOfficeEditDeviceForm(ReadOnlyFieldsMixin, EditDeviceForm):
         queryset=models_device.DeviceEnvironment.objects.all(),
         label=_('Environment'),
     )
+    #TODO:: move it to editdeviceform?
     hostname = CharField(
         required=False, widget=SimpleReadOnlyWidget(),
     )
@@ -1364,6 +1366,7 @@ class BackOfficeEditDeviceForm(ReadOnlyFieldsMixin, EditDeviceForm):
 
     def __init__(self, *args, **kwargs):
         super(BackOfficeEditDeviceForm, self).__init__(*args, **kwargs)
+        #TODO:: replace it static fieldset needed!
         for after, field in (
             ('sn', 'imei'),
             ('loan_end_date', 'purpose'),
@@ -1376,6 +1379,7 @@ class BackOfficeEditDeviceForm(ReadOnlyFieldsMixin, EditDeviceForm):
             move_after(self.fieldsets['Basic Info'], after, field)
         self.fieldsets['User Info'].append('segment')
 
+    #TODO:: replace it with readonly_fields
     def clean_hostname(self):
         # make field readonly
         return self.instance.hostname or None
@@ -1385,7 +1389,7 @@ class DataCenterEditDeviceForm(EditDeviceForm):
 
     class Meta(BaseEditAssetForm.Meta):
         fields = BaseEditAssetForm.Meta.fields + (
-            'device_environment', 'service',
+            'device_environment', 'service', 'hostname',
         )
     device_environment = ModelChoiceField(
         required=True,
@@ -1397,15 +1401,31 @@ class DataCenterEditDeviceForm(EditDeviceForm):
         required=True,
         label=_('Service catalog'),
     )
+    #TODO:: move it to editdeviceform?
+    hostname = CharField(
+        required=False, widget=SimpleReadOnlyWidget(),
+    )
 
     def __init__(self, *args, **kwargs):
         super(DataCenterEditDeviceForm, self).__init__(*args, **kwargs)
+        try:
+            device_hostname = kwargs['instance'].linked_device.name
+        except AttributeError:
+            device_hostname = ''
+        self.initial['hostname'] = device_hostname
+        #TODO:: replace it static fieldset needed!
         for after, field in (
-            ('property_of', 'service'),
+            ('property_of', 'hostname'),
+            ('hostname', 'service'),
             ('service', 'device_environment'),
         ):
             self.fieldsets['Basic Info'].append(field)
             move_after(self.fieldsets['Basic Info'], after, field)
+
+    #TODO:: replace it with readonly_fields
+    def clean_hostname(self):
+        # make field readonly
+        return self.instance.hostname or None
 
 
 class SearchAssetForm(Form):

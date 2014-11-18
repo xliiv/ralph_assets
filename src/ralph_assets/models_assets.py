@@ -859,11 +859,6 @@ class Asset(
         return self.type
 
 
-
-# TODO:: add fixtures
-# orientation: need fixtures, przod, tyl, srodek, lewo, prawo
-# data_center: DC2, DC4, ..
-
 class DataCenter(Named):
     pass
 
