@@ -858,6 +858,19 @@ class Asset(
         return self.type
 
 
+
+# TODO:: add fixtures
+# orientation: need fixtures, przod, tyl, srodek, lewo, prawo
+# data_center: DC2, DC4, ..
+
+class DataCenter(Named):
+    pass
+
+
+class Orientation(Named):
+    pass
+
+
 class DeviceInfo(TimeTrackable, SavingUser, SoftDeletable):
     ralph_device_id = models.IntegerField(
         verbose_name=_("Ralph device id"),
@@ -869,6 +882,15 @@ class DeviceInfo(TimeTrackable, SavingUser, SoftDeletable):
     u_level = models.CharField(max_length=10, null=True, blank=True)
     u_height = models.CharField(max_length=10, null=True, blank=True)
     rack = models.CharField(max_length=10, null=True, blank=True)
+    # new fields
+    #TODO:: which fields have to be requried?
+    data_center = models.ForeignKey(DataCenter, verbose_name=_("data center"))
+    slot_no = models.IntegerField(verbose_name=_("slot number"), blank=True)
+    server_room = models.IntegerField()
+    # rack already exists
+    position = models.IntegerField()
+    # TODO:: default: przod
+    orientation = models.ForeignKey(Orientation, verbose_name=_("orientation"))
 
     @property
     def size(self):
