@@ -629,7 +629,7 @@ class AssetSearchDataTable(_AssetSearch, DataTableMixin):
                     export=True,
                 ), _(
                     'Rack',
-                    field='rack',
+                    field='rack_old',
                     foreign_field_name='device_info',
                     export=True,
                 ),

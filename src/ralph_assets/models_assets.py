@@ -124,6 +124,19 @@ class LicenseType(Choices):
     box = _("box")
 
 
+class Orientation(Choices):
+    _ = Choices.Choice
+
+    DEPTH = Choices.Group(0)
+    front = _("front")
+    back = _("back")
+    middle = _("middle")
+
+    WIDTH = Choices.Group(100)
+    left = _("left")
+    right = _("right")
+
+
 class AssetType(Choices):
     _ = Choices.Choice
 
@@ -858,6 +871,24 @@ class Asset(
         return self.type
 
 
+class DataCenter(Named):
+    device = models.ForeignKey(Device, null=True)
+
+
+class ServerRoom(Named):
+    data_center = models.ForeignKey(DataCenter, verbose_name=_("data center"))
+
+
+class Rack(Named.NonUnique):
+    class Meta:
+        unique_together = ('name', 'data_center')
+
+    server_room = models.ForeignKey(ServerRoom, verbose_name=_("server room"))
+    max_u_height = models.IntegerField(default=48, blank=True)
+    device = models.ForeignKey(Device, null=True, related_name='+')
+    data_center = models.ForeignKey(DataCenter, null=True)
+
+
 class DeviceInfo(TimeTrackable, SavingUser, SoftDeletable):
     ralph_device_id = models.IntegerField(
         verbose_name=_("Ralph device id"),
@@ -868,7 +899,18 @@ class DeviceInfo(TimeTrackable, SavingUser, SoftDeletable):
     )
     u_level = models.CharField(max_length=10, null=True, blank=True)
     u_height = models.CharField(max_length=10, null=True, blank=True)
-    rack = models.CharField(max_length=10, null=True, blank=True)
+    # deperecated field, use rack instead
+    rack_old = models.CharField(max_length=10, null=True, blank=True)
+    rack = models.ForeignKey(Rack, null=True)
+    orientation = models.PositiveIntegerField(
+        choices=Orientation(),
+        default=Orientation.front.id,
+    )
+    position = models.IntegerField(null=True)
+    server_room = models.ForeignKey(ServerRoom, null=True)
+    slot_no = models.IntegerField(
+        verbose_name=_("slot number"), null=True, blank=True,
+    )
 
     @property
     def size(self):

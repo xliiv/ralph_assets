@@ -158,7 +158,7 @@ class DeviceInfoFactory(DjangoModelFactory):
 
     u_level = random.randint(0, 100)
     u_height = random.randint(0, 100)
-    rack = Sequence(lambda n: 'Rack #%s' % n)
+    rack_old = Sequence(lambda n: 'Rack #%s' % n)
 
 
 class BudgetInfoFactory(DjangoModelFactory):
