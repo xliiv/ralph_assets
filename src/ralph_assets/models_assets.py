@@ -871,11 +871,45 @@ class Asset(
         return self.type
 
 
+class ConnectedRalphDCManager(models.Manager):
+    def get_query_set(self):
+        query_set = super(ConnectedRalphDCManager, self).get_query_set()
+        data_centers = query_set.filter(
+            parent__model__type=DeviceType.data_center,
+        )
+        return data_centers
+
+
+class ConnectedRalphDC(Device):
+    objects = ConnectedRalphDCManager()
+
+    class Meta:
+        proxy = True
+
+
+class ConnectedRalphRackManager(models.Manager):
+    def get_query_set(self):
+        query_set = super(ConnectedRalphRackManager, self).get_query_set()
+        racks = query_set.filter(
+            parent__model__type=DeviceType.rack,
+        )
+        return racks
+
+
+class ConnectedRalphRack(Device):
+    objects = ConnectedRalphRackManager()
+
+    class Meta:
+        proxy = True
+
+
 class DataCenter(Named):
-    device = models.ForeignKey(Device, null=True)
+    connected_ralph_dc = models.ForeignKey(
+        ConnectedRalphDC, null=True, blank=True,
+    )
 
 
-class ServerRoom(Named):
+class ServerRoom(Named.NonUnique):
     data_center = models.ForeignKey(DataCenter, verbose_name=_("data center"))
 
 
@@ -884,9 +918,12 @@ class Rack(Named.NonUnique):
         unique_together = ('name', 'data_center')
 
     server_room = models.ForeignKey(ServerRoom, verbose_name=_("server room"))
-    max_u_height = models.IntegerField(default=48, blank=True)
-    device = models.ForeignKey(Device, null=True, related_name='+')
-    data_center = models.ForeignKey(DataCenter, null=True)
+    max_u_height = models.IntegerField(default=48)
+    connected_ralph_rack = models.ForeignKey(
+        ConnectedRalphRack, null=True, related_name='connected_asset_rack',
+        blank=True,
+    )
+    data_center = models.ForeignKey(DataCenter, null=True, blank=True)
 
 
 class DeviceInfo(TimeTrackable, SavingUser, SoftDeletable):

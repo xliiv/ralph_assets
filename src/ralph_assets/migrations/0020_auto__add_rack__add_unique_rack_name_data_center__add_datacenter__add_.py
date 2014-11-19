@@ -13,18 +13,54 @@ class Migration(SchemaMigration):
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=75)),
             ('server_room', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['ralph_assets.ServerRoom'])),
-            ('max_u_height', self.gf('django.db.models.fields.IntegerField')(default=48, blank=True)),
-            ('device', self.gf('django.db.models.fields.related.ForeignKey')(related_name=u'+', null=True, to=orm['discovery.Device'])),
-            ('data_center', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['ralph_assets.DataCenter'], null=True)),
+            ('max_u_height', self.gf('django.db.models.fields.IntegerField')(default=48)),
+            ('connected_ralph_rack', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name=u'connected_asset_rack', null=True, to=orm['discovery.Device'])),
+            ('data_center', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['ralph_assets.DataCenter'], null=True, blank=True)),
         ))
         db.send_create_signal('ralph_assets', ['Rack'])
 
         # Adding unique constraint on 'Rack', fields ['name', 'data_center']
         db.create_unique('ralph_assets_rack', ['name', 'data_center_id'])
 
+        # Adding model 'DataCenter'
+        db.create_table('ralph_assets_datacenter', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(unique=True, max_length=75, db_index=True)),
+            ('connected_ralph_dc', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['discovery.Device'], null=True, blank=True)),
+        ))
+        db.send_create_signal('ralph_assets', ['DataCenter'])
+
+        # Adding model 'ServerRoom'
+        db.create_table('ralph_assets_serverroom', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=75)),
+            ('data_center', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['ralph_assets.DataCenter'])),
+        ))
+        db.send_create_signal('ralph_assets', ['ServerRoom'])
+
         # Adding field 'DeviceInfo.rack'
         db.add_column('ralph_assets_deviceinfo', 'rack',
                       self.gf('django.db.models.fields.related.ForeignKey')(to=orm['ralph_assets.Rack'], null=True),
+                      keep_default=False)
+
+        # Adding field 'DeviceInfo.orientation'
+        db.add_column('ralph_assets_deviceinfo', 'orientation',
+                      self.gf('django.db.models.fields.PositiveIntegerField')(default=1),
+                      keep_default=False)
+
+        # Adding field 'DeviceInfo.position'
+        db.add_column('ralph_assets_deviceinfo', 'position',
+                      self.gf('django.db.models.fields.IntegerField')(null=True),
+                      keep_default=False)
+
+        # Adding field 'DeviceInfo.server_room'
+        db.add_column('ralph_assets_deviceinfo', 'server_room',
+                      self.gf('django.db.models.fields.related.ForeignKey')(to=orm['ralph_assets.ServerRoom'], null=True),
+                      keep_default=False)
+
+        # Adding field 'DeviceInfo.slot_no'
+        db.add_column('ralph_assets_deviceinfo', 'slot_no',
+                      self.gf('django.db.models.fields.IntegerField')(null=True, blank=True),
                       keep_default=False)
 
 
@@ -35,8 +71,26 @@ class Migration(SchemaMigration):
         # Deleting model 'Rack'
         db.delete_table('ralph_assets_rack')
 
+        # Deleting model 'DataCenter'
+        db.delete_table('ralph_assets_datacenter')
+
+        # Deleting model 'ServerRoom'
+        db.delete_table('ralph_assets_serverroom')
+
         # Deleting field 'DeviceInfo.rack'
         db.delete_column('ralph_assets_deviceinfo', 'rack_id')
+
+        # Deleting field 'DeviceInfo.orientation'
+        db.delete_column('ralph_assets_deviceinfo', 'orientation')
+
+        # Deleting field 'DeviceInfo.position'
+        db.delete_column('ralph_assets_deviceinfo', 'position')
+
+        # Deleting field 'DeviceInfo.server_room'
+        db.delete_column('ralph_assets_deviceinfo', 'server_room_id')
+
+        # Deleting field 'DeviceInfo.slot_no'
+        db.delete_column('ralph_assets_deviceinfo', 'slot_no')
 
 
     models = {
@@ -564,7 +618,7 @@ class Migration(SchemaMigration):
         },
         'ralph_assets.datacenter': {
             'Meta': {'object_name': 'DataCenter'},
-            'device': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['discovery.Device']", 'null': 'True'}),
+            'connected_ralph_dc': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['discovery.Device']", 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '75', 'db_index': 'True'})
         },
@@ -684,10 +738,10 @@ class Migration(SchemaMigration):
         },
         'ralph_assets.rack': {
             'Meta': {'unique_together': "((u'name', u'data_center'),)", 'object_name': 'Rack'},
-            'data_center': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['ralph_assets.DataCenter']", 'null': 'True'}),
-            'device': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "u'+'", 'null': 'True', 'to': "orm['discovery.Device']"}),
+            'connected_ralph_rack': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "u'connected_asset_rack'", 'null': 'True', 'to': "orm['discovery.Device']"}),
+            'data_center': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['ralph_assets.DataCenter']", 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'max_u_height': ('django.db.models.fields.IntegerField', [], {'default': '48', 'blank': 'True'}),
+            'max_u_height': ('django.db.models.fields.IntegerField', [], {'default': '48'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '75'}),
             'server_room': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['ralph_assets.ServerRoom']"})
         },
@@ -705,7 +759,7 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'ServerRoom'},
             'data_center': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['ralph_assets.DataCenter']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '75', 'db_index': 'True'})
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '75'})
         },
         'ralph_assets.service': {
             'Meta': {'object_name': 'Service'},
