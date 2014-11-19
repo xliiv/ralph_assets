@@ -73,7 +73,7 @@ def _create_asset_dict(asset):
         'size': asset.device_info.size,
         'u_level': asset.device_info.u_level,
         'u_height': asset.device_info.u_height,
-        'rack': asset.device_info.rack,
+        'rack': asset.device_info.rack_old,
         'required_support': asset.required_support,
         'supports': get_asset_supports(asset),
         'url': asset.url,
