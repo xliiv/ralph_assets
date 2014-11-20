@@ -871,41 +871,41 @@ class Asset(
         return self.type
 
 
-class ConnectedRalphDCManager(models.Manager):
+class DeprecatedRalphDCManager(models.Manager):
     def get_query_set(self):
-        query_set = super(ConnectedRalphDCManager, self).get_query_set()
+        query_set = super(DeprecatedRalphDCManager, self).get_query_set()
         data_centers = query_set.filter(
             parent__model__type=DeviceType.data_center,
         )
         return data_centers
 
 
-class ConnectedRalphDC(Device):
-    objects = ConnectedRalphDCManager()
+class DeprecatedRalphDC(Device):
+    objects = DeprecatedRalphDCManager()
 
     class Meta:
         proxy = True
 
 
-class ConnectedRalphRackManager(models.Manager):
+class DeprecatedRalphRackManager(models.Manager):
     def get_query_set(self):
-        query_set = super(ConnectedRalphRackManager, self).get_query_set()
+        query_set = super(DeprecatedRalphRackManager, self).get_query_set()
         racks = query_set.filter(
             parent__model__type=DeviceType.rack,
         )
         return racks
 
 
-class ConnectedRalphRack(Device):
-    objects = ConnectedRalphRackManager()
+class DeprecatedRalphRack(Device):
+    objects = DeprecatedRalphRackManager()
 
     class Meta:
         proxy = True
 
 
 class DataCenter(Named):
-    connected_ralph_dc = models.ForeignKey(
-        ConnectedRalphDC, null=True, blank=True,
+    deprecated_ralph_dc = models.ForeignKey(
+        DeprecatedRalphDC, null=True, blank=True,
     )
 
 
@@ -919,8 +919,8 @@ class Rack(Named.NonUnique):
 
     server_room = models.ForeignKey(ServerRoom, verbose_name=_("server room"))
     max_u_height = models.IntegerField(default=48)
-    connected_ralph_rack = models.ForeignKey(
-        ConnectedRalphRack, null=True, related_name='connected_asset_rack',
+    deprecated_ralph_rack = models.ForeignKey(
+        DeprecatedRalphRack, null=True, related_name='deprecated_asset_rack',
         blank=True,
     )
     data_center = models.ForeignKey(DataCenter, null=True, blank=True)
@@ -937,6 +937,7 @@ class DeviceInfo(TimeTrackable, SavingUser, SoftDeletable):
     u_level = models.CharField(max_length=10, null=True, blank=True)
     u_height = models.CharField(max_length=10, null=True, blank=True)
     # deperecated field, use rack instead
+    data_center = models.ForeignKey(DataCenter, null=True, blank=True)
     rack_old = models.CharField(max_length=10, null=True, blank=True)
     rack = models.ForeignKey(Rack, null=True)
     orientation = models.PositiveIntegerField(
