@@ -1,11 +1,11 @@
 quicktest:
-	DJANGO_SETTINGS_PROFILE=test-assets ralph test ralph_assets
-	
+	DJANGO_SETTINGS_DIR=src/ralph_assets DJANGO_SETTINGS_PROFILE=test-assets ralph test ralph_assets
+
 install:
 	pip install -e .
 
 test-unittests:
-	DJANGO_SETTINGS_PROFILE=test-assets coverage run --source=ralph_assets --omit='*migrations*,*tests*,*__init__*' '$(VIRTUAL_ENV)/bin/ralph' test ralph_assets
+	DJANGO_SETTINGS_DIR=src/ralph_assets DJANGO_SETTINGS_PROFILE=test-assets coverage run --source=ralph_assets --omit='*migrations*,*tests*,*__init__*' '$(VIRTUAL_ENV)/bin/ralph' test ralph_assets
 
 test-doc:
 	cd ./doc && make html
