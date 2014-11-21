@@ -1333,10 +1333,39 @@ class EditDeviceForm(BaseEditAssetForm):
             )
         return cleaned_data
 
+    def clean_hostname(self):
+        # make field readonly
+        return self.instance.hostname or None
+
 
 class BackOfficeEditDeviceForm(ReadOnlyFieldsMixin, EditDeviceForm):
 
-    readonly_fields = ('created',)
+    fieldsets = OrderedDict([
+        ('Basic Info', [
+            'type', 'category', 'model', 'niw', 'barcode', 'sn', 'imei',
+            'warehouse', 'location', 'status', 'task_url', 'loan_end_date',
+            'purpose', 'remarks', 'service_name', 'property_of', 'hostname',
+            'created', 'service', 'device_environment', 'region',
+        ]),
+        ('Financial Info', [
+            'order_no', 'invoice_date', 'invoice_no', 'price', 'provider',
+            'deprecation_rate', 'source', 'request_date', 'provider_order_date',
+            'delivery_date', 'deprecation_end_date', 'budget_info',
+            'force_deprecation',
+        ]),
+        ('User Info', [
+            'user', 'owner', 'employee_id', 'company', 'department', 'manager',
+            'profit_center', 'cost_center', 'segment',
+        ]),
+        ('Assigned licenses info', ['licences']),
+        ('Assigned supports info', [
+            'user', 'owner', 'employee_id', 'company', 'department', 'manager',
+            'profit_center', 'cost_center',
+        ]),
+        ('Assigned supports info', ['required_support', 'supports']),
+    ])
+
+    readonly_fields = ('created', 'hostname')
 
     class Meta(BaseEditAssetForm.Meta):
         fields = BaseEditAssetForm.Meta.fields + (
@@ -1368,31 +1397,41 @@ class BackOfficeEditDeviceForm(ReadOnlyFieldsMixin, EditDeviceForm):
         label=_('Service catalog'),
     )
 
-    def __init__(self, *args, **kwargs):
-        super(BackOfficeEditDeviceForm, self).__init__(*args, **kwargs)
-        for after, field in (
-            ('sn', 'imei'),
-            ('loan_end_date', 'purpose'),
-            ('property_of', 'hostname'),
-            ('hostname', 'service'),
-            ('service', 'device_environment'),
-            ('hostname', 'created'),
-        ):
-            self.fieldsets['Basic Info'].append(field)
-            move_after(self.fieldsets['Basic Info'], after, field)
-        self.fieldsets['User Info'].append('segment')
-
-    def clean_hostname(self):
-        # make field readonly
-        return self.instance.hostname or None
-
 
 class DataCenterEditDeviceForm(EditDeviceForm):
 
+    readonly_fields = ('hostname',)
+
+    fieldsets = OrderedDict([
+        ('Basic Info', [
+            'type', 'category', 'model', 'niw', 'barcode', 'sn', 'warehouse',
+            'location', 'status', 'task_url', 'loan_end_date', 'remarks',
+            'service_name', 'property_of', 'hostname', 'service',
+            'device_environment', 'region',
+        ]),
+        ('Financial Info', [
+            'order_no', 'invoice_date', 'invoice_no', 'price', 'provider',
+            'deprecation_rate', 'source', 'request_date', 'provider_order_date',
+            'delivery_date', 'deprecation_end_date', 'budget_info',
+            'force_deprecation',
+        ]),
+        ('User Info', [
+            'user', 'owner', 'employee_id', 'company', 'department', 'manager',
+            'profit_center', 'cost_center',
+        ]),
+        ('Assigned licenses info', ['licences']),
+        ('Assigned supports info', [
+            'user', 'owner', 'employee_id', 'company', 'department', 'manager',
+            'profit_center', 'cost_center',
+        ]),
+        ('Assigned supports info', ['required_support', 'supports']),
+    ])
+
     class Meta(BaseEditAssetForm.Meta):
         fields = BaseEditAssetForm.Meta.fields + (
-            'device_environment', 'service',
+            'device_environment', 'service', 'hostname',
         )
+
     device_environment = ModelChoiceField(
         required=True,
         queryset=models_device.DeviceEnvironment.objects.all(),
@@ -1403,15 +1442,14 @@ class DataCenterEditDeviceForm(EditDeviceForm):
         required=True,
         label=_('Service catalog'),
     )
-
     def __init__(self, *args, **kwargs):
         super(DataCenterEditDeviceForm, self).__init__(*args, **kwargs)
-        for after, field in (
-            ('property_of', 'service'),
-            ('service', 'device_environment'),
-        ):
-            self.fieldsets['Basic Info'].append(field)
-            move_after(self.fieldsets['Basic Info'], after, field)
+        self.fieldsets = DataCenterEditDeviceForm.fieldsets
+        try:
+            device_hostname = kwargs['instance'].linked_device.name
+        except AttributeError:
+            device_hostname = ''
+        self.initial['hostname'] = device_hostname
 
 
 class SearchAssetForm(Form):
