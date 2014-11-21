@@ -40,8 +40,11 @@ from ralph_assets.models_assets import (
     AssetType,
     CoaOemOs,
     DeviceInfo,
+    DataCenter,
     OfficeInfo,
+    Rack,
     Service,
+    ServerRoom,
     Warehouse,
 )
 from ralph_assets.tests.utils import UserFactory
@@ -153,12 +156,40 @@ class WarehouseFactory(DjangoModelFactory):
     name = Sequence(lambda n: 'Warehouse #%s' % n)
 
 
+class DataCenterFactory(DjangoModelFactory):
+    FACTORY_FOR = DataCenter
+
+    name = Sequence(lambda n: 'DataCenter #{}'.format(n))
+
+
+class ServerRoomFactory(DjangoModelFactory):
+    FACTORY_FOR = ServerRoom
+
+    name = Sequence(lambda n: 'Server #{}'.format(n))
+    data_center = SubFactory(DataCenterFactory)
+
+
+class RackFactory(DjangoModelFactory):
+    FACTORY_FOR = Rack
+
+    name = Sequence(lambda n: 'Rack #{}'.format(n))
+    data_center = SubFactory(DataCenterFactory)
+    server_room = SubFactory(ServerRoomFactory)
+
+
 class DeviceInfoFactory(DjangoModelFactory):
     FACTORY_FOR = DeviceInfo
 
     u_level = random.randint(0, 100)
     u_height = random.randint(0, 100)
     rack_old = Sequence(lambda n: 'Rack #%s' % n)
+
+    data_center = SubFactory(DataCenterFactory)
+    server_room = SubFactory(ServerRoomFactory)
+    rack = SubFactory(RackFactory)
+    slot_no = fuzzy.FuzzyInteger(0, 100)
+    position = fuzzy.FuzzyInteger(0, 48)
+    orientation = 1
 
 
 class BudgetInfoFactory(DjangoModelFactory):

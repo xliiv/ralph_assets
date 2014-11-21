@@ -527,14 +527,20 @@ class DataCenterBulkEditAssetForm(BulkEditAssetForm):
     )
 
 
-class DeviceForm(ModelForm):
+class DeviceForm(DependencyForm, ModelForm):
     class Meta:
         model = DeviceInfo
         fields = (
-            'u_level',
-            'u_height',
             'ralph_device_id',
+            'data_center',
+            'server_room',
+            'rack',
+            # rack_old,
+            'slot_no',
+            'position',
+            'orientation',
         )
+
     force_unlink = BooleanField(required=False, label=_('Force unlink'))
     create_stock = BooleanField(
         required=False,
