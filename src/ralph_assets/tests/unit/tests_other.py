@@ -485,4 +485,6 @@ class TestDeviceInfoCleaning(TestCase):
         device_info.slot_no = None
         with self.assertRaises(ValidationError) as exc:
             device_info.clean()
-        self.assertEqual(exc.exception.code, models_assets.REQUIRED_SLOT_NUMBER)
+        self.assertEqual(
+            exc.exception.code, models_assets.REQUIRED_SLOT_NUMBER,
+        )

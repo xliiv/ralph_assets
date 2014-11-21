@@ -953,7 +953,6 @@ class Rack(Named.NonUnique):
     )
 
 
-
 class DeviceInfo(TimeTrackable, SavingUser, SoftDeletable):
     ralph_device_id = models.IntegerField(
         verbose_name=_("Ralph device id"),
@@ -1017,7 +1016,7 @@ class DeviceInfo(TimeTrackable, SavingUser, SoftDeletable):
                 )
             )
             raise ValidationError(msg, code=INVALID_ORIENTATION)
-        if self.position > self.rack.max_u_height:
+        if self.rack and self.position > self.rack.max_u_height:
             msg = 'Position is higher than "max u height" = {}'.format(
                 self.rack.max_u_height,
             )

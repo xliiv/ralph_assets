@@ -1349,9 +1349,9 @@ class BackOfficeEditDeviceForm(ReadOnlyFieldsMixin, EditDeviceForm):
         ]),
         ('Financial Info', [
             'order_no', 'invoice_date', 'invoice_no', 'price', 'provider',
-            'deprecation_rate', 'source', 'request_date', 'provider_order_date',
-            'delivery_date', 'deprecation_end_date', 'budget_info',
-            'force_deprecation',
+            'deprecation_rate', 'source', 'request_date',
+            'provider_order_date', 'delivery_date',
+            'deprecation_end_date', 'budget_info', 'force_deprecation',
         ]),
         ('User Info', [
             'user', 'owner', 'employee_id', 'company', 'department', 'manager',
@@ -1411,9 +1411,9 @@ class DataCenterEditDeviceForm(EditDeviceForm):
         ]),
         ('Financial Info', [
             'order_no', 'invoice_date', 'invoice_no', 'price', 'provider',
-            'deprecation_rate', 'source', 'request_date', 'provider_order_date',
-            'delivery_date', 'deprecation_end_date', 'budget_info',
-            'force_deprecation',
+            'deprecation_rate', 'source', 'request_date',
+            'provider_order_date', 'delivery_date', 'deprecation_end_date',
+            'budget_info', 'force_deprecation',
         ]),
         ('User Info', [
             'user', 'owner', 'employee_id', 'company', 'department', 'manager',
@@ -1442,6 +1442,7 @@ class DataCenterEditDeviceForm(EditDeviceForm):
         required=True,
         label=_('Service catalog'),
     )
+
     def __init__(self, *args, **kwargs):
         super(DataCenterEditDeviceForm, self).__init__(*args, **kwargs)
         self.fieldsets = DataCenterEditDeviceForm.fieldsets
