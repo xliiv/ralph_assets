@@ -69,6 +69,8 @@ if not ASSET_HOSTNAME_TEMPLATE:
     raise ImproperlyConfigured('"ASSET_HOSTNAME_TEMPLATE" must be specified.')
 HOSTNAME_FIELD_HELP_TIP = getattr(settings, 'HOSTNAME_FIELD_HELP_TIP', '')
 
+REPORT_LANGUAGES = getattr(settings, 'REPORT_LANGUAGES', None)
+
 INVALID_SERVER_ROOM = 1
 INVALID_RACK = 2
 INVALID_ORIENTATION = 3
@@ -1144,7 +1146,31 @@ class PartInfo(TimeTrackable, SavingUser, SoftDeletable):
 
 class ReportOdtSource(Named, SavingUser, TimeTrackable):
     slug = models.SlugField(max_length=100, unique=True, blank=False)
+
+    @property
+    def template(self):
+        "Return first template - it's only for backward compatibility."
+        return self.templates[0].template
+
+    @property
+    def templates(self):
+        return self.odt_templates.all() if self.odt_templates.count() else []
+
+
+class ReportOdtSourceLanguage(SavingUser, TimeTrackable):
     template = models.FileField(upload_to=_get_file_path, blank=False)
+    language = models.CharField(max_length=3, **REPORT_LANGUAGES)
+    report_odt_source = models.ForeignKey(
+        ReportOdtSource,
+        related_name='odt_templates',
+    )
+
+    class Meta:
+        unique_together = ('language', 'report_odt_source')
+
+    @property
+    def slug(self):
+        return self.report_odt_source.slug
 
 
 @receiver(pre_save, sender=Asset, dispatch_uid='ralph_assets.views.device')

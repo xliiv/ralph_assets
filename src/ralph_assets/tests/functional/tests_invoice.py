@@ -15,7 +15,7 @@ from mock import patch
 
 from ralph.ui.tests.global_utils import login_as_su
 from ralph_assets.models import Asset, Licence
-from ralph_assets.tests.utils import ReportOdtSourceFactory
+from ralph_assets.tests.utils.transitions import ReportOdtSourceLanguageFactory
 from ralph_assets.tests.utils.assets import (
     BOAssetFactory,
 )
@@ -61,7 +61,9 @@ class TestInvoiceReport(TestCase):
         [LicenceFactory(**custom_values) for _ in xrange(4)]
 
     def _create_report_odt_source(self):
-        ReportOdtSourceFactory(**{'slug': 'invoice-report'})
+        ReportOdtSourceLanguageFactory(
+            report_odt_source__slug='invoice-report'
+        )
 
     def _get_invoice_asset_base_url(self):
         return reverse('assets_invoice_report', args=('back_office',))

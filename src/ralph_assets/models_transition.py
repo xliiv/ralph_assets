@@ -12,14 +12,18 @@ import logging
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 from django.db import models
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from lck.django.common.models import (
     Named,
     TimeTrackable,
     WithConcurrentGetOrCreate,
 )
-
-from ralph_assets.models_assets import Asset, AssetStatus
+from ralph_assets.models_assets import (
+    Asset,
+    AssetStatus,
+    ReportOdtSourceLanguage,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -53,6 +57,12 @@ class Transition(Named, TimeTrackable, WithConcurrentGetOrCreate):
     @property
     def actions_names(self, *args, **kwargs):
         return [action.name for action in self.actions.all()]
+
+    @cached_property
+    def odt_templates(self):
+        return ReportOdtSourceLanguage.objects.filter(
+            report_odt_source__slug=self.slug
+        )
 
 
 class TransitionsHistory(TimeTrackable, WithConcurrentGetOrCreate):

@@ -29,6 +29,7 @@ from ralph_assets.models_assets import (
     OfficeInfo,
     PartInfo,
     ReportOdtSource,
+    ReportOdtSourceLanguage,
     Service,
     Warehouse,
 )
@@ -470,6 +471,7 @@ __all__ = [
     'OfficeInfo',
     'PartInfo',
     'ReportOdtSource',
+    'ReportOdtSourceLanguage',
     'Service',
     'SoftwareCategory',
     'Transition',

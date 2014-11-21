@@ -25,12 +25,14 @@ from ralph_assets.models import (
     CoaOemOs,
     Licence,
     ReportOdtSource,
+    ReportOdtSourceLanguage,
     Service,
     Transition,
     TransitionsHistory,
     get_edit_url,
     Warehouse,
 )
+from ralph_assets.models_assets import REPORT_LANGUAGES
 from ralph_assets.models_util import ImportProblem
 from ralph_assets.licences.models import LicenceType, SoftwareCategory
 from ralph_assets.models_support import Support, SupportType
@@ -221,11 +223,21 @@ class AssetManufacturerAdmin(ModelAdmin):
 admin.site.register(AssetManufacturer, AssetManufacturerAdmin)
 
 
+class ReportOdtSourceLanguageInline(admin.TabularInline):
+    model = ReportOdtSourceLanguage
+    extra = 0
+    max_num = len(REPORT_LANGUAGES['choices'])
+    fields = ('template', 'language',)
+
+
 class ReportOdtSourceAdmin(ModelAdmin):
     save_on_top = True
     search_fields = ('name', 'slug',)
     list_display = ('name', 'slug',)
     prepopulated_fields = {"slug": ("name",)}
+    inlines = [
+        ReportOdtSourceLanguageInline,
+    ]
 
 
 admin.site.register(ReportOdtSource, ReportOdtSourceAdmin)

@@ -24,7 +24,10 @@ from ralph_assets.models_transition import Action
 from ralph_assets.tests.utils import MessagesTestMixin
 from ralph_assets.tests.utils.assets import BOAssetFactory, WarehouseFactory
 from ralph_assets.tests.utils.transitions import (
-    TransitionFactory, TransitionsHistoryFactory,
+    TransitionFactory,
+    TransitionsHistoryFactory,
+    ReportOdtSourceFactory,
+    ReportOdtSourceLanguageFactory,
 )
 from ralph_assets.tests.utils.licences import LicenceFactory
 
@@ -39,14 +42,59 @@ ASSETS_TRANSITIONS = {
     }
 }
 
+REPORT_LANGUAGES = {
+    'choices': (
+        ('en', 'English'),
+        ('pl', 'Polish'),
+    ),
+    'default': 'en',
+}
+
+unassign_actions = [
+    'unassign_user',
+    'unassign_owner',
+    'unassign_loan_end_date',
+    'unassign_licences'
+]
+
+
+def prepare_transition(slug, actions=None, required_report=False):
+    action_list = actions or [
+        'assign_user',
+        'assign_owner',
+        'assign_loan_end_date',
+        'assign_warehouse',
+        'change_status',
+    ]
+
+    def _prepare_transition(f):
+        def wrapper(self, *args, **kwargs):
+            self.transition = TransitionFactory(**{
+                'name': slug,
+                'slug': slug,
+                'required_report': required_report,
+            })
+            if required_report:
+                report_odt_source = ReportOdtSourceFactory(slug=slug)
+                for lang in ['en', 'pl']:
+                    self.odt_template = ReportOdtSourceLanguageFactory(
+                        report_odt_source=report_odt_source,
+                        language=lang
+                    )
+            actions = Action.objects.filter(name__in=action_list)
+            self.transition.actions.add(*actions)
+            return f(self, *args, **kwargs)
+        return wrapper
+    return _prepare_transition
+
 
 @override_settings(ASSETS_AUTO_ASSIGN_HOSTNAME=True)
 @override_settings(ASSETS_TRANSITIONS=ASSETS_TRANSITIONS)
 class TestTransitionHostname(MessagesTestMixin, TestCase):
 
+    @prepare_transition('change-hostname', actions=['change_hostname'])
     def setUp(self):
         self.client = login_as_su()
-        self.prepare_transition()
 
     def assertMessageEqual(self, response, text):
         """
@@ -59,10 +107,6 @@ class TestTransitionHostname(MessagesTestMixin, TestCase):
                     text, messages,
                 )
             )
-
-    def prepare_transition(self):
-        self.transition = TransitionFactory()
-        self.transition.actions.add(Action.objects.get(name='change_hostname'))
 
     def test_change_hostname_success(self):
         asset = BOAssetFactory(**{
@@ -155,6 +199,7 @@ class TestTransitionHostname(MessagesTestMixin, TestCase):
 
 
 @override_settings(ASSETS_TRANSITIONS=ASSETS_TRANSITIONS)
+@override_settings(REPORT_LANGUAGES=REPORT_LANGUAGES)
 class TestTransition(TestCase):
     """
     Test transition assign and unassign fields.
@@ -175,33 +220,6 @@ class TestTransition(TestCase):
     def _prepare_assets(self, custom_values={}):
         self.assets = [BOAssetFactory(**custom_values) for _ in xrange(2)]
 
-    def _prepare_transition_assign(self):
-        self.transition = TransitionFactory(**{
-            'name': 'release-asset',
-            'slug': 'release-asset',
-        })
-        actions = Action.objects.filter(name__in=[
-            'assign_user',
-            'assign_owner',
-            'assign_loan_end_date',
-            'assign_warehouse',
-            'change_status',
-        ])
-        self.transition.actions.add(*actions)
-
-    def _prepare_transition_unassign(self):
-        self.transition = TransitionFactory(**{
-            'name': 'return-asset',
-            'slug': 'return-asset',
-        })
-        actions = Action.objects.filter(name__in=[
-            'unassign_user',
-            'unassign_owner',
-            'unassign_loan_end_date',
-            'unassign_licences',
-        ])
-        self.transition.actions.add(*actions)
-
     def _assign_licence_to_assets(self):
         for asset in self.assets:
             lic = LicenceFactory()
@@ -216,15 +234,16 @@ class TestTransition(TestCase):
         response = self.client.post(url, post_params, follow=True)
         self.assertEqual(response.status_code, 200)
 
+    @prepare_transition('release-asset', required_report=True)
     def test_transition_form_assign(self):
         self._prepare_assets()
-        self._prepare_transition_assign()
         asset_ids = Asset.objects.values_list('id', flat=True)
         url_params = {'select': asset_ids, 'transition_type': 'release-asset'}
         post_params = {
             'user': self.user.id,
             'warehouse': self.warehouse.id,
             'loan_end_date': date.today().strftime('%Y-%m-%d'),
+            'document_language': self.odt_template.id,
         }
         self._base_test_transition_form_assign(url_params, post_params)
         self.assertEqual(
@@ -234,13 +253,14 @@ class TestTransition(TestCase):
             1,
         )
 
+    @prepare_transition('return-asset', unassign_actions, required_report=True)
     def test_transition_form_unassign(self):
         self._prepare_assets({'user': self.user})
-        self._prepare_transition_unassign()
         self._assign_licence_to_assets()
         asset_ids = Asset.objects.values_list('id', flat=True)
         url_params = {'select': asset_ids, 'transition_type': 'return-asset'}
-        self._base_test_transition_form_assign(url_params, {})
+        post_params = {'document_language': self.odt_template.id}
+        self._base_test_transition_form_assign(url_params, post_params)
         self.assertEqual(
             Asset.objects.values(
                 'user', 'owner', 'loan_end_date', 'licences',
@@ -248,9 +268,9 @@ class TestTransition(TestCase):
             1,
         )
 
+    @prepare_transition('return-asset', unassign_actions, required_report=True)
     def test_transition_history_file(self):
         self._prepare_assets()
-        self._prepare_transition_unassign()
         history_id = TransitionsHistoryFactory(
             **{'transition': self.transition}
         ).id
@@ -262,9 +282,9 @@ class TestTransition(TestCase):
         response = self.client.get(not_found_url)
         self.assertEqual(response.status_code, 404)
 
+    @prepare_transition('return-asset', unassign_actions, required_report=True)
     def test_transition_history_file_not_found_in_disk(self):
         self._prepare_assets()
-        self._prepare_transition_unassign()
         transition_history = TransitionsHistoryFactory(
             **{'transition': self.transition}
         )
@@ -273,3 +293,23 @@ class TestTransition(TestCase):
         url = reverse('transition_history_file', args=(transition_history.id,))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
+
+    @prepare_transition('return-asset', required_report=True)
+    @prepare_transition('release-asset', required_report=True)
+    @prepare_transition('loan-asset', required_report=True)
+    def test_transition_form_contains_document_language(self):
+        asset = BOAssetFactory()
+        url_base = reverse('transition', args=('back_office',))
+        transitions = ['release-asset', 'loan-asset', 'return-asset']
+        for transition in transitions:
+            url_params = {
+                'select': asset.id,
+                'transition_type': transition,
+            }
+            url = "{}?{}".format(url_base, urllib.urlencode(url_params))
+            response = self.client.get(url)
+            self.assertIn(
+                'document_language',
+                response.context['transition_form'].fields.keys(),
+                "Field not found in {} transition".format(transition)
+            )

@@ -32,6 +32,14 @@ ASSET_HOSTNAME_TEMPLATE = {
     'counter_length': 5,
 }
 
+REPORT_LANGUAGES = {
+    'choices': (
+        ('en', 'English'),
+        ('pl', 'Polish'),
+    ),
+    'default': 'en',
+}
+
 # automatically assign domain hostname to asset in edit and bulk forms
 ASSETS_AUTO_ASSIGN_HOSTNAME = False
 if locals().get('ASSETS_AUTO_ASSIGN_HOSTNAME'):

@@ -25,7 +25,7 @@ Features:
 
 
 Typical usage
-~~~~~
+~~~~~~~~~~~~~
 
 Add ``HistoryMixin`` to model. That's all.
 

@@ -38,3 +38,31 @@ class TransitionForm(forms.Form):
         label=_('Country'),
         required=True,
     )
+
+    def __init__(self, *args, **kwargs):
+        self.transition = kwargs.pop('transition', None)
+        if not self.transition:
+            raise ValueError('Please specified transition.')
+        super(TransitionForm, self).__init__(*args, **kwargs)
+        if self.transition.required_report and self.transition.odt_templates:
+            self.fields['document_language'] = forms.ChoiceField(
+                choices=[('', '----')] + [
+                    (t.id, t.get_language_display())
+                    for t in self.transition.odt_templates
+                ],
+                label=_('Document language'),
+                required=True,
+            )
+            if len(self.transition.odt_templates) == 1:
+                self.fields['document_language'].widget = \
+                    forms.HiddenInput(attrs={
+                        'value': self.transition.odt_templates[0].id
+                    })
+
+    def clean(self):
+        if (
+            not self.transition.odt_templates
+            and self.transition.required_report
+        ):
+            raise forms.ValidationError(_('Odt template does not exist!'))
+        return super(TransitionForm, self).clean()

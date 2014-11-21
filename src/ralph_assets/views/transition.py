@@ -23,7 +23,11 @@ from lck.django.common import nested_commit_on_success
 
 from ralph_assets import signals
 from ralph_assets.forms_transitions import TransitionForm
-from ralph_assets.models import ReportOdtSource, Transition, TransitionsHistory
+from ralph_assets.models import (
+    ReportOdtSourceLanguage,
+    Transition,
+    TransitionsHistory,
+)
 from ralph_assets.utils import iso2_to_iso3
 from ralph_assets.views.base import (
     ACLGateway,
@@ -150,10 +154,12 @@ class TransitionDispatcher(object):
         self.report_file_patch = output_path
 
     def _action_release_report(self):
-        self._generate_report()
+        if self.template_file:
+            self._generate_report()
 
     def _action_return_report(self):
-        self._generate_report()
+        if self.template_file:
+            self._generate_report()
 
     def _save_history(self):
         self.transition_history = TransitionsHistory.create(
@@ -256,7 +262,10 @@ class TransitionView(ActiveSubmoduleByAssetMixin, _AssetSearch):
         return transition
 
     def get_transition_form(self, *args, **kwargs):
-        form = TransitionForm(self.request.POST)
+        form = TransitionForm(
+            self.request.POST,
+            transition=self.get_transition_object(),
+        )
         if not self.assign_user:
             form.fields.pop('user')
         if not self.assign_warehouse:
@@ -295,22 +304,6 @@ class TransitionView(ActiveSubmoduleByAssetMixin, _AssetSearch):
                 kwargs={'history_id': self.transition_history.id},
             )
 
-    def check_reports_template_exists(self, *args, **kwargs):
-        error = False
-        self.template_file = None
-        if self.transition_object.required_report:
-            try:
-                self.template_file = ReportOdtSource.objects.get(
-                    slug=settings.ASSETS_REPORTS[self.transition_type.upper()][
-                        'SLUG'
-                    ],
-                )
-                error = False
-            except ReportOdtSource.DoesNotExist:
-                messages.error(self.request, _("Odt template does not exist!"))
-                error = True
-        return error
-
     def base_error_handler(self, *args, **kwargs):
         not_required_user_transitions = ['change-hostname']
         required_user_transitions = ['return-asset']
@@ -344,8 +337,8 @@ class TransitionView(ActiveSubmoduleByAssetMixin, _AssetSearch):
             )
 
         if (
-            self.change_hostname
-            and self.assets.filter(model__category__code='').count() > 0
+            self.assets.filter(model__category__code='').count() > 0
+            and self.change_hostname
         ):
             messages.error(
                 self.request, _("Asset has no assigned category with code"),
@@ -381,12 +374,6 @@ class TransitionView(ActiveSubmoduleByAssetMixin, _AssetSearch):
                 error = True
         return error
 
-    def post_error_handler(self, *args, **kwargs):
-        error = self.base_error_handler()
-        if not error:
-            error = self.check_reports_template_exists()
-        return error
-
     def get(self, *args, **kwargs):
         self.report_file_name = None
         self.assets = self.get_assets()
@@ -398,10 +385,16 @@ class TransitionView(ActiveSubmoduleByAssetMixin, _AssetSearch):
 
     def post(self, *args, **kwargs):
         self.report_file_name = None
+        self.template_file = None
         self.assets = self.get_assets()
-        errors = self.post_error_handler()
+        errors = self.base_error_handler()
         self.form = self.get_transition_form()
         if self.form.is_valid() and not errors:
+            template_id = self.form.cleaned_data.get('document_language', None)
+            if template_id:
+                self.template_file = ReportOdtSourceLanguage.objects.get(
+                    id=self.form.cleaned_data['document_language'],
+                )
             dispatcher = TransitionDispatcher(
                 self,
                 self.transition_object,

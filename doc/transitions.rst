@@ -73,6 +73,36 @@ option to changed that. You can force locale only for reports by setting
 If so, all generated reports will have polish locale.
 
 
+Multilanguage support
+---------------------
+
+.. note::
+
+    Multilanguage support introduced with version 2.5.0 of ralph_assets.
+
+
+For transition:
+
+  * ``release-asset``
+  * ``loan-asset``
+  * ``return-asset``
+
+you can attach diffrent template for configured language. Configuration is very simple, see the structure below::
+
+    REPORT_LANGUAGES = {
+        'choices': (
+            ('en', 'English'),
+            ('pl', 'Polish'),
+        ),
+        'default': 'en',
+    }
+Values ``choices`` and ``default`` are mandatory.
+
+Now in *Change report odt source* (admin section) you can upload ODT templates for each predefined language.
+
+.. image:: images/reports_multilanguage.png
+    :scale: 90%
+
 Post transition signal
 ----------------------
 The transition feature sends post transition signal. Arguments defined by the
@@ -90,4 +120,3 @@ This is an example of the signal receiver::
     @django.dispatch.receiver(signals.post_transition)
     def post_transition_handler(sender, user, assets, transition, **kwargs):
         pass
-
