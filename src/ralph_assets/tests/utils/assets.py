@@ -184,12 +184,26 @@ class DeviceInfoFactory(DjangoModelFactory):
     u_height = random.randint(0, 100)
     rack_old = Sequence(lambda n: 'Rack #%s' % n)
 
-    data_center = SubFactory(DataCenterFactory)
-    server_room = SubFactory(ServerRoomFactory)
     rack = SubFactory(RackFactory)
     slot_no = fuzzy.FuzzyInteger(0, 100)
     position = fuzzy.FuzzyInteger(0, 48)
     orientation = 1
+
+    @factory.post_generation
+    def rack(self, create, extracted, **kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if extracted:
+            self.rack = extracted
+        else:
+            server_room = ServerRoomFactory()
+            self.data_center = server_room.data_center
+            self.server_room = server_room
+            self.rack = RackFactory(
+                data_center=server_room.data_center, server_room=server_room,
+            )
 
 
 class BudgetInfoFactory(DjangoModelFactory):
@@ -325,3 +339,19 @@ class BOAssetFactory(BaseAssetFactory):
     type = AssetType.back_office
     hostname = Sequence(lambda n: 'XXXYY{:05}'.format(n))
     office_info = SubFactory(OfficeInfoFactory)
+
+
+def get_device_info_dict():
+    device_info = DeviceInfoFactory()
+    device_info_keys = {
+        'orientation', 'position', 'ralph_device_id', 'slot_no',
+    }
+    device_info_data = {
+        k: getattr(device_info, k) for k in device_info_keys
+    }
+    device_info_data.update({
+        'data_center': device_info.data_center.id,
+        'rack': device_info.rack.id,
+        'server_room': device_info.server_room.id,
+    })
+    return device_info_data

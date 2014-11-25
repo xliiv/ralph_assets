@@ -390,7 +390,7 @@ class TestDeviceInfoCleaning(TestCase):
         '''test if picked server-room is owned by picked data-center'''
         device_info = self.correct_device_info
         # positive
-        device_info.clean()
+        device_info.clean_fields()
 
         # nagative
         device_info = self.correct_device_info
@@ -400,8 +400,8 @@ class TestDeviceInfoCleaning(TestCase):
             device_info.server_room.data_center,
         )
         with self.assertRaises(ValidationError) as exc:
-            device_info.clean()
-        self.assertEqual(exc.exception.code, models_assets.INVALID_SERVER_ROOM)
+            device_info.clean_fields()
+        self.assertEqual(exc.exception.code, models_assets.INVALID_DATA_CENTER)
 
     def test_server_room_relation(self):
         '''test if picked rack is owned by picked server-room'''
@@ -419,7 +419,7 @@ class TestDeviceInfoCleaning(TestCase):
         )
         with self.assertRaises(ValidationError) as exc:
             device_info.clean()
-        self.assertEqual(exc.exception.code, models_assets.INVALID_RACK)
+        self.assertEqual(exc.exception.code, models_assets.INVALID_SERVER_ROOM)
 
     def test_position_requires_width(self):
         '''test if picked orientation is owned by picked position - width'''

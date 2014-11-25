@@ -28,7 +28,7 @@ def _create_assets(creator_profile, asset_form, additional_form, mode):
             "sn", "profit_center", "supports", "segment",
         }:
             asset_data[f_name] = f_value
-    force_unlink = additional_form.cleaned_data.get('force_unlink', None)
+    force_unlink = additional_form.cleaned_data.pop('force_unlink', None)
     sns = asset_form.cleaned_data.get('sn', [])
     barcodes = asset_form.cleaned_data.get('barcode', [])
     imeis = (
@@ -45,17 +45,10 @@ def _create_assets(creator_profile, asset_form, additional_form, mode):
         cleaned_additional_info = additional_form.cleaned_data
         if mode == 'dc':
             asset = Asset(created_by=creator_profile, **asset_data)
-            device_info = DeviceInfo()
-            for field in ['ralph_device_id', 'u_level', 'u_height']:
-                setattr(device_info, field, cleaned_additional_info[field])
-            device_info.save(
-                user=creator_profile.user,
-            )
+            device_info = DeviceInfo(**cleaned_additional_info)
+            device_info.save(user=creator_profile.user)
             asset.device_info = device_info
-            asset.save(
-                user=creator_profile.user,
-                force_unlink=cleaned_additional_info['force_unlink'],
-            )
+            asset.save(user=creator_profile.user, force_unlink=force_unlink)
         elif mode == 'back_office':
             _move_data(asset_data, cleaned_additional_info, ['purpose'])
             asset = Asset(created_by=creator_profile, **asset_data)

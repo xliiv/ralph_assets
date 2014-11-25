@@ -71,8 +71,8 @@ HOSTNAME_FIELD_HELP_TIP = getattr(settings, 'HOSTNAME_FIELD_HELP_TIP', '')
 
 REPORT_LANGUAGES = getattr(settings, 'REPORT_LANGUAGES', None)
 
-INVALID_SERVER_ROOM = 1
-INVALID_RACK = 2
+INVALID_DATA_CENTER = 1
+INVALID_SERVER_ROOM = 2
 INVALID_ORIENTATION = 3
 INVALID_POSITION = 4
 REQUIRED_SLOT_NUMBER = 5
@@ -706,7 +706,7 @@ class Asset(
     @property
     def exists(self):
         """Check if object is a new db record"""
-        return self.pk is None
+        return self.pk is not None
 
     def handle_device_linkage(self, force_unlink):
         """When try to match it with an existing device or create a dummy
@@ -729,7 +729,7 @@ class Asset(
             # asset created with 'add part'
             pass
         else:
-            if self.exists:
+            if not self.exists:
                 if not ralph_device_id:
                     device = self.find_device_to_link()
                     if device:
@@ -941,12 +941,12 @@ class Rack(Named.NonUnique):
         unique_together = ('name', 'data_center')
 
     data_center = models.ForeignKey(DataCenter, null=False, blank=False)
-    max_u_height = models.IntegerField(default=48)
     server_room = models.ForeignKey(
         ServerRoom, verbose_name=_("server room"),
         null=True,
         blank=True,
     )
+    max_u_height = models.IntegerField(default=48)
     deprecated_ralph_rack = models.ForeignKey(
         DeprecatedRalphRack, null=True, related_name='deprecated_asset_rack',
         blank=True,
@@ -977,37 +977,39 @@ class DeviceInfo(TimeTrackable, SavingUser, SoftDeletable):
         default=Orientation.front.id,
     )
 
-    def clean(self):
+    def clean_fields(self, exclude=None):
         """
         Constraints:
-        - picked server-room is from picked data-center
         - picked rack is from picked server-room
+        - picked server-room is from picked data-center
         - postion = 0: orientation(left, right)
         - postion > 0: orientation(front, middle, back)
         - position <= rack.max_u_height
         - slot_no: asset is_blade=True
         """
-        Orientation.is_depth(1)
-        if self.server_room and self.data_center:
-            if self.server_room.data_center != self.data_center:
-                msg = '"{}" server room is not from "{}" datacenter'.format(
-                    self.server_room, self.data_center,
-                )
-                raise ValidationError(msg, code=INVALID_SERVER_ROOM)
         if self.rack and self.server_room:
             if self.rack.server_room != self.server_room:
-                msg = '"{}" rack is not from "{}" server room'.format(
-                    self.rack, self.server_room,
+                msg = 'Valid server room for this rack is: "{}"'.format(
+                    self.rack.server_room.name,
                 )
-                raise ValidationError(msg, code=INVALID_RACK)
-
+                raise ValidationError({'server_room': msg}, code=INVALID_SERVER_ROOM)
+        if self.server_room and self.data_center:
+            if self.server_room.data_center != self.data_center:
+                msg = 'Valid data center for this server room is: "{}"'.format(
+                    self.server_room.data_center.name,
+                )
+                raise ValidationError(
+                    {'data_center': msg}, code=INVALID_DATA_CENTER,
+                )
         if self.position == 0 and not Orientation.is_width(self.orientation):
             msg = 'Valid orientations for picked position are: {}'.format(
                 ', '.join(
                     getattr(Orientation, key).desc for key in ['left', 'right']
                 )
             )
-            raise ValidationError(msg, code=INVALID_ORIENTATION)
+            raise ValidationError(
+                {'orientation': msg}, code=INVALID_ORIENTATION
+            )
         if self.position > 0 and not Orientation.is_depth(self.orientation):
             msg = 'Valid orientations for picked position are: {}'.format(
                 ', '.join(
@@ -1015,20 +1017,24 @@ class DeviceInfo(TimeTrackable, SavingUser, SoftDeletable):
                     for key in ['front', 'back', 'middle']
                 )
             )
-            raise ValidationError(msg, code=INVALID_ORIENTATION)
+            raise ValidationError(
+                {'orientation': msg}, code=INVALID_ORIENTATION,
+            )
         if self.rack and self.position > self.rack.max_u_height:
             msg = 'Position is higher than "max u height" = {}'.format(
                 self.rack.max_u_height,
             )
-            raise ValidationError(msg, code=INVALID_POSITION)
+            raise ValidationError({'position': msg}, code=INVALID_POSITION)
         try:
             is_blade = self.asset.model.category.is_blade
-        except AttributeError:
+        except (AttributeError, Asset.DoesNotExist):
             is_blade = False
         else:
-            if is_blade and not self.slot_no:
+            if is_blade and self.slot_no is None:
                 msg = "'slot number' is required when asset is blade"
-                raise ValidationError(msg, code=REQUIRED_SLOT_NUMBER)
+                raise ValidationError(
+                    {'slot_no': msg}, code=REQUIRED_SLOT_NUMBER,
+                )
 
     @property
     def size(self):

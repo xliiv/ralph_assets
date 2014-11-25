@@ -527,18 +527,18 @@ class DataCenterBulkEditAssetForm(BulkEditAssetForm):
     )
 
 
-class DeviceForm(DependencyForm, ModelForm):
+class DeviceForm(ModelForm):
     class Meta:
         model = DeviceInfo
         fields = (
             'ralph_device_id',
             'data_center',
             'server_room',
+            # 'rack_old',
             'rack',
-            # rack_old,
-            'slot_no',
-            'position',
             'orientation',
+            'position',
+            'slot_no',
         )
 
     force_unlink = BooleanField(required=False, label=_('Force unlink'))
@@ -1396,6 +1396,10 @@ class BackOfficeEditDeviceForm(ReadOnlyFieldsMixin, EditDeviceForm):
         required=False,
         label=_('Service catalog'),
     )
+
+    def __init__(self, *args, **kwargs):
+        super(BackOfficeEditDeviceForm, self).__init__(*args, **kwargs)
+        self.fieldsets = BackOfficeEditDeviceForm.fieldsets
 
 
 class DataCenterEditDeviceForm(EditDeviceForm):
