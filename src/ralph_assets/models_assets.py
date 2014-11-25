@@ -988,7 +988,9 @@ class DeviceInfo(TimeTrackable, SavingUser, SoftDeletable):
                 msg = 'Valid server room for this rack is: "{}"'.format(
                     self.rack.server_room.name,
                 )
-                raise ValidationError({'server_room': msg}, code=INVALID_SERVER_ROOM)
+                raise ValidationError(
+                    {'server_room': msg}, code=INVALID_SERVER_ROOM,
+                )
         if self.server_room and self.data_center:
             if self.server_room.data_center != self.data_center:
                 msg = 'Valid data center for this server room is: "{}"'.format(

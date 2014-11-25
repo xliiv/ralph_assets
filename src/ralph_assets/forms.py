@@ -1378,9 +1378,6 @@ class BackOfficeEditDeviceForm(ReadOnlyFieldsMixin, EditDeviceForm):
         queryset=models_device.DeviceEnvironment.objects.all(),
         label=_('Environment'),
     )
-    hostname = CharField(
-        required=False, widget=SimpleReadOnlyWidget(),
-    )
     purpose = ChoiceField(
         choices=[('', '----')] + models_assets.AssetPurpose(),
         label=_('Purpose'),
@@ -1402,9 +1399,7 @@ class BackOfficeEditDeviceForm(ReadOnlyFieldsMixin, EditDeviceForm):
         self.fieldsets = BackOfficeEditDeviceForm.fieldsets
 
 
-class DataCenterEditDeviceForm(EditDeviceForm):
-
-    readonly_fields = ('hostname',)
+class DataCenterEditDeviceForm(ReadOnlyFieldsMixin, EditDeviceForm):
 
     fieldsets = OrderedDict([
         ('Basic Info', [
@@ -1430,6 +1425,8 @@ class DataCenterEditDeviceForm(EditDeviceForm):
         ]),
         ('Assigned supports info', ['required_support', 'supports']),
     ])
+
+    readonly_fields = ('hostname',)
 
     class Meta(BaseEditAssetForm.Meta):
         fields = BaseEditAssetForm.Meta.fields + (
