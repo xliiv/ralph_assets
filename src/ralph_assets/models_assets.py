@@ -897,9 +897,7 @@ class Asset(
 class DeprecatedRalphDCManager(models.Manager):
     def get_query_set(self):
         query_set = super(DeprecatedRalphDCManager, self).get_query_set()
-        data_centers = query_set.filter(
-            parent__model__type=DeviceType.data_center,
-        )
+        data_centers = query_set.filter(model__type=DeviceType.data_center)
         return data_centers
 
 
@@ -913,9 +911,7 @@ class DeprecatedRalphDC(Device):
 class DeprecatedRalphRackManager(models.Manager):
     def get_query_set(self):
         query_set = super(DeprecatedRalphRackManager, self).get_query_set()
-        racks = query_set.filter(
-            parent__model__type=DeviceType.rack,
-        )
+        racks = query_set.filter(model__type=DeviceType.rack)
         return racks
 
 

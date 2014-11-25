@@ -27,6 +27,7 @@ from ralph_assets.models_assets import (
     CoaOemOs,
     DeviceInfo,
     OfficeInfo,
+    Orientation,
     PartInfo,
     ReportOdtSource,
     ReportOdtSourceLanguage,
@@ -464,11 +465,17 @@ __all__ = [
     'AssetSource',
     'AssetStatus',
     'AssetType',
+    'BOAssetModelLookup',
+    'BODeviceLookup',
     'CoaOemOs',
+    'DCAssetModelLookup',
+    'DCDeviceLookup',
     'DeviceInfo',
+    'DeviceLookup',
     'Licence',
     'LicenceType',
     'OfficeInfo',
+    'Orientation',
     'PartInfo',
     'ReportOdtSource',
     'ReportOdtSourceLanguage',
@@ -477,9 +484,7 @@ __all__ = [
     'Transition',
     'TransitionsHistory',
     'Warehouse',
-    'DeviceLookup',
-    'DCDeviceLookup',
-    'BODeviceLookup',
-    'DCAssetModelLookup',
-    'BOAssetModelLookup',
 ]
+
+# Load signals (hook - don't remove it)
+import ralph_assets.models_signals  # noqa
