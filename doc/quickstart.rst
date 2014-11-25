@@ -23,6 +23,81 @@ parts from one device to another when you need it.
 Adding Assets
 -------------
 
+data center
+"""""""""""
+If you want add data center asset you need to fill a few required fields.
+Look at the screen below (you can zoom-in the image in your browser if you
+want) There are fields which are bold. These fields are required. Rest of
+fields are optional.
+
+.. image:: images/add-data-center-asset-form.png
+    :scale: 30%
+
+Let's describe each of the fields:
+
+- **Basic info**:
+    - **Type** - a read only field for data center
+    - **Model** - choose a model for asset, (you can type a couple of letters
+      to search for a given model. If no result is found, just click "Add"
+      button to add it)
+    - **Inventory number** - an alphanumeric value in your stock
+    - **Warehouse** - the place where the asset is located
+    - **Location** - a more exact location of the device in the building/room
+    - **Status** - an asset's lifetime indicator. Newly bought assets has
+      status "new". You can change it as required according to your own work
+      flow
+    - **Task url** - url to task in ticket system
+    - **Additional remarks** - field for various data
+    - **Service name** - service name to which this asset belongs
+    - **Property of** - company to which this asset belongs
+    - **Hostname** - read-only field telling the name of host (from Ralph-core
+      device)
+    - **Service catalog** - points to ``service catalog`` which asset belongs
+      to
+    - **Environment** - points to environment which asset belongs to
+    - **Region** - set ``region`` for this asset (see ``region`` page for
+      details)
+- **Financial Info**:
+    - **Order number** - number of order where this asset is included
+    - **Invoice date** - date of invoice where this asset is included
+    - **Invoice number** - number of invoice where this asset is included
+    - **Price** - unit price of this asset
+    - **Provider** - name of the provider of this asset
+    - **Depreciation rate** - number of months in which asset depreciates
+    - **Source** - asset was purchased or salvaged
+    - **Request date** - date of submission of the demand for this asset
+    - **Provider order date** - date when order of this asset was provided
+    - **Delivery date** - date of asset delivery
+    - **Depreciation end date** - the end day of the depreciation
+    - **Budget info** - name of budget which funds this asset
+    - **Force depreciation** - force depreciation for this asset despite of
+      ``depreciation end date`` value
+- **User info**:
+    - **User** - points to user of this asset
+    - **Owner** - points to a owner of this asset
+- **Aditional info**:
+    - **Data center** - points to a data center which contains this asset
+    - **Server room** - points to a server room which contains this asset
+    - **Rack** - points to a rack which contains this asset
+    - **Position** - points to position in rack from 0 to 'max u'
+    - **Orientation** - points to a side of rack, depends on ``position``
+
+      if ``position`` = 0 options are: *left*, *right*
+
+      if ``position`` > 0 options are: *front*, *back*, *middle*
+
+    - **Slot number** - points to slot number in *blade* when asset model is
+      *blade*
+    - **Ralph device id** - points to to Ralph-Core device
+    - **Force unlink** - if picked ``"ralph device id"`` is already linked to
+      other asset, this option forces to unlink it and link this asset to
+      newly unlinked device
+    - **Create stock device** - creates (when checked) a Ralph-core device
+      with copied data from this asset 
+
+
+back office
+"""""""""""
 Now, let's add some devices and parts. Click the "Add device" option from the
 top of submenu.
 
@@ -65,8 +140,8 @@ Asset fields has been splitted into sections in forms:
 - **Financial Info**:
     - **Price** - the unit price of the asset.
     - **Provider** - the name of the provider of the asset.
-    - **Depreciation rate**- number of months device depreciation.
-    - **Source**- device was purchased or salvaged.
+    - **Depreciation rate** - number of months device depreciation.
+    - **Source** - device was purchased or salvaged.
     - **Request date** - date of submission of the demand for the device.
     - **Delivery date** - date of device delivery.
     - **Deprecation end date** - the end day of the depreciation

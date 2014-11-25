@@ -531,14 +531,13 @@ class DeviceForm(ModelForm):
     class Meta:
         model = DeviceInfo
         fields = (
-            'ralph_device_id',
             'data_center',
             'server_room',
-            # 'rack_old',
             'rack',
             'orientation',
             'position',
             'slot_no',
+            'ralph_device_id',
         )
 
     force_unlink = BooleanField(required=False, label=_('Force unlink'))
