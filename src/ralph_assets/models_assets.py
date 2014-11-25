@@ -148,14 +148,14 @@ class Orientation(Choices):
     @classmethod
     def is_width(cls, orientation):
         is_width = orientation in set(
-            [getattr(cls, key) for key in ['left', 'right']]
+            [choice.id for choice in cls.WIDTH.choices]
         )
         return is_width
 
     @classmethod
     def is_depth(cls, orientation):
         is_depth = orientation in set(
-            [getattr(cls, key) for key in ['front', 'back', 'middle']]
+            [choice.id for choice in cls.DEPTH.choices]
         )
         return is_depth
 
@@ -1002,7 +1002,7 @@ class DeviceInfo(TimeTrackable, SavingUser, SoftDeletable):
         if self.position == 0 and not Orientation.is_width(self.orientation):
             msg = 'Valid orientations for picked position are: {}'.format(
                 ', '.join(
-                    getattr(Orientation, key).desc for key in ['left', 'right']
+                    choice.desc for choice in Orientation.WIDTH.choices
                 )
             )
             raise ValidationError(
@@ -1011,8 +1011,7 @@ class DeviceInfo(TimeTrackable, SavingUser, SoftDeletable):
         if self.position > 0 and not Orientation.is_depth(self.orientation):
             msg = 'Valid orientations for picked position are: {}'.format(
                 ', '.join(
-                    getattr(Orientation, key).desc
-                    for key in ['front', 'back', 'middle']
+                    choice.desc for choice in Orientation.DEPTH.choices
                 )
             )
             raise ValidationError(

@@ -42,6 +42,7 @@ from ralph_assets.models_assets import (
     DeviceInfo,
     DataCenter,
     OfficeInfo,
+    Orientation,
     Rack,
     Service,
     ServerRoom,
@@ -186,8 +187,8 @@ class DeviceInfoFactory(DjangoModelFactory):
 
     rack = SubFactory(RackFactory)
     slot_no = fuzzy.FuzzyInteger(0, 100)
-    position = fuzzy.FuzzyInteger(0, 48)
-    orientation = 1
+    position = fuzzy.FuzzyInteger(1, 48)
+    orientation = Orientation.front
 
     @factory.post_generation
     def rack(self, create, extracted, **kwargs):
