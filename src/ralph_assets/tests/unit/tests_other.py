@@ -407,7 +407,7 @@ class TestDeviceInfoCleaning(TestCase):
         '''test if picked rack is owned by picked server-room'''
         device_info = self.correct_device_info
         # positive
-        device_info.clean()
+        device_info.clean_fields()
 
         # nagative
         device_info = self.correct_device_info
@@ -418,7 +418,7 @@ class TestDeviceInfoCleaning(TestCase):
             device_info.server_room,
         )
         with self.assertRaises(ValidationError) as exc:
-            device_info.clean()
+            device_info.clean_fields()
         self.assertEqual(exc.exception.code, models_assets.INVALID_SERVER_ROOM)
 
     def test_position_requires_width(self):
@@ -427,13 +427,13 @@ class TestDeviceInfoCleaning(TestCase):
         device_info.position = 0
         # positive
         device_info.orientation = models_assets.Orientation.left
-        device_info.clean()
+        device_info.clean_fields()
         device_info.orientation = models_assets.Orientation.right
-        device_info.clean()
+        device_info.clean_fields()
         # nagative
         device_info.orientation = models_assets.Orientation.front
         with self.assertRaises(ValidationError) as exc:
-            device_info.clean()
+            device_info.clean_fields()
         self.assertEqual(exc.exception.code, models_assets.INVALID_ORIENTATION)
 
     def test_position_requires_height(self):
@@ -443,15 +443,15 @@ class TestDeviceInfoCleaning(TestCase):
         device_info.position = positive_non_zero
         # positive
         device_info.orientation = models_assets.Orientation.front
-        device_info.clean()
+        device_info.clean_fields()
         device_info.orientation = models_assets.Orientation.middle
-        device_info.clean()
+        device_info.clean_fields()
         device_info.orientation = models_assets.Orientation.back
-        device_info.clean()
+        device_info.clean_fields()
         # nagative
         device_info.orientation = models_assets.Orientation.left
         with self.assertRaises(ValidationError) as exc:
-            device_info.clean()
+            device_info.clean_fields()
         self.assertEqual(exc.exception.code, models_assets.INVALID_ORIENTATION)
 
     def test_position_is_valid(self):
@@ -459,11 +459,11 @@ class TestDeviceInfoCleaning(TestCase):
         device_info = self.correct_device_info
         device_info.position = device_info.rack.max_u_height - 1
         # positive
-        device_info.clean()
+        device_info.clean_fields()
         # nagative
         device_info.position = device_info.rack.max_u_height + 1
         with self.assertRaises(ValidationError) as exc:
-            device_info.clean()
+            device_info.clean_fields()
         self.assertEqual(exc.exception.code, models_assets.INVALID_POSITION)
 
     def test_slot_no_requirement(self):
@@ -474,17 +474,17 @@ class TestDeviceInfoCleaning(TestCase):
         # positive
         device_info.asset.model.category.is_blade = False
         device_info.slot_no = None
-        device_info.clean()
+        device_info.clean_fields()
 
         device_info.asset.model.category.is_blade = True
         device_info.slot_no = a_slot_no
-        device_info.clean()
+        device_info.clean_fields()
 
         # nagative
         device_info.asset.model.category.is_blade = True
         device_info.slot_no = None
         with self.assertRaises(ValidationError) as exc:
-            device_info.clean()
+            device_info.clean_fields()
         self.assertEqual(
             exc.exception.code, models_assets.REQUIRED_SLOT_NUMBER,
         )
