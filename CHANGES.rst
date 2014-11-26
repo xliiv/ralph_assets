@@ -8,9 +8,10 @@ Released on TBA
 * Added new fields to data center asset, like:
     - data-center,
     - server-room,
-    - slot-number,
+    - rack,
     - position,
     - orientation
+    - slot-number,
 
 * Renamed rack field to rack_old.
 
