@@ -27,8 +27,7 @@ data center
 """""""""""
 If you want add data center asset you need to fill a few required fields.
 Look at the screen below (you can zoom-in the image in your browser if you
-want) There are fields which are bold. These fields are required. Rest of
-fields are optional.
+want) The fields in bold are required. Rest of fields are optional.
 
 .. image:: images/add-data-center-asset-form.png
     :scale: 30%
@@ -58,9 +57,9 @@ Let's describe each of the fields:
     - **Region** - set ``region`` for this asset (see ``region`` page for
       details)
 - **Financial Info**:
-    - **Order number** - number of order where this asset is included
-    - **Invoice date** - date of invoice where this asset is included
-    - **Invoice number** - number of invoice where this asset is included
+    - **Order number** - number of the order where this asset is included
+    - **Invoice date** - date of the invoice where this asset is included
+    - **Invoice number** - number of the invoice where this asset is included
     - **Price** - unit price of this asset
     - **Provider** - name of the provider of this asset
     - **Depreciation rate** - number of months in which asset depreciates
@@ -80,7 +79,7 @@ Let's describe each of the fields:
     - **Server room** - points to a server room which contains this asset
     - **Rack** - points to a rack which contains this asset
     - **Position** - points to position in rack from 0 to 'max u'
-    - **Orientation** - points to a side of rack, depends on ``position``
+    - **Orientation** - a side of rack, depends on ``position``
 
       if ``position`` = 0 options are: *left*, *right*
 
@@ -89,11 +88,10 @@ Let's describe each of the fields:
     - **Slot number** - points to slot number in *blade* when asset model is
       *blade*
     - **Ralph device id** - points to to Ralph-Core device
-    - **Force unlink** - if picked ``"ralph device id"`` is already linked to
-      other asset, this option forces to unlink it and link this asset to
+    - **Force unlink** - if picked and ``"ralph device id"`` is already linked
+      to other asset, this option forces to unlink it and link this asset to
       newly unlinked device
-    - **Create stock device** - creates (when checked) a Ralph-core device
-      with copied data from this asset 
+    - **Create stock device** - create a Ralph-core device
 
 
 back office
@@ -124,7 +122,7 @@ devices. To do this, choose "Add part" from the menu.
 Fields
 ------
 
-Asset fields has been splitted into sections in forms:
+Asset fields has been split into sections in forms:
 
 - **Basic info**:
     - **Type** - a read only field for data center, back office or administration for back offic. Administration is used for assets like buildings etc.
@@ -140,8 +138,8 @@ Asset fields has been splitted into sections in forms:
 - **Financial Info**:
     - **Price** - the unit price of the asset.
     - **Provider** - the name of the provider of the asset.
-    - **Depreciation rate** - number of months device depreciation.
-    - **Source** - device was purchased or salvaged.
+    - **Depreciation rate** - number of months this device deprecates
+    - **Source** - if this device was purchased or salvaged
     - **Request date** - date of submission of the demand for the device.
     - **Delivery date** - date of device delivery.
     - **Deprecation end date** - the end day of the depreciation
