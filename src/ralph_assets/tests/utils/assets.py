@@ -188,7 +188,7 @@ class DeviceInfoFactory(DjangoModelFactory):
     rack = SubFactory(RackFactory)
     slot_no = fuzzy.FuzzyInteger(0, 100)
     position = fuzzy.FuzzyInteger(1, 48)
-    orientation = Orientation.front
+    orientation = Orientation.front.id
 
     @factory.post_generation
     def rack(self, create, extracted, **kwargs):
