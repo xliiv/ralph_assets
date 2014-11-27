@@ -2,6 +2,7 @@ language: python
 python:
   - "2.7"
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
+env: TEST_DATABASE_ENGINE=travis_mysql
 install:
     - pip install git+https://github.com/zefciu/django-search-forms.git@develop
     - pip install git+https://github.com/quamilek/bob-ajax-selects.git@develop
@@ -12,6 +13,8 @@ install:
 before_install:
     - pip install flake8 --use-mirrors
     - make flake
+before_script:
+  mysql -e 'CREATE DATABASE ralph CHARACTER SET utf8 COLLATE utf8_general_ci;'
 script:
   make test-with-coveralls
 after_success:
