@@ -88,7 +88,7 @@ Let's describe each of the fields:
     - **Slot number** - points to slot number in *blade* when asset model is
       *blade*
     - **Ralph device id** - points to to Ralph-Core device
-    - **Force unlink** - if picked and ``"ralph device id"`` is already linked
+    - **Force unlink** - if picked and ``ralph device id`` is already linked
       to other asset, this option forces to unlink it and link this asset to
       newly unlinked device
     - **Create stock device** - create a Ralph-core device
