@@ -865,13 +865,14 @@ class TestDCLocationSearching(BaseSearchTest, TestCase):
         super(TestDCLocationSearching, self).setUp()
         self.asset_not_blade = DCAssetFactory(model__category__is_blade=False)
         self.asset_blade = DCAssetFactory(model__category__is_blade=True)
+        self.asset_without_category = DCAssetFactory(model__category=None)
 
     def get_required_fields(self):
         return set(['data_center', 'server_room', 'rack', 'position'])
 
-    def _check_fields(self, search_query, required_fields, is_blade):
+    def _check_fields(self, search_query, required_fields, asset_data):
         for field in required_fields:
-            asset = DCAssetFactory(model__category__is_blade=is_blade)
+            asset = DCAssetFactory(**asset_data)
             setattr(asset.device_info, field, None)
             asset.device_info.save()
 
@@ -896,15 +897,25 @@ class TestDCLocationSearching(BaseSearchTest, TestCase):
 
     def test_not_blade_fields(self):
         search_query = {
-            'without_assisgned_location': 'checked',
+            'without_assigned_location': 'checked',
         }
         required_fields = self.get_required_fields()
-        self._check_fields(search_query, required_fields, is_blade=False)
+        asset_data = {'model__category__is_blade': False}
+        self._check_fields(search_query, required_fields, asset_data)
 
     def test_blade_fields(self):
         search_query = {
-            'without_assisgned_location': 'checked',
+            'without_assigned_location': 'checked',
         }
         required_fields = self.get_required_fields()
         required_fields.add('slot_no')
-        self._check_fields(search_query, required_fields, is_blade=True)
+        asset_data = {'model__category__is_blade': True}
+        self._check_fields(search_query, required_fields, asset_data)
+
+    def test_asset_without_category(self):
+        search_query = {
+            'without_assigned_location': 'checked',
+        }
+        required_fields = self.get_required_fields()
+        asset_data = {'model__category': None}
+        self._check_fields(search_query, required_fields, asset_data)

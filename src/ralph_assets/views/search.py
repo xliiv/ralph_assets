@@ -77,7 +77,7 @@ class AssetsSearchQueryableMixin(object):
             'unlinked',
             'user',
             'warehouse',
-            'without_assisgned_location',
+            'without_assigned_location',
             'region'
         ]
         # handle simple 'equals' search fields at once.
@@ -265,29 +265,27 @@ class AssetsSearchQueryableMixin(object):
                         all_q &= Q(
                             device_environment__name__icontains=field_value,
                         )
-                elif field == 'without_assisgned_location':
+                elif field == 'without_assigned_location':
+                    empty_location = (
+                        Q(device_info__data_center=None) |
+                        Q(device_info__server_room=None) |
+                        Q(device_info__rack=None) |
+                        Q(device_info__position=None) |
+                        Q(device_info__orientation=None)
+                    )
                     asset_not_blade = (
-                        Q(model__category__is_blade=False) &
-                        Q(
-                            Q(device_info__data_center=None) |
-                            Q(device_info__server_room=None) |
-                            Q(device_info__rack=None) |
-                            Q(device_info__position=None) |
-                            Q(device_info__orientation=None)
-                        )
+                        Q(model__category__is_blade=False) & Q(empty_location)
                     )
                     asset_blade = (
                         Q(model__category__is_blade=True) &
-                        Q(
-                            Q(device_info__data_center=None) |
-                            Q(device_info__server_room=None) |
-                            Q(device_info__rack=None) |
-                            Q(device_info__position=None) |
-                            Q(device_info__orientation=None) |
-                            Q(device_info__slot_no=None)
-                        )
+                        Q(empty_location | Q(device_info__slot_no=None))
                     )
-                    all_q &= (asset_blade | asset_not_blade)
+                    asset_without_category = (
+                        Q(model__category=None) & Q(empty_location)
+                    )
+                    all_q &= (
+                        asset_blade | asset_not_blade | asset_without_category
+                    )
                 elif field == 'region':
                     all_q &= Q(region__id=field_value)
                 else:
