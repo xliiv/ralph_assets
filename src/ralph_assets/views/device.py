@@ -260,7 +260,7 @@ class EditDevice(HardwareModeMixin, SubmoduleModeMixin, AssetsBase):
             )):
                 try:
                     self.validate_forms_dependency()
-                except ValidationError as e:
+                except ValidationError:
                     return super(EditDevice, self).get(*args, **kwargs)
 
                 force_unlink = self.additional_info.cleaned_data.get(
