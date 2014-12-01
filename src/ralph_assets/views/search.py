@@ -274,7 +274,7 @@ class AssetsSearchQueryableMixin(object):
                         Q(device_info__position=None) |
                         Q(device_info__orientation=None)
                     )
-                    asset_without_category = (
+                    asset_without_category_and_location = (
                         Q(model__category=None) & Q(empty_location)
                     )
                     blade_asset_with_empty_location = (
@@ -285,7 +285,7 @@ class AssetsSearchQueryableMixin(object):
                         Q(model__category__is_blade=False) & Q(empty_location)
                     )
                     all_q &= (
-                        asset_without_category |
+                        asset_without_category_and_location |
                         blade_asset_with_empty_location |
                         not_blade_asset_with_empty_location
                     )
