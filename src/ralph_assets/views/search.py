@@ -274,18 +274,20 @@ class AssetsSearchQueryableMixin(object):
                         Q(device_info__position=None) |
                         Q(device_info__orientation=None)
                     )
-                    asset_not_blade = (
-                        Q(model__category__is_blade=False) & Q(empty_location)
-                    )
-                    asset_blade = (
-                        Q(model__category__is_blade=True) &
-                        Q(empty_location | Q(device_info__slot_no=None))
-                    )
                     asset_without_category = (
                         Q(model__category=None) & Q(empty_location)
                     )
+                    blade_asset_with_empty_location = (
+                        Q(model__category__is_blade=True) &
+                        Q(empty_location | Q(device_info__slot_no=None))
+                    )
+                    not_blade_asset_with_empty_location = (
+                        Q(model__category__is_blade=False) & Q(empty_location)
+                    )
                     all_q &= (
-                        asset_blade | asset_not_blade | asset_without_category
+                        asset_without_category |
+                        blade_asset_with_empty_location |
+                        not_blade_asset_with_empty_location
                     )
                 elif field == 'region':
                     all_q &= Q(region__id=field_value)
