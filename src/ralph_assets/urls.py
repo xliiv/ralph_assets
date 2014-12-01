@@ -50,6 +50,8 @@ from ralph_assets.views.transition import (
     TransitionHistoryFileHandler,
 )
 from ralph_assets.views.report import ReportsList, ReportDetail
+from ralph_assets.rest.urls import urlpatterns as rest_urlpatterns
+
 
 v09_api = Api(api_name='v0.9')
 for r in (
@@ -78,7 +80,7 @@ def normalize_asset_mode(mode):
 
 urlpatterns = patterns(
     '',
-    url(r'^api/', include(v09_api.urls)),
+    url(r'^api/', include(v09_api.urls + rest_urlpatterns)),
     url(r'^$',
         RedirectView.as_view(url='/assets/dc/search'),
         name='dc'),

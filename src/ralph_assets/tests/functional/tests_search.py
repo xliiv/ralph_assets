@@ -23,6 +23,7 @@ from ralph_assets.tests.utils.assets import (
     BOAssetFactory,
     DCAssetFactory,
     AssetManufacturerFactory,
+    RackFactory,
 )
 from ralph_assets.models_assets import (
     Asset,
@@ -587,6 +588,8 @@ class TestSearchProductionUseDateFields(TestCase):
 
 class TestSearchEngine(TestCase):
     """General tests for search engine."""
+    msg_error = 'Error in {}, request has return {} but expected {}.'
+
     def setUp(self):
         self.client = login_as_su()
         self.testing_urls = {
@@ -596,21 +599,29 @@ class TestSearchEngine(TestCase):
         self.assets_dc = [AssetFactory() for _ in range(5)]
         self.assets_bo = [BOAssetFactory() for _ in range(5)]
         for name in ['iPad 5 16 GB', 'ProLiant BL2x2d', 'WS-CBS312']:
-            AssetFactory(model__name=name)
+            DCAssetFactory(model__name=name)
             BOAssetFactory(model__name=name)
 
+        rack = RackFactory(name='707', server_room__name='Server Room 404')
         for manufacturer in ['Apple', 'Sony', 'Nikon', 'Sony Ericsson']:
             manu = AssetManufacturerFactory(name=manufacturer)
-            AssetFactory(model__manufacturer=manu)
+            DCAssetFactory(
+                model__manufacturer=manu,
+                device_info__rack=rack,
+            )
             BOAssetFactory(model__manufacturer=manu)
             licences.LicenceFactory(manufacturer=manu)
 
         for unique in ['123456', '456123']:
-            AssetFactory(barcode=unique, sn=unique, niw=unique)
+            DCAssetFactory(
+                barcode=unique,
+                sn=unique,
+                niw=unique,
+                device_info__rack__name='808',
+                device_info__rack__server_room__name='Server Room 33',
+            )
         for unique in ['654321', '321654']:
             BOAssetFactory(barcode=unique, sn=unique, niw=unique)
-
-        self.msg_error = 'Error in {}, request has return {} but expected {}.'
 
     def _search_results(self, url, field_name=None, value=None):
         if field_name and value:
@@ -857,6 +868,26 @@ class TestSearchEngine(TestCase):
             'support_assigned',
             'none',
             assets_count - 1,
+        )
+
+    def test_rack_empty(self):
+        self._check_results_length(
+            self.testing_urls['dc'], 'location_name', 'imaginary_rack', 0,
+        )
+
+    def test_rack_exact(self):
+        self._check_results_length(
+            self.testing_urls['dc'], 'location_name', '707', 4,
+        )
+
+    def test_rack_contains(self):
+        self._check_results_length(
+            self.testing_urls['dc'], 'location_name', '07', 0,
+        )
+
+    def test_server_room_exact(self):
+        self._check_results_length(
+            self.testing_urls['dc'], 'location_name', 'Server Room 404', 4,
         )
 
 

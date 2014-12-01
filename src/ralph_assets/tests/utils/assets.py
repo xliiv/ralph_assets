@@ -35,17 +35,17 @@ from ralph_assets.models_assets import (
     AssetModel,
     AssetOwner,
     AssetPurpose,
-    AssetStatus,
     AssetSource,
+    AssetStatus,
     AssetType,
     CoaOemOs,
-    DeviceInfo,
     DataCenter,
+    DeviceInfo,
     OfficeInfo,
     Orientation,
     Rack,
-    Service,
     ServerRoom,
+    Service,
     Warehouse,
 )
 from ralph_assets.tests.utils import UserFactory
@@ -184,7 +184,6 @@ class DeviceInfoFactory(DjangoModelFactory):
     u_level = random.randint(0, 100)
     u_height = random.randint(0, 100)
     rack_old = Sequence(lambda n: 'Rack #%s' % n)
-
     rack = SubFactory(RackFactory)
     slot_no = fuzzy.FuzzyInteger(0, 100)
     position = fuzzy.FuzzyInteger(1, 48)

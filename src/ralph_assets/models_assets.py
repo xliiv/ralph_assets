@@ -203,7 +203,7 @@ class AssetStatus(Choices):
     new = _("new")
     in_progress = _("in progress")
     waiting_for_release = _("waiting for release")
-    used = _("used")
+    used = _("in use")
     loan = _("loan")
     damaged = _("damaged")
     liquidated = _("liquidated")
