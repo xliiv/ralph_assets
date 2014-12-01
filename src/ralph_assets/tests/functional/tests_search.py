@@ -34,6 +34,21 @@ from ralph.ui.tests.global_utils import login_as_su
 from ralph_assets.tests.utils import supports
 
 
+class BaseSearchTest(TestCase):
+    def setUp(self):
+        self.client = login_as_su()
+        self.testing_urls = {
+            'dc': reverse('asset_search', args=('dc',)),
+            'bo': reverse('asset_search', args=('back_office',)),
+        }
+
+    def _query_results(self, url, data_dict):
+        fields_query = urllib.urlencode(data_dict)
+        url = '{}?{}'.format(url, fields_query)
+        response = self.client.get(url)
+        return response.context['bob_page'].paginator.object_list
+
+
 class TestSearchForm(TestCase):
     """Scenario:
     1. Tests all fields
@@ -874,3 +889,64 @@ class TestSearchEngine(TestCase):
         self._check_results_length(
             self.testing_urls['dc'], 'location_name', 'Server Room 404', 4,
         )
+
+
+class TestDCLocationSearching(BaseSearchTest, TestCase):
+    def setUp(self):
+        super(TestDCLocationSearching, self).setUp()
+        self.asset_not_blade = DCAssetFactory(model__category__is_blade=False)
+        self.asset_blade = DCAssetFactory(model__category__is_blade=True)
+        self.asset_without_category = DCAssetFactory(model__category=None)
+
+    def get_required_fields(self):
+        return set(['data_center', 'server_room', 'rack', 'position'])
+
+    def _check_fields(self, search_query, required_fields, asset_data):
+        for field in required_fields:
+            asset = DCAssetFactory(**asset_data)
+            setattr(asset.device_info, field, None)
+            asset.device_info.save()
+
+            results = self._query_results(
+                self.testing_urls['dc'], search_query,
+            )
+            self.assertEqual(
+                len(results),
+                1,
+                "Asset with {} = None not match got: {}, exp: {}".format(
+                    field, len(results), 1,
+                )
+            )
+            self.assertEqual(
+                results[0].id,
+                asset.id,
+                "Found asset with id {} instead of {} for {} = None".format(
+                    results[0].id, asset.id, field,
+                )
+            )
+            asset.delete()
+
+    def test_not_blade_fields(self):
+        search_query = {
+            'without_assigned_location': 'checked',
+        }
+        required_fields = self.get_required_fields()
+        asset_data = {'model__category__is_blade': False}
+        self._check_fields(search_query, required_fields, asset_data)
+
+    def test_blade_fields(self):
+        search_query = {
+            'without_assigned_location': 'checked',
+        }
+        required_fields = self.get_required_fields()
+        required_fields.add('slot_no')
+        asset_data = {'model__category__is_blade': True}
+        self._check_fields(search_query, required_fields, asset_data)
+
+    def test_asset_without_category(self):
+        search_query = {
+            'without_assigned_location': 'checked',
+        }
+        required_fields = self.get_required_fields()
+        asset_data = {'model__category': None}
+        self._check_fields(search_query, required_fields, asset_data)

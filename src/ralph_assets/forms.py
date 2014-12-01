@@ -123,7 +123,7 @@ asset_search_dc_fieldsets = lambda: OrderedDict([
         'noncollapsed': [
             'location_name', 'barcode', 'sn', 'model', 'manufacturer',
             'warehouse', 'required_support', 'support_assigned', 'service',
-            'device_environment', 'region',
+            'device_environment', 'region', 'without_assigned_location',
         ],
         'collapsed': [
             'status', 'task_url', 'category', 'loan_end_date_from',
@@ -1711,7 +1711,6 @@ class DataCenterSearchAssetForm(SearchAssetForm):
         self.fieldsets = asset_search_dc_fieldsets()
 
     location_name = CharField(required=False, label=_('Rack, server room, dc'))
-
     category = TreeNodeChoiceField(
         required=False,
         queryset=AssetCategory.tree.filter(
@@ -1725,6 +1724,13 @@ class DataCenterSearchAssetForm(SearchAssetForm):
         required=False,
         help_text=None,
         plugin_options={'disable_confirm': True}
+    )
+    without_assigned_location = BooleanField(
+        required=False,
+        help_text=(
+            "Shows assets without assigned location fields, like: "
+            "data center, server room, rack, etc."
+        )
     )
 
 
