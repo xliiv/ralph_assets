@@ -1022,16 +1022,6 @@ class DeviceInfo(TimeTrackable, SavingUser, SoftDeletable):
                 self.rack.max_u_height,
             )
             raise ValidationError({'position': msg}, code=INVALID_POSITION)
-        try:
-            is_blade = self.asset.model.category.is_blade
-        except (AttributeError, Asset.DoesNotExist):
-            is_blade = False
-        else:
-            if is_blade and self.slot_no is None:
-                msg = "'slot number' is required when asset is blade"
-                raise ValidationError(
-                    {'slot_no': msg}, code=REQUIRED_SLOT_NUMBER,
-                )
 
     @property
     def size(self):

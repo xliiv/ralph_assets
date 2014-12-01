@@ -9,6 +9,7 @@ import logging
 from collections import Counter
 
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.forms.models import formset_factory
@@ -89,6 +90,11 @@ class AddDevice(HardwareModeMixin, SubmoduleModeMixin, AssetsBase):
         self.asset_form = device_form_class(self.request.POST, mode=self.mode)
         self._set_additional_info_form()
         if self.asset_form.is_valid() and self.additional_info.is_valid():
+            try:
+                self.validate_forms_dependency()
+            except ValidationError as e:
+                return super(AddDevice, self).get(*args, **kwargs)
+
             force_unlink = self.additional_info.cleaned_data.get(
                 'force_unlink', None,
             )
@@ -252,6 +258,11 @@ class EditDevice(HardwareModeMixin, SubmoduleModeMixin, AssetsBase):
                 self.asset_form.is_valid(),
                 self.additional_info.is_valid(),
             )):
+                try:
+                    self.validate_forms_dependency()
+                except ValidationError as e:
+                    return super(EditDevice, self).get(*args, **kwargs)
+
                 force_unlink = self.additional_info.cleaned_data.get(
                     'force_unlink', None,
                 )

@@ -13,6 +13,7 @@ from bob.views.bulk_edit import BulkEditBase as BobBulkEditBase
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
 from django.core.urlresolvers import reverse
 from django.db.models import Q
@@ -139,6 +140,30 @@ class AssetsBase(ACLGateway, MenuMixin, TemplateView):
         except AttributeError:
             raise Exception("No form class named: {}".format(form_class_name))
         return form_class
+
+    def validate_forms_dependency(self):
+        """
+        Validates dependency among forms. Sometimes fields from one form change
+        behaviour of fields from other form, like:
+            asset_form.model.category.is_blade = True, then
+            device_info.slot_no is required
+        """
+        try:
+            model = self.asset_form.cleaned_data['model']
+            is_blade = model.category.is_blade
+        except (AttributeError, KeyError):
+            is_blade = False
+        else:
+            try:
+                slot_no = self.additional_info.cleaned_data['slot_no']
+            except (AttributeError, KeyError):
+                slot_no = None
+            if is_blade and slot_no in [None, '']:
+                errors = getattr(self.additional_info, 'errors', {})
+                slot_no_errors = errors.setdefault('slot_no', [])
+                msg = "'slot number' is required when asset is blade"
+                slot_no_errors.append(msg)
+                raise ValidationError('Correct errors, please')
 
 
 class DataTableColumnAssets(DataTableColumn):

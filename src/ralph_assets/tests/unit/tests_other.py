@@ -372,7 +372,7 @@ class TestLinkedDevice(TestCase):
         self.assertEqual(dc_asset.find_device_to_link(), device_to_check)
 
 
-class TestDeviceInfoCleaning(TestCase):
+class TestDeviceInfoValidating(TestCase):
 
     def setUp(self):
         self.form_data = {
@@ -465,26 +465,3 @@ class TestDeviceInfoCleaning(TestCase):
         with self.assertRaises(ValidationError) as exc:
             device_info.clean_fields()
         self.assertEqual(exc.exception.code, models_assets.INVALID_POSITION)
-
-    def test_slot_no_requirement(self):
-        '''test if asset which is blade requires slot_no'''
-        device_info = self.correct_device_info
-        a_slot_no = 5
-
-        # positive
-        device_info.asset.model.category.is_blade = False
-        device_info.slot_no = None
-        device_info.clean_fields()
-
-        device_info.asset.model.category.is_blade = True
-        device_info.slot_no = a_slot_no
-        device_info.clean_fields()
-
-        # nagative
-        device_info.asset.model.category.is_blade = True
-        device_info.slot_no = None
-        with self.assertRaises(ValidationError) as exc:
-            device_info.clean_fields()
-        self.assertEqual(
-            exc.exception.code, models_assets.REQUIRED_SLOT_NUMBER,
-        )
