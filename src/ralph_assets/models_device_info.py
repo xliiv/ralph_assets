@@ -120,6 +120,27 @@ class Rack(Named.NonUnique):
     )
 
 
+
+class AccessoryType(Choices):
+    _ = Choices.Choice
+    brush = _("brush")
+    patch_pabel = _("patch pabel")
+
+
+class Accessory(Named.NonUnique):
+    type = models.PositiveIntegerField(choices=AccessoryType())
+    data_center = models.ForeignKey(DataCenter, null=True, blank=False)
+    server_room = models.ForeignKey(ServerRoom, null=True, blank=False)
+    rack = models.ForeignKey(Rack, null=True, blank=True)
+    position = models.IntegerField(null=True)
+    remarks = models.CharField(
+        verbose_name='Additional remarks',
+        max_length=1024,
+        blank=True,
+    )
+
+
+
 class DeviceInfo(TimeTrackable, SavingUser, SoftDeletable):
     ralph_device_id = models.IntegerField(
         verbose_name=_("Ralph device id"),
