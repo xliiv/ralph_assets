@@ -1,32 +1,36 @@
 Change Log
 ----------
 
-DEV
-~~~
-Released on TBA
-
-* Added new fields to data center asset, like:
-    - data-center,
-    - server-room,
-    - rack,
-    - position,
-    - orientation
-    - slot-number,
-
-* Renamed rack field to rack_old.
-
-
 2.4.0
 ~~~~~
-Released on November 5, 2014
+Released on TBA
 
-* Added quantity to assigned licences,
-* Added feature Region to assets, liceces and supports,
-* Added new field *segment* to back office assets and user-details,
-* Created new widget dedicated to many-to-many relations,
-* Reduced SQL queries about 50% in ``Licence`` and ``Hardware`` list view,
-* Moved licence module to new app structure,
-* Cleaned up urls.py.
+New features
+************
+* Added Region feature to assets, liceces and supports.
+* Added location fields to device_info model: data-center, server-room, rack, position, slot, orientation, slot-number.
+* Added data center visualization.
+* Added support for Accessories.
+* Removed Ralph from requirements. Now Ralph requires ralph_assets.
+* Added quantity to assigned licences.
+
+Minor improvements
+******************
+* Improved history mechanism.
+* Reduced SQL queries about 50% in Licence and Hardware list view,
+* Made AssetModel's Category required.
+* Added purchase_order field to Asset model.
+* Seperated assets statuses for data center and back office.
+* Added department to DC's search form.
+* Removed office info field from bulk edit.
+* Skip liquidated assets in Scrooge API.
+* API for supports for Scrooge.
+* Renamed rack field to rack_old.
+
+Fix
+***
+* Fixed soft-deleting feature on Licenses and Supports.
+* Sync parent also for blade servers - use slote_no instead position.
 
 
 2.3.0
