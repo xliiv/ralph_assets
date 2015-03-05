@@ -192,9 +192,10 @@ class BulkEditBase(BobBulkEditBase):
 
     def get_form_bulk(self):
         if not self.form_bulk:
-            return self.form_dispatcher('BulkEditAsset')
+            form = self.form_dispatcher('BulkEditAsset')
         else:
-            return self.form_bulk
+            form = self.form_bulk
+        return form
 
     def get_query_from_request(self, *args, **kwargs):
         if self.request.GET.get('from_query'):

@@ -549,6 +549,52 @@ class DataCenterBulkEditAssetForm(BulkEditAssetForm):
         choices=AssetStatus.data_center(required=True), required=False,
     )
 
+    #TODO:: check if field constraints are ok
+    #TODO:: add dependency to fields
+    #TODO:: move it to beginning
+    data_center = ModelChoiceField(
+        label=_('data center'),
+        queryset=DataCenter.objects.all(),
+        required=True,
+        widget=Select(attrs={'id': 'data-center-selection'}),
+    )
+    server_room = CascadeModelChoiceField(
+        ('ralph_assets.models', 'ServerRoomLookup'),
+        label=_('Server room'),
+        queryset=ServerRoom.objects.all(),
+        required=True,
+        attrs={'id': 'server-room-selection'},
+        parent_field=data_center,
+    )
+    rack = CascadeModelChoiceField(
+        ('ralph_assets.models', 'RackLookup'),
+        label=_('Rack'),
+        queryset=Rack.objects.all(),
+        required=False,
+        parent_field=server_room,
+    )
+    slot_no = CharField(required=False)
+
+    #def __init__(self, *args, **kwargs):
+    #    super(DataCenterBulkEditAssetForm, self).__init__(*args, **kwargs)
+    #    #TODO:: loop it
+    #    self.fields['data_center'].initial = self.instance.device_info.data_center
+    #    self.fields['server_room'].initial = self.instance.device_info.server_room
+    #    self.fields['rack'].initial = self.instance.device_info.rack
+    #    self.fields['slot_no'].initial = self.instance.device_info.slot_no
+
+
+    #def save(self, *args, **kwargs):
+    #    #TODO:: validate data
+    #    #TODO:: loop it
+    #    super(DataCenterBulkEditAssetForm, self).save(*args, **kwargs)
+    #    self.instance.device_info.data_center = self.cleaned_data['data_center']
+    #    self.instance.device_info.server_room = self.cleaned_data['server_room']
+    #    self.instance.device_info.rack = self.cleaned_data['rack']
+    #    self.instance.device_info.slot_no = self.cleaned_data['slot_no']
+    #    self.instance.device_info.save()
+    #    self.save()
+
 
 class DeviceForm(ModelForm):
     class Meta:
