@@ -551,7 +551,7 @@ class DataCenterBulkEditAssetForm(BulkEditAssetForm):
 
     ##TODO:: check if field constraints are ok
     ##TODO:: add dependency to fields
-    ##TODO:: move it to beginning
+    ##TODO:: move it to form's beginning
     data_center = ModelChoiceField(
         label=_('Data center'),
         queryset=DataCenter.objects.all(),
@@ -577,13 +577,27 @@ class DataCenterBulkEditAssetForm(BulkEditAssetForm):
         self.fields['slot_no'].initial = self.instance.device_info.slot_no
 
 
+    def clean(self, *args, **kwargs):
+        #TODO:: required data-center field was not here
+        cleaned_data = super(DataCenterBulkEditAssetForm, self).clean()
+
+        device_info_fields = ['data_center', 'server_room', 'rack', 'slot_no']
+        device_info = DeviceInfo(
+            **{k: v for k, v in cleaned_data.items() if k in device_info_fields}
+        )
+        try:
+            device_info.clean_fields()
+        except ValidationError as e:
+            for key, value in e.message_dict.items():
+                self._errors[key] = self.error_class([value])
+            raise e
+        else:
+            for field in device_info_fields:
+                setattr(self.instance.device_info, field, cleaned_data[field])
+        return cleaned_data
+
+
     def save(self, *args, **kwargs):
-        #TODO:: validate data
-        #TODO:: loop it
-        self.instance.device_info.data_center_id = self.cleaned_data['data_center']
-        self.instance.device_info.server_room_id = self.cleaned_data['server_room']
-        self.instance.device_info.rack_id = self.cleaned_data['rack']
-        self.instance.device_info.slot_no = self.cleaned_data['slot_no']
         self.instance.device_info.save()
         result = super(DataCenterBulkEditAssetForm, self).save(*args, **kwargs)
         return result
@@ -633,7 +647,7 @@ class DeviceForm(ModelForm):
     )
 
     def __init__(self, *args, **kwargs):
-        kwargs.pop('mode')
+        kwargs.pop('mode', None)
         exclude = kwargs.pop('exclude', None)
         super(DeviceForm, self).__init__(*args, **kwargs)
 
