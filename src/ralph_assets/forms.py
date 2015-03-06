@@ -532,10 +532,11 @@ class BackOfficeBulkEditAssetForm(BulkEditAssetForm):
 class DataCenterBulkEditAssetForm(BulkEditAssetForm):
     class Meta(BulkEditAssetForm.Meta):
         fields = (
-            'status', 'barcode', 'model', 'user', 'owner', 'warehouse', 'sn',
+            'data_center', 'server_room', 'rack', 'slot_no', 'status',
+            'barcode', 'model', 'user', 'owner', 'warehouse', 'sn',
             'property_of', 'remarks', 'service_name', 'invoice_no',
-            'invoice_date', 'price', 'provider', 'task_url',
-            'deprecation_rate', 'order_no', 'source', 'deprecation_end_date',
+            'invoice_date', 'price', 'provider', 'task_url', 'deprecation_rate',
+            'order_no', 'source', 'deprecation_end_date',
         )
 
     model = AutoCompleteSelectField(
@@ -551,7 +552,6 @@ class DataCenterBulkEditAssetForm(BulkEditAssetForm):
 
     ##TODO:: check if field constraints are ok
     ##TODO:: add dependency to fields
-    ##TODO:: move it to form's beginning
     data_center = ModelChoiceField(
         label=_('Data center'),
         queryset=DataCenter.objects.all(),
