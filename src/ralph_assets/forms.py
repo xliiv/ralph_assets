@@ -549,6 +549,45 @@ class DataCenterBulkEditAssetForm(BulkEditAssetForm):
         choices=AssetStatus.data_center(required=True), required=False,
     )
 
+    ##TODO:: check if field constraints are ok
+    ##TODO:: add dependency to fields
+    ##TODO:: move it to beginning
+    data_center = ModelChoiceField(
+        label=_('Data center'),
+        queryset=DataCenter.objects.all(),
+        required=True,
+    )
+    server_room = ModelChoiceField(
+        label=_('Server room'),
+        queryset=ServerRoom.objects.all(),
+        required=True,
+    )
+    rack = ModelChoiceField(
+        label=_('Rack'),
+        queryset=Rack.objects.all(),
+        required=False,
+    )
+    slot_no = CharField(label=_('Slot number'), required=False)
+    def __init__(self, *args, **kwargs):
+        super(DataCenterBulkEditAssetForm, self).__init__(*args, **kwargs)
+        #TODO:: loop it
+        self.fields['data_center'].initial = self.instance.device_info.data_center.id
+        self.fields['server_room'].initial = self.instance.device_info.server_room.id
+        self.fields['rack'].initial = self.instance.device_info.rack.id
+        self.fields['slot_no'].initial = self.instance.device_info.slot_no
+
+
+    def save(self, *args, **kwargs):
+        #TODO:: validate data
+        #TODO:: loop it
+        self.instance.device_info.data_center_id = self.cleaned_data['data_center']
+        self.instance.device_info.server_room_id = self.cleaned_data['server_room']
+        self.instance.device_info.rack_id = self.cleaned_data['rack']
+        self.instance.device_info.slot_no = self.cleaned_data['slot_no']
+        self.instance.device_info.save()
+        result = super(DataCenterBulkEditAssetForm, self).save(*args, **kwargs)
+        return result
+
 
 class DeviceForm(ModelForm):
     class Meta:
