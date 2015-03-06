@@ -13,6 +13,7 @@ from ajax_select.fields import (
     AutoCompleteField,
     AutoCompleteSelectMultipleField,
     CascadeModelChoiceField,
+    CascadeSelect,
 )
 from bob.forms import (
     AJAX_UPDATE,
@@ -532,11 +533,10 @@ class BackOfficeBulkEditAssetForm(BulkEditAssetForm):
 class DataCenterBulkEditAssetForm(BulkEditAssetForm):
     class Meta(BulkEditAssetForm.Meta):
         fields = (
-            'data_center', 'server_room', 'rack', 'slot_no', 'status',
-            'barcode', 'model', 'user', 'owner', 'warehouse', 'sn',
-            'property_of', 'remarks', 'service_name', 'invoice_no',
-            'invoice_date', 'price', 'provider', 'task_url', 'deprecation_rate',
-            'order_no', 'source', 'deprecation_end_date',
+            'slot_no', 'status', 'barcode', 'model', 'user', 'owner',
+            'warehouse', 'sn', 'property_of', 'remarks', 'service_name',
+            'invoice_no', 'invoice_date', 'price', 'provider', 'task_url',
+            'deprecation_rate', 'order_no', 'source', 'deprecation_end_date',
         )
 
     model = AutoCompleteSelectField(
@@ -550,35 +550,47 @@ class DataCenterBulkEditAssetForm(BulkEditAssetForm):
         choices=AssetStatus.data_center(required=True), required=False,
     )
 
-    ##TODO:: check if field constraints are ok
-    ##TODO:: add dependency to fields
-    data_center = ModelChoiceField(
-        label=_('Data center'),
-        queryset=DataCenter.objects.all(),
-        required=True,
-    )
-    server_room = ModelChoiceField(
-        label=_('Server room'),
-        queryset=ServerRoom.objects.all(),
-        required=True,
-    )
-    rack = ModelChoiceField(
-        label=_('Rack'),
-        queryset=Rack.objects.all(),
-        required=False,
-    )
-    slot_no = CharField(label=_('Slot number'), required=False)
+    slot_no = CharField(required=False)
     def __init__(self, *args, **kwargs):
         super(DataCenterBulkEditAssetForm, self).__init__(*args, **kwargs)
-        #TODO:: loop it
-        self.fields['data_center'].initial = self.instance.device_info.data_center.id
-        self.fields['server_room'].initial = self.instance.device_info.server_room.id
-        self.fields['rack'].initial = self.instance.device_info.rack.id
+        cascade_fields = ['data_center', 'server_room', 'rack']
+        self.fields.keyOrder = cascade_fields
+        self.fields.keyOrder.extend(list(self.Meta.fields))
+        data_center_id = self.prefix + 'data-center-selection'
+        self.fields['data_center'] = ModelChoiceField(
+            label=_('data center'),
+            queryset=DataCenter.objects.all(),
+            required=True,
+            widget=Select(attrs={'id': data_center_id}),
+        )
+        server_room_id = self.prefix + 'server-room-selection'
+        self.fields['server_room']= CascadeModelChoiceField(
+            ('ralph_assets.models', 'ServerRoomLookup'),
+            label=_('Server room'),
+            queryset=ServerRoom.objects.all(),
+            required=True,
+            attrs={'id': server_room_id},
+            parent_field=self.fields['data_center'],
+        )
+        self.fields['rack'] = CascadeModelChoiceField(
+            ('ralph_assets.models', 'RackLookup'),
+            label=_('Rack'),
+            queryset=Rack.objects.all(),
+            required=False,
+            parent_field=self.fields['server_room'],
+        )
+        for field_name in cascade_fields[:3]:
+            self.fields[field_name].initial = (
+                self.instance.device_info and
+                getattr(self.instance.device_info, field_name) and
+                getattr(self.instance.device_info, field_name).id
+            )
+            self._update_field_css_class(field_name)
         self.fields['slot_no'].initial = self.instance.device_info.slot_no
+        self.fields.keyOrder = self.fields.keyOrder[:-3]
 
 
     def clean(self, *args, **kwargs):
-        #TODO:: required data-center field was not here
         cleaned_data = super(DataCenterBulkEditAssetForm, self).clean()
 
         device_info_fields = ['data_center', 'server_room', 'rack', 'slot_no']
@@ -593,7 +605,9 @@ class DataCenterBulkEditAssetForm(BulkEditAssetForm):
             raise e
         else:
             for field in device_info_fields:
-                setattr(self.instance.device_info, field, cleaned_data[field])
+                setattr(
+                    self.instance.device_info, field, cleaned_data.get(field)
+                )
         return cleaned_data
 
 
