@@ -26,7 +26,7 @@ from ralph_assets.api import (
 from ralph_assets.views.attachment import AddAttachment, DeleteAttachment
 from ralph_assets.views.device import AddDevice, EditDevice, SplitDeviceView
 from ralph_assets.views.user import EditUser, UserDetails, UserList
-from ralph_assets.views.part import AddPart, EditPart
+from ralph_assets.views.part import AddPart, EditPart, PartList
 from ralph_assets.views.asset import (
     AssetSearch,
     AssetBulkEdit,
@@ -93,6 +93,9 @@ urlpatterns = patterns(
     url(r'(?P<mode>(back_office|dc))/search',
         login_required(AssetSearch.as_view()),
         name='asset_search'),
+    url(r'(?P<mode>(back_office|dc))/part/',
+        login_required(PartList.as_view()),
+        name='part_search'),
     url(r'(?P<mode>(back_office|dc))/add/device/',
         login_required(AddDevice.as_view()),
         name='add_device'),

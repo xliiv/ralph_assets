@@ -489,6 +489,15 @@ class VentureDepartmentLookup(RestrictedLookupChannel):
             name__icontains=q).order_by('name')[:10]
 
 
+class PartModelLookup(RestrictedLookupChannel):
+    model = PartModel
+    min_length = 3
+
+    def get_query(self, q, request):
+        return self.model.objects.filter(
+            name__icontains=q).order_by('name')[:10]
+
+
 def get_edit_url(object_):
     if isinstance(object_, User):
         return reverse(

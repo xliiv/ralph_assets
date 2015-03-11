@@ -72,8 +72,14 @@ class AssetMenu(Menu):
     def get_sidebar_items(self):
         hardware_dc = [
             {
-                'label': _('Search'),
+                'label': _('Search devices'),
                 'view_name': 'asset_search',
+                'view_kwargs': {'mode': 'dc'},
+                'fugue_icon': 'fugue-magnifier',
+            },
+            {
+                'label': _('Search parts'),
+                'view_name': 'part_search',
                 'view_kwargs': {'mode': 'dc'},
                 'fugue_icon': 'fugue-magnifier',
             },
@@ -92,9 +98,15 @@ class AssetMenu(Menu):
         ]
         hardware_bo = [
             {
-                'label': _('Search'),
+                'label': _('Search devices'),
                 'view_name': 'asset_search',
                 'view_kwargs': {'mode': 'back_office'},
+                'fugue_icon': 'fugue-magnifier',
+            },
+            {
+                'label': _('Search parts'),
+                'view_name': 'part_search',
+                'view_kwargs': {'mode': 'dc'},
                 'fugue_icon': 'fugue-magnifier',
             },
             {

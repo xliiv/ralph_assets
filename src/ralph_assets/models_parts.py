@@ -5,6 +5,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from django.core.urlresolvers import reverse
 from django.db import models
 from lck.django.choices import Choices
 from lck.django.common.models import TimeTrackable
@@ -14,7 +15,12 @@ from ralph.discovery.models_device import (
     ServiceCatalog,
 )
 from ralph_assets.history.models import HistoryMixin
-from ralph_assets.models_assets import Asset, AssetType, Warehouse
+from ralph_assets.models_assets import (
+    Asset,
+    AssetType,
+    ASSET_TYPE2MODE,
+    Warehouse,
+)
 
 
 class PartModelType(Choices):
@@ -42,6 +48,20 @@ class PartModel(models.Model):
         return '{} ({})'.format(
             self.name,
             PartModelType.from_id(self.model_type),
+        )
+
+
+class DCPartManager(models.Manager):
+    def get_query_set(self):
+        return super(DCPartManager, self).get_query_set().filter(
+            asset_type__in=(AssetType.DC.choices)
+        )
+
+
+class BOPartManager(models.Manager):
+    def get_query_set(self):
+        return super(BOPartManager, self).get_query_set().filter(
+            asset_type__in=(AssetType.BO.choices)
         )
 
 
@@ -78,5 +98,25 @@ class Part(HistoryMixin, TimeTrackable):
     )
     warehouse = models.ForeignKey(Warehouse, on_delete=models.PROTECT)
 
+    objects = models.Manager()
+    objects_dc = DCPartManager()
+    objects_bo = BOPartManager()
+
     def __unicode__(self):
         return '{} ({})'.format(self.sn, self.model)
+
+    @property
+    def url(self):
+        return reverse('part_edit', kwargs={
+            'asset_id': self.id,  # TODO: chage after new view creation
+            'mode': ASSET_TYPE2MODE[self.asset_type],
+        })
+
+    @property
+    def service_environment(self):
+        if not (self.service and self.part_environment):
+            return None
+        return ' / '.join((
+            self.service.name if self.service else '',
+            self.part_environment.name if self.part_environment else ''
+        ))
