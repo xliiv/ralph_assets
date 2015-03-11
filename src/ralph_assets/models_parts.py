@@ -7,6 +7,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 from lck.django.choices import Choices
+from lck.django.common.models import TimeTrackable
 
 from ralph.discovery.models_device import (
     DeviceEnvironment,
@@ -44,7 +45,7 @@ class PartModel(models.Model):
         )
 
 
-class Part(HistoryMixin, models.Model):
+class Part(HistoryMixin, TimeTrackable):
 
     asset = models.ForeignKey(
         Asset,
@@ -76,14 +77,6 @@ class Part(HistoryMixin, models.Model):
         on_delete=models.PROTECT,
     )
     warehouse = models.ForeignKey(Warehouse, on_delete=models.PROTECT)
-    created = models.DateTimeField(
-        auto_now_add=True,
-        auto_now=False,
-    )
-    modified = models.DateTimeField(
-        auto_now_add=True,
-        auto_now=True,
-    )
 
     def __unicode__(self):
         return '{} ({})'.format(self.sn, self.model)

@@ -42,6 +42,11 @@ from ralph_assets.licences.models import (
     LicenceType,
     SoftwareCategory,
 )
+from ralph_assets.models_parts import (
+    Part,
+    PartModel,
+    PartModelType,
+)
 from ralph_assets.models_support import Support
 from ralph_assets.models_transition import (
     Action,
@@ -515,7 +520,10 @@ __all__ = [
     'LicenceType',
     'OfficeInfo',
     'Orientation',
+    'Part',
     'PartInfo',
+    'PartModel',
+    'PartModelType',
     'ReportOdtSource',
     'ReportOdtSourceLanguage',
     'Service',
