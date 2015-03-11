@@ -23,4 +23,3 @@ class PartSerializer(serializers.ModelSerializer):
             'sn', 'order_no', 'price', 'service', 'part_environment',
             'warehouse'
         )
-
