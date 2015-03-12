@@ -361,9 +361,12 @@ class GenericSearch(Report, AssetsBase, DataTableMixin):
             return self.response
         return super(GenericSearch, self).get(request, *args, **kwargs)
 
+    def _get_objects(self):
+        return self.Model.objects
+
     def handle_search_data(self, request):
         query = self.form.get_query()
-        objects = self.Model.objects
+        objects = self._get_objects()
         if self.pre_selected:
             objects = objects.select_related(*self.pre_selected)
         query_set = objects.filter(query)

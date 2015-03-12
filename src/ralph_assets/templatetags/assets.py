@@ -80,7 +80,11 @@ def multi_assign_form(form, counter=''):
     'assets/templatetags/mode_switch.html', takes_context=True,
 )
 def mode_switch(context):
-    return {'mode': context['mode']}
+    return {
+        'mode': context['mode'],
+        'dc_url': context.get('dc_mode_url', reverse('dc')),
+        'bo_url': context.get('bo_mode_url', reverse('bo')),
+    }
 
 
 @register.inclusion_tag('assets/templatetags/transition_button.html')
