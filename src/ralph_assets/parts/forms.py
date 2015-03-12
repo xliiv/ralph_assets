@@ -16,7 +16,7 @@ from django.forms import (
     ModelForm,
 )
 from ralph_assets.models_parts import Part
-class DeattachForm(ModelForm):
+class DetachForm(ModelForm):
     class Meta:
         model = Part
         fields = (

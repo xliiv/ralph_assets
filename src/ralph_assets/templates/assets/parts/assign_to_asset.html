@@ -9,9 +9,9 @@
 
     #TODO:: rename it to parts-managing?
     <form action="{% url assign_to_asset asset_id %}" method="post">{% csrf_token %}
-        {{ deattach_formset.management_form }}
+        {{ detach_formset.management_form }}
 
-        {% for form in deattach_formset.forms %}
+        {% for form in detach_formset.forms %}
             {% for field in form.hidden_fields %}
                 {{ field }}
             {% endfor %}

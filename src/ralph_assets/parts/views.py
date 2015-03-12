@@ -12,7 +12,7 @@ from ralph_assets.views.base import (
     AssetsBase,
     SubmoduleModeMixin,
 )
-from ralph_assets.parts.forms import ChangeBaseForm, DeattachForm
+from ralph_assets.parts.forms import ChangeBaseForm, DetachForm
 
 
 class DebugViewMixin(object):
@@ -70,7 +70,7 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
     #    )
 
     def get_formset(self):
-        return modelformset_factory(Part, form=DeattachForm, extra=0)
+        return modelformset_factory(Part, form=DetachForm, extra=0)
 
     def get_context_data(self, *args, **kwargs):
         #self.mode = 'dc'
@@ -84,9 +84,9 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         # TODO:: make it the same to attached
         attach_sns = [3, 4]
 
-        deattach_sns = [1, 2]
-        existing_sns = Part.objects.filter(pk__in=deattach_sns).values_list('pk', flat=True)
-        up_to_create_sns = set(deattach_sns)
+        detach_sns = [1, 2]
+        existing_sns = Part.objects.filter(pk__in=detach_sns).values_list('pk', flat=True)
+        up_to_create_sns = set(detach_sns)
         up_to_create_sns.difference_update(set(existing_sns))
 
         parts_to_create = []
@@ -95,24 +95,24 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
             parts_to_create.append(part)
         Part.objects.bulk_create(parts_to_create)
 
-        # deattach form
-        deattach_parts = Part.objects.filter(id__in=deattach_sns)
+        # detach form
+        detach_parts = Part.objects.filter(id__in=detach_sns)
         context = self.get_context_data(**kwargs)
-        context['deattach_formset'] = modelformset_factory(
-            Part, form=DeattachForm, extra=0
-        )(queryset=deattach_parts)
+        context['detach_formset'] = modelformset_factory(
+            Part, form=DetachForm, extra=0
+        )(queryset=detach_parts)
         return self.render_to_response(context)
 
     def post(self, request, *args, **kwargs):
 
-        deattach_formset = self.get_formset()(request.POST)
-        if deattach_formset.is_valid():
-            #TODO:: deattach parts
+        detach_formset = self.get_formset()(request.POST)
+        if detach_formset.is_valid():
+            #TODO:: detach parts
             pass
             #TODO:: better url
             messages.info(self.request, _('fak yea'))
             return HttpResponseRedirect('/assets')
         else:
             context = self.get_context_data(**kwargs)
-            context['deattach_formset'] = deattach_formset
+            context['detach_formset'] = detach_formset
             return self.render_to_response(context)
