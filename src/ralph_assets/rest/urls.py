@@ -30,5 +30,6 @@ urlpatterns = patterns(
     url(
         r'^parts/?$',
         PartsView.as_view(),
+        name='api_parts',
     ),
 )

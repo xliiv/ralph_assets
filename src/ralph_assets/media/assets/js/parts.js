@@ -12,17 +12,23 @@ $(document).ready(function () {
 			this.max_num_forms = $('#id_' + this.prefix + '-MAX_NUM_FORMS', formset_selector);
 			this.row_element = row_element || 'div';
 			this.observe_last = observe_last || false;
+			this.id_regex = new RegExp('(' + this.prefix + '-\\d+)');
 
 			var self = this;
 			if(this.observe_last) {
-				$('input', self.formset_selector).bind('keydown', function(event){
-					if(event.keyCode === 13) {
-						self.fetch_info($(this).parent());
-						event.preventDefault();
-						var new_row = self.add_row();
-						$('input:first', new_row).focus();
-					}
-				});
+				$('input', self.formset_selector)
+					.bind('keydown', function(event){
+						if(event.keyCode === 13) {
+							event.preventDefault();
+							if($(this).val() !== '') {
+								self.fetch_info($(this).parent());
+								var new_row = self.add_row();
+								new_row.add_class('empty');
+								$('input:first', new_row).focus();
+								self.fetch_info($('td:first', new_row), 'Fill field.');
+							}
+						}
+					});
 			}
 		}
 
@@ -31,13 +37,13 @@ $(document).ready(function () {
 		};
 
 		Formset.prototype.update_row = function(element, idx) {
-			var id_regex = new RegExp('(' + this.prefix + '-\\d+)');
 			var replacement = this.prefix + '-' + idx;
 			var attrs = ['for', 'id', 'name'];
+			var self = this;
 			$.each(attrs, function(index, value){
 				var e = $('[' + value +']', element);
 				if (e.length) {
-					$(e).attr(value, $(e).attr(value).replace(id_regex, replacement));
+					$(e).attr(value, $(e).attr(value).replace(self.id_regex, replacement));
 				}
 			});
 		};
@@ -52,13 +58,39 @@ $(document).ready(function () {
 			return $(row);
 		};
 
-		Formset.prototype.fetch_info = function(element) {
+		Formset.prototype.fetch_info = function(element, text) {
 			var url = $(element).data('url') || false;
 			var target = $(element).data('target') || false;
 			if (!url && !target) {
 				return false;
 			}
-			$target = $(element).siblings('.' + target);
+			var $target = $(element).siblings('.' + target);
+			var result = text || false;
+			if (!result) {
+				var $input = $('input', element);
+				var attr = $input.attr('name').replace(this.id_regex, '').slice(1);
+				var data = {};
+				data[attr] = $input.val();
+				$.ajax({
+					method: 'GET',
+					url: url,
+					data: data
+				})
+				.done(function(data) {
+					$target.html(data);
+				})
+				.fail(function(jqXHR) {
+					switch (jqXHR.status) {
+						case 400:
+							$target.html('zle dane');
+							break;
+						case 404:
+							$target.html('taki part nie istnieje');
+							break;
+					}
+				});
+			}
+			$target.html(result);
 
 		};
 		return Formset;
