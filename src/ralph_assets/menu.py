@@ -138,7 +138,10 @@ class AssetMenu(Menu):
             {
                 'label': report.name,
                 'view_name': 'report_detail',
-                'view_kwargs': {'mode': 'all', 'slug': report.slug},
+                'view_kwargs': {
+                    'mode': 'all',
+                    'slug': report.slug
+                },
                 'name': report.name,
                 'fugue_icon': 'fugue-table',
             }

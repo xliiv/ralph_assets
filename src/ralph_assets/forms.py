@@ -1936,3 +1936,44 @@ class SearchUserForm(Form):
         LOOKUPS['asset_user'],
         required=False,
     )
+
+
+class BladeSystemForm(ModelForm):
+
+    class Meta:
+        model = DeviceInfo
+        fields = ('data_center', 'server_room', 'rack', 'position',)
+
+    data_center = ModelChoiceField(
+        label=_('data center'),
+        queryset=DataCenter.objects.all(),
+        required=True,
+        widget=Select(attrs={'id': 'data-center-selection'}),
+    )
+    server_room = CascadeModelChoiceField(
+        ('ralph_assets.models', 'ServerRoomLookup'),
+        label=_('Server room'),
+        queryset=ServerRoom.objects.all(),
+        required=True,
+        attrs={'id': 'server-room-selection'},
+        parent_field=data_center,
+    )
+    rack = CascadeModelChoiceField(
+        ('ralph_assets.models', 'RackLookup'),
+        label=_('Rack'),
+        queryset=Rack.objects.all(),
+        required=False,
+        parent_field=server_room,
+    )
+
+
+class BladeServerForm(ModelForm):
+
+    class Meta:
+        model = DeviceInfo
+        fields = ('slot_no',)
+
+    def __init__(self, *args, **kwargs):
+        super(BladeServerForm, self).__init__(*args, **kwargs)
+        for field_name in self.Meta.fields:
+            self.fields[field_name].label = ''

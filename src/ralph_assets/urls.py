@@ -32,6 +32,7 @@ from ralph_assets.views.asset import (
     AssetSearch,
     AssetBulkEdit,
     DeleteAsset,
+    ChassisBulkEdit,
 )
 from ralph_assets.views.ajax import (
     CategoryDependencyView,
@@ -106,6 +107,13 @@ urlpatterns = patterns(
     url(r'(?P<mode>(back_office|dc))/edit/part/(?P<asset_id>[0-9]+)/$',
         login_required(EditPart.as_view()),
         name='part_edit'),
+
+
+    url(r'(?P<mode>(dc))/edit_location_data/$',
+        login_required(ChassisBulkEdit.as_view()),
+        name='edit_location_data'),
+
+
     url(r'ajax/dependencies/category/$',
         CategoryDependencyView.as_view(),
         name='category_dependency_view'),
@@ -190,6 +198,11 @@ urlpatterns = patterns(
         r'reports/$',
         login_required(ReportsList.as_view()),
         name='assets_reports',
+    ),
+    url(
+        r'reports/(?P<mode>\S+)/(?P<dc>\S+)/(?P<slug>\S+)$',
+        login_required(ReportDetail.as_view()),
+        name='report_detail',
     ),
     url(
         r'reports/(?P<mode>\S+)/(?P<slug>\S+)$',

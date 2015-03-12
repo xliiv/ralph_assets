@@ -402,7 +402,7 @@ class TestDeviceInfoValidation(TestCase):
         )
         with self.assertRaises(ValidationError) as exc:
             device_info.clean_fields()
-        self.assertEqual(exc.exception.code, models_assets.INVALID_SERVER_ROOM)
+        self.assertIn('server_room', exc.exception.message_dict)
 
     def test_server_room_relation(self):
         '''test if picked rack is owned by picked server-room'''
@@ -420,7 +420,7 @@ class TestDeviceInfoValidation(TestCase):
         )
         with self.assertRaises(ValidationError) as exc:
             device_info.clean_fields()
-        self.assertEqual(exc.exception.code, models_assets.INVALID_RACK)
+        self.assertIn('rack', exc.exception.message_dict)
 
     def test_position_requires_width(self):
         '''test if picked orientation is owned by picked position - width'''
@@ -435,7 +435,7 @@ class TestDeviceInfoValidation(TestCase):
         device_info.orientation = models_assets.Orientation.front
         with self.assertRaises(ValidationError) as exc:
             device_info.clean_fields()
-        self.assertEqual(exc.exception.code, models_assets.INVALID_ORIENTATION)
+        self.assertIn('orientation', exc.exception.message_dict)
 
     def test_position_requires_height(self):
         '''test if picked orientation is owned by picked position - height'''
@@ -453,7 +453,7 @@ class TestDeviceInfoValidation(TestCase):
         device_info.orientation = models_assets.Orientation.left
         with self.assertRaises(ValidationError) as exc:
             device_info.clean_fields()
-        self.assertEqual(exc.exception.code, models_assets.INVALID_ORIENTATION)
+        self.assertIn('orientation', exc.exception.message_dict)
 
     def test_position_is_valid(self):
         '''test if picked position works with max_u_height'''
@@ -465,7 +465,7 @@ class TestDeviceInfoValidation(TestCase):
         device_info.position = device_info.rack.max_u_height + 1
         with self.assertRaises(ValidationError) as exc:
             device_info.clean_fields()
-        self.assertEqual(exc.exception.code, models_assets.INVALID_POSITION)
+        self.assertIn('position', exc.exception.message_dict)
 
 
 class TestAssetStatuses(TestCase):

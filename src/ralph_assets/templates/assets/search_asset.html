@@ -147,6 +147,11 @@
                 <li>
                     <a href="#" id='post_edit_all'>{% trans "Edit selected" %}</a>
                 </li>
+                {% if mode == 'dc' %}
+                <li>
+                    <a href="#" id='post_edit_all_location'>{% trans "Edit location" %}</a>
+                </li>
+                {% endif %}
             </ul>
             </div>
             {% if asset_transitions_enable %}

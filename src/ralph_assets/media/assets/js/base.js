@@ -109,6 +109,10 @@
         return this.action_selected('bulkedit');
     };
 
+    Bulk.prototype.edit_selected_location = function() {
+        return this.action_selected('edit_location_data');
+    };
+
     Bulk.prototype.invoice_report_selected = function() {
         return this.action_selected('invoice_report');
     };
@@ -200,6 +204,10 @@
 
         $('#post_edit_all').click(function() {
             bulk.edit_selected();
+        });
+
+        $('#post_edit_all_location').click(function() {
+            bulk.edit_selected_location();
         });
 
         $('.bob-select-all, .bob-select-toggle, .bob-select-none').click(function() {

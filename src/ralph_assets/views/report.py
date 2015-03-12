@@ -26,6 +26,7 @@ from ralph_assets.models_assets import (
     DeviceInfo,
     MODE2ASSET_TYPE,
 )
+from ralph_assets.models_dc_assets import DataCenter
 
 
 logger = logging.getLogger(__name__)
@@ -126,6 +127,7 @@ class ReportContainer(list):
 class BaseReport(object):
     """Each report must inherit from this class."""
     with_modes = True
+    with_datacenters = False
     with_counter = True
     links = False
     template_name = None
@@ -133,13 +135,14 @@ class BaseReport(object):
     def __init__(self):
         self.report = ReportContainer()
 
-    def execute(self, mode):
+    def execute(self, mode, dc=None):
         self.mode = mode
-        self.prepare(mode)
+        self.dc = dc
+        self.prepare(mode, dc)
         map(lambda x: x.update_count(), self.report.leaves)
         return self.report.roots
 
-    def prepare(self, mode):
+    def prepare(self, mode, dc):
         raise NotImplemented()
 
     def is_async(self, request):
@@ -150,7 +153,7 @@ class CategoryModelReport(BaseReport):
     slug = 'category-model'
     name = _('Category - model')
 
-    def prepare(self, mode):
+    def prepare(self, mode, *args, **kwargs):
         queryset = Asset.objects
         if mode:
             queryset = queryset.filter(type=mode)
@@ -174,7 +177,7 @@ class CategoryModelStatusReport(BaseReport):
     slug = 'category-model-status'
     name = _('Category - model - status')
 
-    def prepare(self, mode):
+    def prepare(self, mode, *args, **kwargs):
         queryset = Asset.objects
         if mode:
             queryset = queryset.filter(type=mode)
@@ -205,7 +208,7 @@ class ManufacturerCategoryModelReport(BaseReport):
     slug = 'manufactured-category-model'
     name = _('Manufactured - category - model')
 
-    def prepare(self, mode=None):
+    def prepare(self, mode=None, *args, **kwargs):
         queryset = AssetModel.objects
         if mode:
             queryset = queryset.filter(type=mode)
@@ -231,13 +234,16 @@ class ManufacturerCategoryModelReport(BaseReport):
 
 
 class StatusModelReport(BaseReport):
+    with_datacenters = True
     slug = 'status-model'
     name = _('Status - model')
 
-    def prepare(self, mode=None):
+    def prepare(self, mode=None, dc=None):
         queryset = Asset.objects
         if mode:
             queryset = queryset.filter(type=mode)
+        if dc:
+            queryset = queryset.filter(device_info__data_center__name=dc)
         queryset = queryset.values(
             'status',
             'model__name',
@@ -259,7 +265,7 @@ class LinkedDevicesReport(BaseReport):
     with_modes = False
     links = True
 
-    def prepare(self, mode=None):
+    def prepare(self, mode=None, *args, **kwargs):
         assets = Asset.objects.raw("""
         SELECT a.*
         FROM
@@ -408,6 +414,23 @@ class ReportViewBase(AssetsBase):
         },
     ]
 
+    @property
+    def datacenters(self):
+        datacenters = [
+            {
+                'name': 'all',
+                'verbose_name': 'All',
+                'id': 'all',
+            },
+        ]
+        return datacenters + [
+            {
+                'name': dc.name.lower(),
+                'verbose_name': dc.name,
+                'id': dc.id,
+            } for dc in DataCenter.objects.all()
+        ]
+
     def get_sidebar_items(self, base_sidebar_caption):
         sidebar_menu = []
         sidebar_menu += [MenuHeader(_('Reports'))]
@@ -415,6 +438,7 @@ class ReportViewBase(AssetsBase):
             MenuItem(
                 label=report.name, href=reverse('report_detail', kwargs={
                     'mode': 'all',
+                    'dc': 'all',
                     'slug': report.slug,
                 })
             )
@@ -457,6 +481,10 @@ class ReportDetail(Report, ReportViewBase):
         return self.report.get_response(request, result)
 
     def dispatch(self, request, *args, **kwargs):
+        try:
+            self.dc = DataCenter.objects.get(id=kwargs.get('dc', None))
+        except (DataCenter.DoesNotExist, ValueError):
+            self.dc = None
         self.slug = kwargs.pop('slug')
         self.asset_type = MODE2ASSET_TYPE.get(kwargs.get('mode'), None)
         self.report = self.get_report(self.slug)
@@ -469,9 +497,15 @@ class ReportDetail(Report, ReportViewBase):
         context_data.update({
             'report': self.report,
             'subsection': self.report.name,
-            'result': self.report.execute(self.asset_type),
-            'cache_key': (str(self.asset_type) or 'all') + self.slug,
+            'result': self.report.execute(self.asset_type, self.dc),
+            'cache_key': (
+                (str(self.asset_type) or 'all') +
+                (str(self.dc.id) if self.dc else 'all') +
+                self.slug
+            ),
             'modes': self.modes,
+            'datacenters': self.datacenters,
             'slug': self.slug,
+            'dc': self.dc.id if self.dc else 'all',
         })
         return context_data

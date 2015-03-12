@@ -73,6 +73,7 @@ from ralph_assets.tests.utils.supports import (
     DCSupportFactory,
     SupportTypeFactory,
 )
+from ralph_assets.views.asset import ChassisBulkEdit
 
 
 def update(_dict, obj, keys):
@@ -2522,3 +2523,117 @@ class TestEditDeviceInfoForm(TestDevicesView, BaseViewsTest):
         # check editing was failed, so any field hasn't changed
         self.assertNotEqual(asset.price, form_data['price'])
         self.assertEqual(self.asset.price, asset.price)
+
+
+class TestLocation(TestDevicesView, BaseViewsTest):
+
+    def _get_form_url(self, assets):
+        url_query = '&'.join([
+            'select={}'.format(blade.id) for blade in assets
+        ])
+        form_url = '{}?{}'.format(
+            reverse('edit_location_data', args=('dc',)), url_query,
+        )
+        return form_url
+
+    def _get_form_data(self, common_field_asset, slots_assets):
+        form_data = {
+            'asset': '',
+            'form-INITIAL_FORMS': '2',
+            'form-MAX_NUM_FORMS': '1000',
+            'form-TOTAL_FORMS': '2',
+            # data to check
+            'data_center': common_field_asset.device_info.data_center.id,
+            'server_room': common_field_asset.device_info.server_room.id,
+            'rack': common_field_asset.device_info.rack.id,
+            'position': common_field_asset.device_info.position,
+            'form-0-id': slots_assets[0].id,
+            'form-1-id': slots_assets[1].id,
+        }
+        return form_data
+
+    def test_selected_blades_allow_editing(self):
+        blade = DCAssetFactory(model__category__is_blade=True)
+        form_url = self._get_form_url([blade])
+        response = self.client.get(form_url, follow=True)
+        self.assertIn('chassis_form', response.context)
+        self.assertIn('blade_server_formset', response.context)
+
+    def test_non_bladed_selected_show_error(self):
+        non_blade = DCAssetFactory(model__category__is_blade=False)
+        form_url = self._get_form_url([non_blade])
+        response = self.client.get(form_url, follow=True)
+        error_msg = unicode(response.context['messages']._loaded_messages[0])
+        self.assertIn(non_blade.sn, error_msg)
+
+    def test_edited_successfully(self):
+        """
+        Checks if 2 assets' data is updated correctly.
+
+        1. create 2 assets
+        2. set form data for editing those assets
+        3. check if data of the 2 assets is updated correctly
+        """
+        new_data = DCAssetFactory(device_info__slot_no='1')
+        old_slot_numbers = "2 3".split()
+        new_slot_numbers = "4 5".split()
+
+        blades_to_edit = [
+            DCAssetFactory(
+                model__category__is_blade=True,
+                device_info__slot_no=old_slot_numbers[idx],
+            ) for idx in range(2)
+        ]
+        form_url = self._get_form_url(blades_to_edit)
+        form_data = self._get_form_data(new_data, blades_to_edit)
+        form_data.update({
+            'form-0-slot_no': new_slot_numbers[0],
+            'form-1-slot_no': new_slot_numbers[1],
+        })
+        self.client.post(form_url, form_data, follow=True)
+
+        # check both assets if are correct
+        updated_blades_to_edit = [
+            Asset.objects.get(pk=blade.id) for blade in blades_to_edit
+        ]
+        for idx, blade in enumerate(updated_blades_to_edit):
+            for field_name in [
+                'data_center', 'server_room', 'rack', 'position',
+            ]:
+                self.assertEqual(
+                    getattr(blade.device_info, field_name),
+                    getattr(new_data.device_info, field_name),
+                )
+            self.assertEqual(blade.device_info.slot_no, new_slot_numbers[idx])
+
+    def test_check_same_slot_number_fails_validation(self):
+        """
+        Check updating 2 assets with same slot-number fails validation.
+
+        1. create 2 assets
+        2. set form data for editing those assets (slot-number is the same)
+        3. check if validation errors shows
+        """
+        new_data = DCAssetFactory(device_info__slot_no='1')
+        old_slot_numbers = "2 3".split()
+        new_slot_numbers = "4"
+
+        blades_to_edit = [
+            DCAssetFactory(
+                model__category__is_blade=True,
+                device_info__slot_no=old_slot_numbers[idx],
+            ) for idx in range(2)
+        ]
+        form_url = self._get_form_url(blades_to_edit)
+        form_data = self._get_form_data(new_data, blades_to_edit)
+        form_data.update({
+            'form-0-slot_no': new_slot_numbers,
+            'form-1-slot_no': new_slot_numbers,
+        })
+        response = self.client.post(form_url, form_data, follow=True)
+
+        for form in response.context['blade_server_formset'].forms:
+            self.assertEqual(
+                form.errors['slot_no'],
+                ChassisBulkEdit.SAME_SLOT_MSG_ERROR,
+            )
