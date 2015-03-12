@@ -39,6 +39,7 @@ from ralph_assets.forms import DeviceForm
 from ralph_assets.models_assets import Asset, SAVE_PRIORITY
 from ralph_assets.models_support import Support
 from ralph_assets.tests.utils import (
+    AdminFactory,
     AjaxClient,
     AttachmentFactory,
     ClientMixin,
@@ -2522,3 +2523,39 @@ class TestEditDeviceInfoForm(TestDevicesView, BaseViewsTest):
         # check editing was failed, so any field hasn't changed
         self.assertNotEqual(asset.price, form_data['price'])
         self.assertEqual(self.asset.price, asset.price)
+
+
+class TestChangePartsView(ClientMixin, TestCase):
+
+    def setUp(self):
+        self.login_as_user(self.user)
+
+    @classmethod
+    def setUpClass(cls):
+        cls.asset = AssetFactory()
+        cls.user = AdminFactory()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.asset.delete()
+        cls.user.delete()
+
+    def test_redirect(self):
+        url = reverse(
+            'change_parts', kwargs={'asset_id': self.asset.id}
+        )
+        post_data = {
+            'in-0-sn': '21',
+            'in-1-sn': '31',
+            'out-0-sn': '22',
+            'out-1-sn': '32',
+            'out-INITIAL_FORMS': 0,
+            'out-TOTAL_FORMS': 2,
+            'out-MAX_NUM_FORMS': 1000,
+            'in-INITIAL_FORMS': 0,
+            'in-TOTAL_FORMS': 2,
+            'in-MAX_NUM_FORMS': 1000,
+        }
+        response = self.client.post(url, post_data)
+        expected_url = url + '?in_sn=21%2C31&out_sn=22%2C32'
+        self.assertRedirects(response, expected_url)

@@ -206,4 +206,8 @@ urlpatterns = patterns(
         r'^licences/',
         include('ralph_assets.licences.urls', app_name='licences'),
     ),
+    url(
+        r'^parts/',
+        include('ralph_assets.parts.urls', app_name='parts'),
+    ),
 )

@@ -12,7 +12,7 @@ from rest_framework.views import APIView
 
 from ralph.ui.views.common import ACLGateway
 from ralph_assets.models_assets import DataCenter
-from ralph_assets.rest.serializers.models_dc_asssets import DCSerializer
+from ralph_assets.rest.serializers.models_dc_assets import DCSerializer
 
 
 class DCRacksAPIView(ACLGateway, APIView):
