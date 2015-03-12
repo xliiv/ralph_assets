@@ -18,14 +18,20 @@ $(document).ready(function () {
 			if(this.observe_last) {
 				$('input', self.formset_selector)
 					.bind('keydown', function(event){
+						var val = $(this).val();
+						if(val !== '') {
+							$(this).closest(self.row_element).removeClass('empty');
+						}
 						if(event.keyCode === 13) {
 							event.preventDefault();
-							if($(this).val() !== '') {
+							if(val !== '') {
 								self.fetch_info($(this).parent());
-								var new_row = self.add_row();
-								new_row.add_class('empty');
-								$('input:first', new_row).focus();
-								self.fetch_info($('td:first', new_row), 'Fill field.');
+								var $row = $(self.row_element + '.empty', self.formset_selector);
+								if ($row.length === 0){
+									$row = self.add_row();
+								}
+								$('input:first', $row).focus();
+								self.fetch_info($('td:first', $row), 'Fill field.');
 							}
 						}
 					});
@@ -55,6 +61,7 @@ $(document).ready(function () {
 			this.total_forms.val(form_count + 1);
 			this.update_row(row, form_count);
 			$('input', row).val('');
+			$(row).addClass('empty');
 			return $(row);
 		};
 
@@ -66,6 +73,7 @@ $(document).ready(function () {
 			}
 			var $target = $(element).siblings('.' + target);
 			var result = text || false;
+			var self = this;
 			if (!result) {
 				var $input = $('input', element);
 				var attr = $input.attr('name').replace(this.id_regex, '').slice(1);
@@ -77,6 +85,7 @@ $(document).ready(function () {
 					data: data
 				})
 				.done(function(data) {
+					$(target).closest(self.row_element).addClass('success');
 					$target.html(data);
 				})
 				.fail(function(jqXHR) {
