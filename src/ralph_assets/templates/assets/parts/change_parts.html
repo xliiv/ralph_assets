@@ -1,0 +1,54 @@
+{% extends 'assets/base.html' %}
+
+{% block base_sidebar %}{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="{{ STATIC_URL }}assets/js/parts.js"></script>
+{% endblock %}
+
+{% block content %}
+
+	{% if get_data %}<pre>GET: {{ get_data }}</pre>{% endif %}
+	{% if post_data %}<pre>POST: {{ post_data }}</pre>{% endif %}
+
+	<form method="POST" class="row-fluid" class="formset">
+		{% csrf_token %}
+		<div class="span12">
+			<div class="row-fluid">
+				<div class="span6">
+					<div class="well fieldset add-formset">
+						<h6>In</h6>
+						{{ params.add_formset.management_form }}
+						<table class="table table-striped">
+							{% for form in params.add_formset %}
+								<tr>
+									<td data-url="{% url api_parts %}" data-target="sn-info">{{ form.sn }}</td>
+									<td class="sn-info">
+										Info
+									</td>
+								</tr>
+							{% endfor %}
+						</table>
+					</div>
+				</div>
+				<div class="span6">
+					<div class="well fieldset delete-formset">
+						<h6>Out</h6>
+						{{ params.delete_formset.management_form }}
+						<table>
+							{% for form in params.delete_formset %}
+							<tr>
+								<td>{{ form.sn }}</td>
+							</tr>
+							{% endfor %}
+						</table>
+					</div>
+				</div>
+			</div>
+			<div class="row-fluid">
+				<button type="submit" class="btn btn-primary span12">Save</button>
+			</div>
+		</div>
+	</form>
+{% endblock %}
