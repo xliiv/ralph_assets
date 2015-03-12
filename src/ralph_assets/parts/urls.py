@@ -7,8 +7,7 @@ from __future__ import unicode_literals
 
 from django.conf.urls import patterns, url
 
-from ralph_assets.parts.views import ChangePartsView
-
+from ralph_assets.parts.views import AssignToAssetView, ChangePartsView
 
 urlpatterns = patterns(
     '',
@@ -16,5 +15,10 @@ urlpatterns = patterns(
         (r'^(?P<asset_id>[\d]+)/$'),
         ChangePartsView.as_view(),
         name='change_parts',
+    ),
+    url(
+        (r'^assign-to-asset/(?P<asset_id>[\d]+)/$'),
+        AssignToAssetView.as_view(),
+        name='assign_to_asset',
     ),
 )

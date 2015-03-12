@@ -9,3 +9,18 @@ from django import forms
 
 class ChangeBaseForm(forms.Form):
     sn = forms.CharField()
+
+
+# TODO:: clean it
+from django.forms import (
+    ModelForm,
+)
+from ralph_assets.models_parts import Part
+class DeattachForm(ModelForm):
+    class Meta:
+        model = Part
+        fields = (
+            "asset_type", "model", "sn", "order_no", "price", "service",
+            "part_environment", "warehouse"
+        )
+#TODO:: override clean so that it raise error when field in defined-list

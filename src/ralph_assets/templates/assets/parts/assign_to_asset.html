@@ -1,0 +1,39 @@
+{% extends 'assets/base.html' %}
+{% load i18n %}
+
+{% load bob %}
+
+
+{% block content %}
+
+
+    #TODO:: rename it to parts-managing?
+    <form action="{% url assign_to_asset asset_id %}" method="post">{% csrf_token %}
+        {{ deattach_formset.management_form }}
+
+        {% for form in deattach_formset.forms %}
+            {% for field in form.hidden_fields %}
+                {{ field }}
+            {% endfor %}
+            {% for field in form.visible_fields %}
+                {{ field }}
+            {% endfor %}
+        {% endfor %}
+
+
+
+        <div class="row-fluid">
+            <div class="span12">
+            <div class="form-actions">
+            <button name="asset" type="submit" class="btn btn-primary">
+                {% trans "Save" %}
+            </button>
+            </div>
+            </div>
+        </div>
+    </form>
+
+{% comment %}
+{% endcomment %}
+
+{% endblock %}

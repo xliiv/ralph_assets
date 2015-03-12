@@ -27,7 +27,7 @@ from ralph_assets.views.attachment import AddAttachment, DeleteAttachment
 from ralph_assets.views.device import AddDevice, EditDevice, SplitDeviceView
 from ralph_assets.views.user import EditUser, UserDetails, UserList
 from ralph_assets.views.part import AddPart, EditPart
-from ralph_assets.views.new_part import ChangePartsView
+from ralph_assets.parts.views import ChangePartsView
 from ralph_assets.views.asset import (
     AssetSearch,
     AssetBulkEdit,
