@@ -7,13 +7,7 @@ from __future__ import unicode_literals
 
 from rest_framework import serializers
 
-from ralph_assets.models_parts import Part, PartModel
-
-
-class PartModelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PartModel
-        fields = ('name', 'model_type')
+from ralph_assets.models_parts import Part
 
 
 class PartSerializer(serializers.ModelSerializer):

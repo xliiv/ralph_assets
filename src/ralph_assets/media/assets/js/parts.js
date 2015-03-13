@@ -3,13 +3,11 @@ $(document).ready(function () {
 	var Formset;
 
 	Formset = (function() {
-		// works only with fields wrapped by other element
 		function Formset(formset_selector, prefix, row_element, observe_last) {
 			this.formset_selector = formset_selector;
 			this.prefix = prefix;
 			this.total_forms = $('#id_' + this.prefix + '-TOTAL_FORMS', formset_selector);
-			this.initial_forms = $('#id_' + this.prefix + '-INITIAL_FORMS', formset_selector);
-			this.max_num_forms = $('#id_' + this.prefix + '-MAX_NUM_FORMS', formset_selector);
+			this.max_num_forms = parseInt($('#id_' + this.prefix + '-MAX_NUM_FORMS', formset_selector).val());
 			this.row_element = row_element || 'div';
 			this.observe_last = observe_last || false;
 			this.id_regex = new RegExp('(' + this.prefix + '-\\d+)');
@@ -22,7 +20,7 @@ $(document).ready(function () {
 						if(val !== '') {
 							$(this).closest(self.row_element).removeClass('empty');
 						}
-						if(event.keyCode === 13) {
+						if(event.keyCode === 13 || event.keyCode === 10) {
 							event.preventDefault();
 							if(val !== '') {
 								self.fetch_info($(this).parent());
@@ -31,11 +29,23 @@ $(document).ready(function () {
 									$row = self.add_row();
 								}
 								$('input:first', $row).focus();
-								self.fetch_info($('td:first', $row), 'Fill field.');
+								self.fetch_info($('td:first', $row), 'Please fill field.');
+								self.set_row_class($row, 'info');
 							}
+						}
+					})
+					.bind('blur', function() {
+						var val = $(this).val();
+						if(val !== '') {
+							self.fetch_info($(this).parent());
 						}
 					});
 			}
+			$('[data-add]', this.formset_selector).bind('click', function(event){
+				event.preventDefault();
+				self.add_row();
+				return false;
+			});
 		}
 
 		Formset.prototype.get_last_row = function() {
@@ -56,6 +66,10 @@ $(document).ready(function () {
 
 		Formset.prototype.add_row = function() {
 			var form_count = parseInt(this.total_forms.val());
+			if (this.max_num_forms <= form_count) {
+				alert('You exceeded limit.');
+				return false;
+			}
 			var row = $(this.row_element + ':first', this.formset_selector).clone(true).get(0);
 			$(row).insertAfter(this.get_last_row());
 			this.total_forms.val(form_count + 1);
@@ -63,6 +77,10 @@ $(document).ready(function () {
 			$('input', row).val('');
 			$(row).addClass('empty');
 			return $(row);
+		};
+
+		Formset.prototype.set_row_class = function(element, klass) {
+			$(element).closest(this.row_element).removeClass().addClass(klass);
 		};
 
 		Formset.prototype.fetch_info = function(element, text) {
@@ -85,16 +103,18 @@ $(document).ready(function () {
 					data: data
 				})
 				.done(function(data) {
-					$(target).closest(self.row_element).addClass('success');
 					$target.html(data);
+					self.set_row_class($input, 'success');
 				})
 				.fail(function(jqXHR) {
 					switch (jqXHR.status) {
 						case 400:
-							$target.html('zle dane');
+							$target.html('Please check SN.');
+							self.set_row_class($input, 'error');
 							break;
 						case 404:
-							$target.html('taki part nie istnieje');
+							$target.html('The part with this SN doesn\'t exist.');
+							self.set_row_class($input, 'warning');
 							break;
 					}
 				});
@@ -105,6 +125,6 @@ $(document).ready(function () {
 		return Formset;
 
 	})();
-	new Formset($('.add-formset'), 'add', 'tr', true);
-	new Formset($('.delete-formset'), 'delete', 'tr', true);
+	new Formset($('.in-formset'), 'in', 'tr', true);
+	new Formset($('.out-formset'), 'out', 'tr', true);
 });

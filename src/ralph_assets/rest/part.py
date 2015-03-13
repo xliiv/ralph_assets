@@ -5,6 +5,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -15,16 +16,11 @@ from ralph_assets.rest.serializers.models_parts import PartSerializer
 
 class PartsView(ACLGateway, APIView):
     def get_object(self, sn):
-        try:
-            return Part.objects.get(sn=sn)
-        except Part.DoesNotExist:
-            return None
+        return get_object_or_404(Part, sn=sn)
 
     def get(self, request, *args, **kwargs):
-        sn = None
-        try:
-            sn = int(self.request.QUERY_PARAMS.get('sn', 0))
-        except ValueError:
+        sn = self.request.QUERY_PARAMS.get('sn', '')
+        if sn == '':
             return Response(status=400)
-        obj = self.get_object(sn)
-        return Response(PartSerializer(obj).data, status=obj and 200 or 404)
+        return Response(PartSerializer(self.get_object(sn)).data)
+

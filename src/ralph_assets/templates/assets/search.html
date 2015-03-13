@@ -18,7 +18,7 @@
           {% trans "items found" %}
       </div>
     {% endif %}
-    <h3>{{header}}</h3>
+    {% block content_header %}<h3>{{header}}</h3>{% endblock %}
         <table id='assets_table' class="table table-bordered table-striped">
         {% table_header columns url_query sort fugue_icons=1 sort_variable_name=sort_variable_name %}
             <tbody>
@@ -37,6 +37,7 @@
         <div class="progress" id="async-progress">
             <div class="bar"></div>
         </div>
+        {% block extra_actions_base %}
         <div class="btn-group pull-left">
             <a class="btn dropdown-toggle btn-primary" data-toggle="dropdown" href="#">
                 {% trans "Bulk actions..." %}
@@ -56,5 +57,6 @@
                 </li>
             </ul>
         </div>
+        {% endblock %}
         {% block extra_actions %}{% endblock %}
 {% endblock %}

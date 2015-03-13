@@ -10,7 +10,6 @@ from django.core.urlresolvers import reverse
 from rest_framework import serializers
 
 from ralph_assets.models_assets import Asset
-from ralph_assets.rest.serializers.models_parts import PartSerializer
 
 
 TYPE_ASSET = 'asset'
@@ -63,7 +62,6 @@ class AssetSerializer(CoreDeviceMixin, serializers.ModelSerializer):
     hostname = serializers.SerializerMethodField('get_hostname')
     management_ip = serializers.SerializerMethodField('get_management')
     service = serializers.CharField(source='service.name')
-    parts = PartSerializer(source='parts')
 
     def get_type(self, obj):
         return TYPE_ASSET
@@ -80,5 +78,5 @@ class AssetSerializer(CoreDeviceMixin, serializers.ModelSerializer):
         fields = (
             'id', 'model', 'category', 'height', 'layout', 'barcode', 'sn',
             'url', 'core_url', 'position', 'children', '_type', 'hostname',
-            'management_ip', 'service', 'parts',
+            'management_ip', 'service',
         )

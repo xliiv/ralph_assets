@@ -17,32 +17,33 @@
 		<div class="span12">
 			<div class="row-fluid">
 				<div class="span6">
-					<div class="well fieldset add-formset">
+					<div class="well fieldset in-formset">
 						<h6>In</h6>
-						{{ params.add_formset.management_form }}
-						<table class="table table-striped">
-							{% for form in params.add_formset %}
+						{{ params.in_formset.management_form }}
+						<table class="table table-striped table-condensed">
+							{% for form in params.in_formset %}
 								<tr>
 									<td data-url="{% url api_parts %}" data-target="sn-info">{{ form.sn }}</td>
-									<td class="sn-info">
-										Info
-									</td>
+									<td class="sn-info"></td>
 								</tr>
 							{% endfor %}
 						</table>
+						<button class="btn btn-success" data-add>+</button>
 					</div>
 				</div>
 				<div class="span6">
-					<div class="well fieldset delete-formset">
+					<div class="well fieldset out-formset">
 						<h6>Out</h6>
-						{{ params.delete_formset.management_form }}
-						<table>
-							{% for form in params.delete_formset %}
+						{{ params.out_formset.management_form }}
+						<table class="table table-striped table-condensed">
+							{% for form in params.out_formset %}
 							<tr>
-								<td>{{ form.sn }}</td>
+								<td data-url="{% url api_parts %}" data-target="sn-info">{{ form.sn }}</td>
+								<td class="sn-info"></td>
 							</tr>
 							{% endfor %}
 						</table>
+						<button class="btn btn-success" data-add>+</button>
 					</div>
 				</div>
 			</div>
