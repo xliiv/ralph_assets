@@ -2637,3 +2637,20 @@ class TestLocation(TestDevicesView, BaseViewsTest):
                 form.errors['slot_no'],
                 ChassisBulkEdit.SAME_SLOT_MSG_ERROR,
             )
+
+
+#TODO:: mv it to part file?
+class TestMovingParts(TestDevicesView, BaseViewsTest):
+    def test_existing_part_is_detached():
+        part = Part.objects.get(pk=part.id)
+        self.assertFalse(part.asset)
+    def test_part_is_detached():
+        pass
+
+#TODO::
+#GET:
+#existing sn -> it's in form
+#non-existing sn -> created as dummy + in form
+#POST:
+#part is attached successfully
+#part is detached successfully
