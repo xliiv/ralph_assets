@@ -58,6 +58,7 @@ from ralph_assets.models_parts import Part
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
+from django.db import transaction
 class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
 
     #TODO:: what's this?
@@ -103,14 +104,21 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         )(queryset=detach_parts)
         return self.render_to_response(context)
 
-    def post(self, request, *args, **kwargs):
+    @transaction.commit_on_success
+    def move_parts(self, detach_formset):
+        #TODO:: docstring
+        for form in detach_formset.forms:
+            form.instance.asset = None
+            #TODO:: optimize it
+            form.instance.save()
 
+    def post(self, request, *args, **kwargs):
         detach_formset = self.get_formset()(request.POST)
         if detach_formset.is_valid():
-            #TODO:: detach parts
-            pass
+            move_parts(detach_formset)
             #TODO:: better url
-            messages.info(self.request, _('fak yea'))
+            msg = 'Successfully detached {} parts'.format(len(detach_formset.forms))
+            message.info(self.request, _(msg))
             return HttpResponseRedirect('/assets')
         else:
             context = self.get_context_data(**kwargs)
