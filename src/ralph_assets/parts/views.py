@@ -99,9 +99,7 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         # detach form
         detach_parts = Part.objects.filter(id__in=detach_sns)
         context = self.get_context_data(**kwargs)
-        context['detach_formset'] = modelformset_factory(
-            Part, form=DetachForm, extra=0
-        )(queryset=detach_parts)
+        context['detach_formset'] = self.get_formset()(queryset=detach_parts)
         return self.render_to_response(context)
 
     @transaction.commit_on_success
