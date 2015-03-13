@@ -14,6 +14,7 @@ from django.forms.formsets import formset_factory
 from django.forms.models import modelformset_factory
 
 from ralph_assets.parts.forms import ChangeBaseForm, AttachForm, DetachForm
+from ralph_assets.models_assets import Asset
 from ralph_assets.views.base import (
     AssetsBase,
     SubmoduleModeMixin,
@@ -85,8 +86,6 @@ from django.contrib import messages
 from django.db import transaction
 class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
 
-    #TODO:: what's this?
-    #detect_changes = True
     template_name = 'assets/parts/assign_to_asset.html'
 
     def get_formset(self, prefix, queryset=None):
@@ -94,17 +93,17 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
             form = AttachForm
         if prefix == 'detach':
             form = DetachForm
-        return modelformset_factory(Part, form=form, extra=0)(
+        FormsetClass = modelformset_factory(Part, form=form, extra=0)
+
+        class FromsetWithCustomValidation(FormsetClass):
+            def is_valid(self, asset, *args, **kwargs):
+                #TODO:: validation: here and GET?
+                #TODO:: force attach and detach are disjoint sets
+                return super(FromsetWithCustomValidation, self).is_valid(*args, **kwargs)
+
+        return FromsetWithCustomValidation(
             self.request.POST or None, queryset=queryset, prefix=prefix
         )
-
-    def get_context_data(self, *args, **kwargs):
-        #self.mode = 'dc'
-        context = super(AssignToAssetView, self).get_context_data(
-            *args, **kwargs
-        )
-        context['asset_id'] = kwargs['asset_id']
-        return context
 
     def _find_non_existing(self, sns):
         existing_sns = Part.objects.filter(
@@ -126,6 +125,7 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
     def get(self, request, *args, **kwargs):
         #TODO:: is part really from processed asset?
         detach_sns = [1, 2]
+
         up_to_create_sns = self._find_non_existing(detach_sns)
         detach_parts = self._create_parts(up_to_create_sns, 'detach')
 
@@ -136,32 +136,37 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         Part.objects.bulk_create(detach_parts + attach_parts)
 
         # detach form
-        context = self.get_context_data(**kwargs)
         detach_parts = Part.objects.filter(id__in=detach_sns)
-        context['detach_formset'] = self.get_formset('detach', queryset=detach_parts)
+        kwargs['detach_formset'] = self.get_formset('detach', queryset=detach_parts)
         attach_parts = Part.objects.filter(id__in=attach_sns)
-        context['attach_formset'] = self.get_formset('attach', queryset=attach_parts)
-        return self.render_to_response(context)
+        kwargs['attach_formset'] = self.get_formset('attach', queryset=attach_parts)
+
+        is_valid = (kwargs['detach_formset'].is_valid() and kwargs['attach_formset'].is_valid())
+        if not is_valid:
+            msg = 'Some of selected parts are not from edited asset'
+            messages.wanring(request, _(msg))
+        return super(AssignToAssetView, self).get(request, *args, **kwargs)
 
     @transaction.commit_on_success
-    def move_parts(self, detach_formset):
+    def move_parts(self, asset, attach_formset, detach_formset):
         #TODO:: docstring
+        #TODO:: optimize it + make one loop
         for form in detach_formset.forms:
+            form.save(commit=False)
             form.instance.asset = None
-            #TODO:: optimize it
+            form.instance.save()
+
+        for form in attach_formset.forms:
+            form.save(commit=False)
+            form.instance.asset = asset
             form.instance.save()
 
     def post(self, request, *args, **kwargs):
-        ###TODO:: save attach file & detach
-        #TODO:: attach form - all fields
-        #TODO:: detach form - service & environment
         detach_formset = self.get_formset('detach')
         attach_formset = self.get_formset('attach')
         if detach_formset.is_valid():
-            #TODO:: validation: here and GET?
-            #TODO:: force attach and detach are disjoint sets
-            #TODO:: force parts here are from asset from url
-            self.move_parts(detach_formset)
+            asset = Asset.objects.get(pk=kwargs['asset_id'])
+            self.move_parts(asset, attach_formset, detach_formset)
 
             msg = 'Successfully detached {} parts'.format(len(detach_formset.forms))
             messages.info(self.request, _(msg))
