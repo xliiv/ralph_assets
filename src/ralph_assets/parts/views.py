@@ -65,8 +65,14 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
     #detect_changes = True
     template_name = 'assets/parts/assign_to_asset.html'
 
-    def get_formset(self, form):
-        return modelformset_factory(Part, form=form, extra=0)
+    def get_formset(self, prefix, queryset=None):
+        if prefix == 'attach':
+            form = AttachForm
+        if prefix == 'detach':
+            form = DetachForm
+        return modelformset_factory(Part, form=form, extra=0)(
+            self.request.POST or None, queryset=queryset, prefix=prefix
+        )
 
     def get_context_data(self, *args, **kwargs):
         #self.mode = 'dc'
@@ -108,9 +114,9 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         # detach form
         context = self.get_context_data(**kwargs)
         detach_parts = Part.objects.filter(id__in=detach_sns)
-        context['detach_formset'] = self.get_formset(DetachForm)(queryset=detach_parts)
+        context['detach_formset'] = self.get_formset('detach', queryset=detach_parts)
         attach_parts = Part.objects.filter(id__in=attach_sns)
-        context['attach_formset'] = self.get_formset(AttachForm)(queryset=attach_parts)
+        context['attach_formset'] = self.get_formset('attach', queryset=attach_parts)
         return self.render_to_response(context)
 
     @transaction.commit_on_success
@@ -125,7 +131,8 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         ###TODO:: save attach file & detach
         #TODO:: attach form - all fields
         #TODO:: detach form - service & environment
-        detach_formset = self.get_formset()(request.POST)
+        detach_formset = self.get_formset('detach')
+        attach_formset = self.get_formset('attach')
         if detach_formset.is_valid():
             #TODO:: validation: here and GET?
             #TODO:: force attach and detach are disjoint sets

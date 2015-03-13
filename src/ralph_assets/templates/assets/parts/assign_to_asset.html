@@ -10,6 +10,7 @@
     #TODO:: rename it to parts-managing?
     <form action="{% url assign_to_asset asset_id %}" method="post">{% csrf_token %}
         {{ detach_formset.management_form }}
+        {{ attach_formset.management_form }}
 
         #TODO:: make tamplate tag?
         <table class="table table-striped table-bordered part-detach">
