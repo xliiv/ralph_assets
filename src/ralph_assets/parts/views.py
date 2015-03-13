@@ -81,25 +81,41 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         context['asset_id'] = kwargs['asset_id']
         return context
 
-    def get(self, request, *args, **kwargs):
-        # TODO:: make it the same to attached
-        attach_sns = [3, 4]
-
-        detach_sns = [1, 2]
-        existing_sns = Part.objects.filter(pk__in=detach_sns).values_list('pk', flat=True)
-        up_to_create_sns = set(detach_sns)
+    def _find_non_existing(self, sns):
+        existing_sns = Part.objects.filter(
+            pk__in=sns,
+        ).values_list('pk', flat=True)
+        up_to_create_sns = set(sns)
         up_to_create_sns.difference_update(set(existing_sns))
+        return up_to_create_sns
 
-        parts_to_create = []
-        for sn in up_to_create_sns:
+    def _create_parts(self, sns, part_type):
+        #TODO:: doctring
+        parts = []
+        for sn in sns:
+            #TODO:: create part with necessery data
             part = Part(sn=sn)
-            parts_to_create.append(part)
-        Part.objects.bulk_create(parts_to_create)
+            parts.append(part)
+        return parts
+
+    def get(self, request, *args, **kwargs):
+        #TODO:: is part really from processed asset?
+        detach_sns = [1, 2]
+        up_to_create_sns = self._find_non_existing(detach_sns)
+        detach_parts = self._create_parts(up_to_create_sns, 'detach')
+
+        attach_sns = [3, 4]
+        up_to_create_sns2 = self._find_non_existing(attach_sns)
+        attach_parts = self._create_parts(up_to_create_sns2, 'attach')
+
+        Part.objects.bulk_create(detach_parts + attach_parts)
 
         # detach form
-        detach_parts = Part.objects.filter(id__in=detach_sns)
         context = self.get_context_data(**kwargs)
+        detach_parts = Part.objects.filter(id__in=detach_sns)
         context['detach_formset'] = self.get_formset()(queryset=detach_parts)
+        attach_parts = Part.objects.filter(id__in=attach_sns)
+        context['attach_formset'] = self.get_formset()(queryset=attach_parts)
         return self.render_to_response(context)
 
     @transaction.commit_on_success
@@ -111,14 +127,19 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
             form.instance.save()
 
     def post(self, request, *args, **kwargs):
+        ###TODO:: save attach file & detach
+        #TODO:: attach form - all fields
+        #TODO:: detach form - service & environment
         detach_formset = self.get_formset()(request.POST)
         if detach_formset.is_valid():
-            move_parts(detach_formset)
+            #TODO:: force parts here are from asset from url
+            self.move_parts(detach_formset)
             #TODO:: better url
             msg = 'Successfully detached {} parts'.format(len(detach_formset.forms))
-            message.info(self.request, _(msg))
-            return HttpResponseRedirect('/assets')
+            messages.info(self.request, _(msg))
+            return HttpResponseRedirect('/assets/parts')
         else:
+            #TODO:: when part has different asset, what's then
             context = self.get_context_data(**kwargs)
             context['detach_formset'] = detach_formset
             return self.render_to_response(context)

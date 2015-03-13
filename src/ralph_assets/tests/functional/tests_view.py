@@ -2649,8 +2649,9 @@ class TestMovingParts(TestDevicesView, BaseViewsTest):
 
 #TODO::
 #GET:
-#existing sn -> it's in form
-#non-existing sn -> created as dummy + in form
+#existing sn > it's in form
+#non-existing sn > created as dummy + in form
+#part doesn't belong to processed asset > validation error
 #POST:
 #part is attached successfully
 #part is detached successfully

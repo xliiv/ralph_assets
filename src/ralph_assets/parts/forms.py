@@ -17,14 +17,21 @@ from django.forms import (
 )
 from ralph_assets.models_parts import Part
 from ralph_assets.forms import ReadOnlyFieldsMixin
-class DetachForm(ReadOnlyFieldsMixin, ModelForm):
-    readonly_fields = ('sn',)
-
+class AttachForm(ReadOnlyFieldsMixin, ModelForm):
     class Meta:
         model = Part
         fields = (
-            #"asset_type", "model", "sn", "order_no", "price", "service",
-            #"part_environment", "warehouse"
-            "asset_type", "sn", "service",
+            "asset_type", "model", "sn", "order_no", "price", "service",
+            "part_environment", "warehouse"
         )
-#TODO:: override clean so that it raise error when field in defined-list
+
+class DetachForm(ReadOnlyFieldsMixin, ModelForm):
+    readonly_fields = (
+        "asset_type", "model", "sn", "order_no", "price", "warehouse",
+    )
+    class Meta:
+        model = Part
+        fields = (
+            "asset_type", "model", "sn", "order_no", "price", "service",
+            "part_environment", "warehouse"
+        )
