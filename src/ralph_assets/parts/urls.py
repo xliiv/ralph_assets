@@ -12,13 +12,15 @@ from ralph_assets.parts.views import AssignToAssetView, ChangePartsView
 urlpatterns = patterns(
     '',
     url(
-        (r'^(?P<asset_id>[\d]+)/$'),
+        (r'^exchange/(?P<asset_id>[\d]+)/$'),
         ChangePartsView.as_view(),
+        #TODO:: renanme urls
         name='change_parts',
     ),
     url(
-        (r'^assign-to-asset/(?P<asset_id>[\d]+)/$'),
+        (r'^apply/(?P<asset_id>[\d]+)/$'),
         AssignToAssetView.as_view(),
+        #TODO:: renanme urls
         name='assign_to_asset',
     ),
 )

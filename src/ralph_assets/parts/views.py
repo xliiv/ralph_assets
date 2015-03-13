@@ -12,6 +12,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.forms.formsets import formset_factory
 from django.forms.models import modelformset_factory
+from django.shortcuts import get_object_or_404
 
 from ralph_assets.parts.forms import ChangeBaseForm, AttachForm, DetachForm
 from ralph_assets.models_assets import Asset
@@ -20,6 +21,7 @@ from ralph_assets.views.base import (
     SubmoduleModeMixin,
 )
 
+LIST_SEPARATOR = ','
 
 class ChangePartsView(SubmoduleModeMixin, AssetsBase):
     detect_changes = True
@@ -40,7 +42,7 @@ class ChangePartsView(SubmoduleModeMixin, AssetsBase):
                         )
                         data_dict[dict_key].append(data_value)
         for key, value in data_dict.iteritems():
-            params[key] = ','.join(value)
+            params[key] = LIST_SEPARATOR.join(value)
         return urlencode(params)
 
     def get_formset(self, prefix):
@@ -66,9 +68,8 @@ class ChangePartsView(SubmoduleModeMixin, AssetsBase):
                 is_valid = False
         if is_valid:
             encoded_params = self._to_url_params(formsets)
-            # TODO: redirect to step 2
             redirect_url = '{}?{}'.format(
-                reverse('change_parts', kwargs={
+                reverse('assign_to_asset', kwargs={
                     'asset_id': kwargs['asset_id']
                 }),
                 encoded_params
@@ -123,14 +124,13 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         return parts
 
     def get(self, request, *args, **kwargs):
-        #TODO:: is part really from processed asset?
-        #TODO:: get it from request
-        detach_sns = [1, 2]
+        asset = get_object_or_404(Asset, pk=kwargs.get('asset_id'))
+        detach_sns = request.GET.get('out_sn', '').split(LIST_SEPARATOR)
+        attach_sns = request.GET.get('in_sn', '').split(LIST_SEPARATOR)
 
         up_to_create_sns = self._find_non_existing(detach_sns)
         detach_parts = self._create_parts(up_to_create_sns, 'detach')
 
-        attach_sns = [3, 4]
         up_to_create_sns2 = self._find_non_existing(attach_sns)
         attach_parts = self._create_parts(up_to_create_sns2, 'attach')
 
@@ -142,10 +142,13 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         attach_parts = Part.objects.filter(id__in=attach_sns)
         kwargs['attach_formset'] = self.get_formset('attach', queryset=attach_parts)
 
-        is_valid = (kwargs['detach_formset'].is_valid() and kwargs['attach_formset'].is_valid())
+        is_valid = (
+            kwargs['detach_formset'].is_valid(Asset) and
+            kwargs['attach_formset'].is_valid(Asset)
+        )
         if not is_valid:
             msg = 'Some of selected parts are not from edited asset'
-            messages.wanring(request, _(msg))
+            messages.warning(request, _(msg))
         return super(AssignToAssetView, self).get(request, *args, **kwargs)
 
     @transaction.commit_on_success
