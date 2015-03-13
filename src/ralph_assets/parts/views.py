@@ -124,6 +124,7 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
 
     def get(self, request, *args, **kwargs):
         #TODO:: is part really from processed asset?
+        #TODO:: get it from request
         detach_sns = [1, 2]
 
         up_to_create_sns = self._find_non_existing(detach_sns)
@@ -173,7 +174,6 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
             #TODO:: better url
             return HttpResponseRedirect('/assets/parts')
         else:
-            #TODO:: when part has different asset, what's then
-            context = self.get_context_data(**kwargs)
-            context['detach_formset'] = detach_formset
-            return self.render_to_response(context)
+            kwargs['detach_formset'] = detach_formset
+            kwargs['attach_formset'] = attach_formset
+            return super(AssignToAssetView, self).get(request, *args, **kwargs)
