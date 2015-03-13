@@ -89,6 +89,10 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
 
     template_name = 'assets/parts/assign_to_asset.html'
 
+    def dispatch(self, asset_id, *args, **kwargs):
+        self.asset = get_object_or_404(Asset, pk=kwargs.get('asset_id'))
+        return super(AssignToAssetView, self).dispatch(*args, **kwargs)
+
     def get_formset(self, prefix, queryset=None):
         if prefix == 'attach':
             form = AttachForm
@@ -108,8 +112,8 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
 
     def _find_non_existing(self, sns):
         existing_sns = Part.objects.filter(
-            pk__in=sns,
-        ).values_list('pk', flat=True)
+            sn__in=sns,
+        ).values_list('sn', flat=True)
         up_to_create_sns = set(sns)
         up_to_create_sns.difference_update(set(existing_sns))
         return up_to_create_sns
@@ -119,12 +123,35 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         parts = []
         for sn in sns:
             #TODO:: create part with necessery data
-            part = Part(sn=sn)
+            if part_type'detach'
+            data = dict(
+                #asset TODO::
+                #service TODO::
+                #env TODO::
+                #warehouse TODO::
+                asset_type=self.asset.type,
+                sn=sn,
+                order_by=self.asset.order_by,
+            )
+            if part_type:
+                data = dict(
+                    #asset TODO::
+                    #service TODO::
+                    #env TODO::
+                    #warehouse TODO::
+                )
+            elif ??:
+                data = dict(
+                    #asset TODO::
+                    #service TODO::
+                    #env TODO::
+                    #warehouse TODO::
+                )
+            part = Part(**data)
             parts.append(part)
         return parts
 
     def get(self, request, *args, **kwargs):
-        asset = get_object_or_404(Asset, pk=kwargs.get('asset_id'))
         detach_sns = request.GET.get('out_sn', '').split(LIST_SEPARATOR)
         attach_sns = request.GET.get('in_sn', '').split(LIST_SEPARATOR)
 
@@ -143,8 +170,8 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         kwargs['attach_formset'] = self.get_formset('attach', queryset=attach_parts)
 
         is_valid = (
-            kwargs['detach_formset'].is_valid(Asset) and
-            kwargs['attach_formset'].is_valid(Asset)
+            kwargs['detach_formset'].is_valid(self.asset) and
+            kwargs['attach_formset'].is_valid(self.asset)
         )
         if not is_valid:
             msg = 'Some of selected parts are not from edited asset'
@@ -169,8 +196,7 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         detach_formset = self.get_formset('detach')
         attach_formset = self.get_formset('attach')
         if detach_formset.is_valid():
-            asset = Asset.objects.get(pk=kwargs['asset_id'])
-            self.move_parts(asset, attach_formset, detach_formset)
+            self.move_parts(self.asset, attach_formset, detach_formset)
 
             msg = 'Successfully detached {} parts'.format(len(detach_formset.forms))
             messages.info(self.request, _(msg))

@@ -77,6 +77,7 @@ class Part(HistoryMixin, TimeTrackable):
     asset_type = models.PositiveSmallIntegerField(choices=AssetType())
     model = models.ForeignKey(
         PartModel,
+        null=True,
         on_delete=models.PROTECT,
     )
     sn = models.CharField(max_length=200, unique=True)
