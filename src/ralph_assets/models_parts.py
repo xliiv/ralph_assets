@@ -108,7 +108,7 @@ class Part(HistoryMixin, TimeTrackable):
     @property
     def url(self):
         return reverse('part_edit', kwargs={
-            'asset_id': self.id,  # TODO: chage after new view creation
+            'part_id': self.id,
             'mode': ASSET_TYPE2MODE[self.asset_type],
         })
 
