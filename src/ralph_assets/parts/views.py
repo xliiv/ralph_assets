@@ -12,7 +12,7 @@ from ralph_assets.views.base import (
     AssetsBase,
     SubmoduleModeMixin,
 )
-from ralph_assets.parts.forms import ChangeBaseForm, DetachForm
+from ralph_assets.parts.forms import ChangeBaseForm, AttachForm, DetachForm
 
 
 class DebugViewMixin(object):
@@ -65,13 +65,8 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
     #detect_changes = True
     template_name = 'assets/parts/assign_to_asset.html'
 
-    #def get_formset(self, prefix):
-    #    return formset_factory(ChangeBaseForm)(
-    #        self.request.POST or None, prefix=prefix
-    #    )
-
-    def get_formset(self):
-        return modelformset_factory(Part, form=DetachForm, extra=0)
+    def get_formset(self, form):
+        return modelformset_factory(Part, form=form, extra=0)
 
     def get_context_data(self, *args, **kwargs):
         #self.mode = 'dc'
@@ -113,9 +108,9 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         # detach form
         context = self.get_context_data(**kwargs)
         detach_parts = Part.objects.filter(id__in=detach_sns)
-        context['detach_formset'] = self.get_formset()(queryset=detach_parts)
+        context['detach_formset'] = self.get_formset(DetachForm)(queryset=detach_parts)
         attach_parts = Part.objects.filter(id__in=attach_sns)
-        context['attach_formset'] = self.get_formset()(queryset=attach_parts)
+        context['attach_formset'] = self.get_formset(AttachForm)(queryset=attach_parts)
         return self.render_to_response(context)
 
     @transaction.commit_on_success
@@ -132,11 +127,14 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         #TODO:: detach form - service & environment
         detach_formset = self.get_formset()(request.POST)
         if detach_formset.is_valid():
+            #TODO:: validation: here and GET?
+            #TODO:: force attach and detach are disjoint sets
             #TODO:: force parts here are from asset from url
             self.move_parts(detach_formset)
-            #TODO:: better url
+
             msg = 'Successfully detached {} parts'.format(len(detach_formset.forms))
             messages.info(self.request, _(msg))
+            #TODO:: better url
             return HttpResponseRedirect('/assets/parts')
         else:
             #TODO:: when part has different asset, what's then
