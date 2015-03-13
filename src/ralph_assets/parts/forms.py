@@ -16,11 +16,15 @@ from django.forms import (
     ModelForm,
 )
 from ralph_assets.models_parts import Part
-class DetachForm(ModelForm):
+from ralph_assets.forms import ReadOnlyFieldsMixin
+class DetachForm(ReadOnlyFieldsMixin, ModelForm):
+    readonly_fields = ('sn',)
+
     class Meta:
         model = Part
         fields = (
-            "asset_type", "model", "sn", "order_no", "price", "service",
-            "part_environment", "warehouse"
+            #"asset_type", "model", "sn", "order_no", "price", "service",
+            #"part_environment", "warehouse"
+            "asset_type", "sn", "service",
         )
 #TODO:: override clean so that it raise error when field in defined-list
