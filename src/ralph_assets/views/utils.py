@@ -10,7 +10,7 @@ from urllib import urlencode
 from django.core.urlresolvers import reverse
 from django.db import transaction
 
-from ralph_assets.models import Asset, DeviceInfo, OfficeInfo, PartInfo
+from ralph_assets.models import Asset, DeviceInfo, OfficeInfo
 
 
 def get_transition_url(transition_type, assets_ids, asset_mode):
@@ -100,20 +100,6 @@ def _create_assets(creator_profile, asset_form, additional_form, mode):
 
 
 @transaction.commit_on_success
-def _create_part(creator_profile, asset_data, part_info_data, sn):
-    part_info = PartInfo(**part_info_data)
-    part_info.save(user=creator_profile.user)
-    asset = Asset(
-        part_info=part_info,
-        sn=sn.strip(),
-        created_by=creator_profile,
-        **asset_data
-    )
-    asset.save(user=creator_profile.user)
-    return asset.id
-
-
-@transaction.commit_on_success
 def _update_office_info(user, asset, office_info_data):
     if not asset.office_info:
         office_info = OfficeInfo()
@@ -153,19 +139,4 @@ def _update_asset(modifier_profile, asset, asset_updated_data):
     asset_updated_data.update({'modified_by': modifier_profile})
     asset.__dict__.update(**asset_updated_data)
     update_management_ip(asset, asset_updated_data)
-    return asset
-
-
-@transaction.commit_on_success
-def _update_part_info(user, asset, part_info_data):
-    if not asset.part_info:
-        part_info = PartInfo()
-    else:
-        part_info = asset.part_info
-    part_info.device = part_info_data.get('device')
-    part_info.source_device = part_info_data.get('source_device')
-    part_info.barcode_salvaged = part_info_data.get('barcode_salvaged')
-    part_info.save(user=user)
-    asset.part_info = part_info
-    asset.part_info.save(user=user)
     return asset
