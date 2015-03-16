@@ -220,7 +220,7 @@ urlpatterns = patterns(
         include('ralph_assets.licences.urls', app_name='licences'),
     ),
     url(
-        r'^parts/',
+        r'^(?P<mode>(back_office|dc))/parts/',
         include('ralph_assets.parts.urls', app_name='parts'),
     ),
 )

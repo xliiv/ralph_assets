@@ -32,6 +32,7 @@ class DetachForm(ReadOnlyFieldsMixin, ModelForm):
     class Meta:
         #TODO:: validate service-env
         #TODO:: autocomplete nice-to-have
+        #TODO:: add service-env depenedency
         model = Part
         fields = (
             "sn", "model", "order_no", "price", "service", "part_environment",

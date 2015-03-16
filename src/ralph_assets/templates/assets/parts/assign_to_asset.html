@@ -3,15 +3,17 @@
 
 {% load bob %}
 
+{% block base_sidebar %}{% endblock %}
+
+{% block content_span %}span12{% endblock %}
 
 {% block content %}
 
-    <form action="{% url assign_to_asset params.asset_id %}" method="post">{% csrf_token %}
+    <form class='row-fluid' action="." method="post">{% csrf_token %}
         {{ params.detach_formset.management_form }}
         {{ params.attach_formset.management_form }}
 
-        <div class='overflow-x'>
-            #TODO:: add service-env depenedency
+        <div class='span12 overflow-x'>
             {% if params.detach_formset.forms %}
             <h6>Detaching parts</h6>
             <table class="table table-striped table-bordered part-detach">

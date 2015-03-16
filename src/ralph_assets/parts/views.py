@@ -78,7 +78,8 @@ class ChangePartsView(SubmoduleModeMixin, AssetsBase):
             encoded_params = self._to_url_params(formsets)
             redirect_url = '{}?{}'.format(
                 reverse('assign_to_asset', kwargs={
-                    'asset_id': kwargs['asset_id']
+                    'asset_id': kwargs['asset_id'],
+                    'mode': self.mode,
                 }),
                 encoded_params
             )
@@ -151,7 +152,10 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         if common_sns:
             messages.error(self.request, _(DISJOINT_EXCHANGE_SNS_MSG))
             return HttpResponseRedirect(
-                reverse('change_parts', kwargs={'asset_id': self.asset.id})
+                reverse('change_parts', kwargs={
+                    'asset_id': self.asset.id,
+                    'mode': self.mode,
+                })
             )
 
         detach_parts = self._create_parts(
@@ -166,8 +170,9 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
             msg = ("Could not create all necessery parts,"
                    " some of them already exists")
             messages.info(self.request, _(msg))
-            #TODO:: better url
-            return HttpResponseRedirect('/assets/parts')
+            return HttpResponseRedirect(reverse(
+                'part_search', kwargs={'mode': self.mode},
+            ))
 
         detach_parts = Part.objects.filter(sn__in=detach_sns)
         kwargs['detach_formset'] = self.get_formset('detach', queryset=detach_parts)
@@ -208,7 +213,10 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         if common_sns:
             messages.error(self.request, _(DISJOINT_EXCHANGE_SNS_MSG))
             return HttpResponseRedirect(
-                reverse('change_parts', kwargs={'asset_id': self.asset.id})
+                reverse('change_parts', kwargs={
+                    'asset_id': self.asset.id,
+                    'mode': self.mode,
+                })
             )
 
         if (
@@ -219,8 +227,9 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
 
             msg = 'Successfully detached {} parts'.format(len(detach_formset.forms))
             messages.info(self.request, _(msg))
-            #TODO:: better url
-            return HttpResponseRedirect('/assets/parts')
+            return HttpResponseRedirect(reverse(
+                'part_search', kwargs={'mode': self.mode},
+            ))
         else:
             kwargs['detach_formset'] = detach_formset
             kwargs['attach_formset'] = attach_formset
