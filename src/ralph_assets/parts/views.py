@@ -84,7 +84,6 @@ class ChangePartsView(SubmoduleModeMixin, AssetsBase):
         return super(ChangePartsView, self).get(request, *args, **kwargs)
 
 
-#TODO:: rename it
 class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
 
     template_name = 'assets/parts/assign_to_asset.html'
@@ -162,12 +161,10 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
             #TODO:: better url
             return HttpResponseRedirect('/assets/parts')
 
-        # detach form
         detach_parts = Part.objects.filter(sn__in=detach_sns)
         kwargs['detach_formset'] = self.get_formset('detach', queryset=detach_parts)
         attach_parts = Part.objects.filter(sn__in=attach_sns)
         kwargs['attach_formset'] = self.get_formset('attach', queryset=attach_parts)
-
         is_valid = (
             kwargs['detach_formset'].is_valid(self.asset) and
             kwargs['attach_formset'].is_valid(self.asset)
@@ -179,8 +176,10 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
 
     @transaction.commit_on_success
     def move_parts(self, asset, attach_formset, detach_formset):
-        #TODO:: docstring
-        #TODO:: optimize it + make one loop
+        """
+        Removes parts included in `detach_formset` from `asset` and
+        add parts included in `attach_formset` to `asset`.
+        """
         for form in detach_formset.forms:
             form.save(commit=False)
             form.instance.asset = None
