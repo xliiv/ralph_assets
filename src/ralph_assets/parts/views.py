@@ -10,7 +10,7 @@ from collections import defaultdict
 
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.forms.formsets import formset_factory
 from django.forms.models import modelformset_factory
 from django.http import HttpResponseRedirect
@@ -90,7 +90,7 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
     template_name = 'assets/parts/assign_to_asset.html'
 
     def dispatch(self, *args, **kwargs):
-        self.asset = get_object_or_404(Asset, pk=kwargs.pop('asset_id'))
+        self.asset = get_object_or_404(Asset, pk=kwargs.get('asset_id'))
         return super(AssignToAssetView, self).dispatch(*args, **kwargs)
 
     def get_formset(self, prefix, queryset=None):
@@ -125,20 +125,20 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
                 asset_type=self.asset.type, sn=sn, order_no=self.asset.order_no,
             )
             if part_type == 'attach':
-                data = dict(
-                    asset=self.asset,
-                    service=self.asset.service,
-                    part_environment=self.asset.device_environment,
-                    warehouse=self.asset.warehouse,
-                )
+                data.update({
+                    'asset': self.asset,
+                    'service': self.asset.service,
+                    'part_environment': self.asset.device_environment,
+                    'warehouse': self.asset.warehouse,
+                })
             elif part_type == 'detach':
-                data = dict(
-                    asset=None,
+                data.update({
+                    'asset': None,
                     #TODO:: ask for these values
-                    service=self.asset.service,
-                    part_environment=self.asset.device_environment,
-                    warehouse=self.asset.warehouse,
-                )
+                    'service': self.asset.service,
+                    'part_environment': self.asset.device_environment,
+                    'warehouse': self.asset.warehouse,
+                })
             else:
                 raise Exception("Part type: {} is invalid")
             part = Part(**data)
@@ -154,13 +154,19 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
 
         up_to_create_sns2 = self._find_non_existing(attach_sns)
         attach_parts = self._create_parts(up_to_create_sns2, 'attach')
-        #TODO:: what if any of parts fails?
-        Part.objects.bulk_create(detach_parts + attach_parts)
+        try:
+            Part.objects.bulk_create(detach_parts + attach_parts)
+        except IntegrityError as e:
+            #TODO:: handle it
+            msg = ''
+            messages.info(self.request, _(msg))
+            #TODO:: better url
+            return HttpResponseRedirect('/assets/parts')
 
         # detach form
-        detach_parts = Part.objects.filter(id__in=detach_sns)
+        detach_parts = Part.objects.filter(sn__in=detach_sns)
         kwargs['detach_formset'] = self.get_formset('detach', queryset=detach_parts)
-        attach_parts = Part.objects.filter(id__in=attach_sns)
+        attach_parts = Part.objects.filter(sn__in=attach_sns)
         kwargs['attach_formset'] = self.get_formset('attach', queryset=attach_parts)
 
         is_valid = (
