@@ -13,9 +13,10 @@
         {{ params.attach_formset.management_form }}
 
         #TODO:: make tamplate tag?
+        {% if params.detach_formset.forms %}
         <table class="table table-striped table-bordered part-detach">
             <tr>
-            {% for field in params.detach_formset.forms.1.visible_fields %}
+            {% for field in params.detach_formset.forms.0.visible_fields %}
                 <th>{{field.label}}</th>
             {% endfor %}
             </tr>
@@ -31,10 +32,12 @@
                 </tr>
             {% endfor %}
         </table>
+        {% endif %}
 
+        {% if params.attach_formset.forms %}
         <table class="table table-striped table-bordered part-attach">
             <tr>
-            {% for field in params.attach_formset.forms.1.visible_fields %}
+            {% for field in params.attach_formset.forms.0.visible_fields %}
                 <th>{{field.label}}</th>
             {% endfor %}
             </tr>
@@ -50,6 +53,7 @@
                 </tr>
             {% endfor %}
         </table>
+        {% endif %}
 
 
 
