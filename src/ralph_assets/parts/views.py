@@ -202,11 +202,10 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         detach_formset = self.get_formset('detach')
         attach_formset = self.get_formset('attach')
 
-        attach_sns = {form['sn'].value() for form in detach_formset.forms}
-        detach_sns = {form['sn'].value() for form in detach_formset.forms}
+        attach_sns = {form['sn'].value() for form in attach_formset.forms if form['sn'].value()}
+        detach_sns = {form['sn'].value() for form in detach_formset.forms if form['sn'].value()}
         common_sns = set(detach_sns).intersection(set(attach_sns))
         if common_sns:
-            #TODO:: check if should redirect to same form
             messages.error(self.request, _(DISJOINT_EXCHANGE_SNS_MSG))
             return HttpResponseRedirect(
                 reverse('change_parts', kwargs={'asset_id': self.asset.id})

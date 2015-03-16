@@ -27,7 +27,12 @@
                         {{ field }}
                     {% endfor %}
                     {% for field in form.visible_fields %}
-                        <td> {{ field }} </td>
+                        <td {% if field.errors %}class='control-group error'{% endif %}>
+                            {{ field }}
+                            <span class="help-block">
+                                {% for e in field.errors %}{{ e }}{% endfor %}
+                            </span>
+                        </td>
                     {% endfor %}
                     </tr>
                 {% endfor %}
@@ -49,7 +54,14 @@
                         {{ field }}
                     {% endfor %}
                     {% for field in form.visible_fields %}
-                        <td> {{ field }} </td>
+                        <td {% if field.errors %}class='control-group error'{% endif %}>
+                            {{ field }}
+                            {% if field.errors %}
+                            <span class="help-block">
+                                {% for e in field.errors %}{{ e }}{% endfor %}
+                            </span>
+                            {% endif %}
+                        </td>
                     {% endfor %}
                     </tr>
                 {% endfor %}
