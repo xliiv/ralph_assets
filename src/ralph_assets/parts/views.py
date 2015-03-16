@@ -8,20 +8,25 @@ from __future__ import unicode_literals
 from urllib import urlencode
 from collections import defaultdict
 
+from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.db import transaction
 from django.forms.formsets import formset_factory
 from django.forms.models import modelformset_factory
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
+from django.utils.translation import ugettext_lazy as _
 
 from ralph_assets.parts.forms import ChangeBaseForm, AttachForm, DetachForm
 from ralph_assets.models_assets import Asset
+from ralph_assets.models_parts import Part
 from ralph_assets.views.base import (
     AssetsBase,
     SubmoduleModeMixin,
 )
 
 LIST_SEPARATOR = ','
+
 
 class ChangePartsView(SubmoduleModeMixin, AssetsBase):
     detect_changes = True
@@ -79,12 +84,7 @@ class ChangePartsView(SubmoduleModeMixin, AssetsBase):
         return super(ChangePartsView, self).get(request, *args, **kwargs)
 
 
-from ralph_assets.models_parts import Part
 #TODO:: rename it
-from django.http import HttpResponseRedirect
-from django.utils.translation import ugettext_lazy as _
-from django.contrib import messages
-from django.db import transaction
 class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
 
     template_name = 'assets/parts/assign_to_asset.html'
