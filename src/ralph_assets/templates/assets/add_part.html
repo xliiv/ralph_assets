@@ -1,22 +1,21 @@
-{% extends 'assets/add_assets.html' %}
+{% extends 'assets/edit_part.html' %}
 {% load bob %}
+{% load i18n %}
 
-{% block form_title %}Add parts{% endblock %}
+{% block part_form_title %}Add parts{% endblock %}
 
-{% block additional_inputs %}
-  {% for field in part_info_form %}
-    {% field_wrapper field %}
-  {% endfor %}
-{% endblock %}
-
-{% block multivalue_inputs %}
-<div class="span3">
-  <div class="control-group{% if asset_form.sn.errors %} error{% endif %}">
-    <label {% if asset_form.sn.field.required %}class="required"{% endif %}>{{ asset_form.sn.label }}</label>
-    {{ asset_form.sn }}
-    {% if asset_form.sn.errors %}
-      <div class="help-block">{% for error in asset_form.sn.errors %}{{ error }} {% endfor %}</div>
-    {% endif %}
-  </div>
-</div>
+{% block multivalue_field %}
+    <div class="well fieldset">
+        <h6>{{ form.sn.label }}</h6>
+        <div class="control-group{% if form.sn.errors %} error{% endif %}">
+            {{ form.sn }}
+            {% if form.sn.errors %}
+                <div class="help-block">
+                    {% for error in form.sn.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}

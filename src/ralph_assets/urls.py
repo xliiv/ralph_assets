@@ -26,7 +26,11 @@ from ralph_assets.api import (
 from ralph_assets.views.attachment import AddAttachment, DeleteAttachment
 from ralph_assets.views.device import AddDevice, EditDevice, SplitDeviceView
 from ralph_assets.views.user import EditUser, UserDetails, UserList
-from ralph_assets.views.part import AddPart, EditPart, PartList
+from ralph_assets.views.part import (
+    AddPart,
+    EditPart,
+    PartList,
+)
 from ralph_assets.views.asset import (
     AssetSearch,
     AssetBulkEdit,
@@ -105,7 +109,7 @@ urlpatterns = patterns(
     url(r'(?P<mode>(back_office|dc))/edit/device/(?P<asset_id>[0-9]+)/$',
         login_required(EditDevice.as_view()),
         name='device_edit'),
-    url(r'(?P<mode>(back_office|dc))/edit/part/(?P<asset_id>[0-9]+)/$',
+    url(r'(?P<mode>(back_office|dc))/edit/part/(?P<part_id>[0-9]+)/$',
         login_required(EditPart.as_view()),
         name='part_edit'),
     url(r'ajax/dependencies/category/$',
