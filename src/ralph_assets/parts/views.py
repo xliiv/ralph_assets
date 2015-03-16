@@ -89,8 +89,8 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
 
     template_name = 'assets/parts/assign_to_asset.html'
 
-    def dispatch(self, asset_id, *args, **kwargs):
-        self.asset = get_object_or_404(Asset, pk=kwargs.get('asset_id'))
+    def dispatch(self, *args, **kwargs):
+        self.asset = get_object_or_404(Asset, pk=kwargs.pop('asset_id'))
         return super(AssignToAssetView, self).dispatch(*args, **kwargs)
 
     def get_formset(self, prefix, queryset=None):
@@ -119,34 +119,28 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         return up_to_create_sns
 
     def _create_parts(self, sns, part_type):
-        #TODO:: doctring
         parts = []
         for sn in sns:
-            #TODO:: create part with necessery data
-            if part_type'detach'
             data = dict(
-                #asset TODO::
-                #service TODO::
-                #env TODO::
-                #warehouse TODO::
-                asset_type=self.asset.type,
-                sn=sn,
-                order_by=self.asset.order_by,
+                asset_type=self.asset.type, sn=sn, order_no=self.asset.order_no,
             )
-            if part_type:
+            if part_type == 'attach':
                 data = dict(
-                    #asset TODO::
-                    #service TODO::
-                    #env TODO::
-                    #warehouse TODO::
+                    asset=self.asset,
+                    service=self.asset.service,
+                    part_environment=self.asset.device_environment,
+                    warehouse=self.asset.warehouse,
                 )
-            elif ??:
+            elif part_type == 'detach':
                 data = dict(
-                    #asset TODO::
-                    #service TODO::
-                    #env TODO::
-                    #warehouse TODO::
+                    asset=None,
+                    #TODO:: ask for these values
+                    service=self.asset.service,
+                    part_environment=self.asset.device_environment,
+                    warehouse=self.asset.warehouse,
                 )
+            else:
+                raise Exception("Part type: {} is invalid")
             part = Part(**data)
             parts.append(part)
         return parts
@@ -160,7 +154,7 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
 
         up_to_create_sns2 = self._find_non_existing(attach_sns)
         attach_parts = self._create_parts(up_to_create_sns2, 'attach')
-
+        #TODO:: what if any of parts fails?
         Part.objects.bulk_create(detach_parts + attach_parts)
 
         # detach form
