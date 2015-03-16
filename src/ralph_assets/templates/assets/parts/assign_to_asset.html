@@ -12,8 +12,8 @@
 
         <div class='overflow-x'>
             #TODO:: add service-env depenedency
-            #TODO:: make tamplate tag?
             {% if params.detach_formset.forms %}
+            <h6>Detaching parts</h6>
             <table class="table table-striped table-bordered part-detach">
                 <tr>
                 {% for field in params.detach_formset.forms.0.visible_fields %}
@@ -34,6 +34,7 @@
             </table>
             {% endif %}
 
+            <h6>Attaching parts</h6>
             {% if params.attach_formset.forms %}
             <table class="table table-striped table-bordered part-attach">
                 <tr>

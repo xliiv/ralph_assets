@@ -134,7 +134,6 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
             elif part_type == 'detach':
                 data.update({
                     'asset': None,
-                    #TODO:: ask for these values
                     'service': self.asset.service,
                     'part_environment': self.asset.device_environment,
                     'warehouse': self.asset.warehouse,
@@ -195,7 +194,7 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
     def post(self, request, *args, **kwargs):
         detach_formset = self.get_formset('detach')
         attach_formset = self.get_formset('attach')
-        if detach_formset.is_valid():
+        if detach_formset.is_valid(self.asset):
             self.move_parts(self.asset, attach_formset, detach_formset)
 
             msg = 'Successfully detached {} parts'.format(len(detach_formset.forms))
