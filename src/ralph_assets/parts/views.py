@@ -25,6 +25,9 @@ from ralph_assets.views.base import (
     SubmoduleModeMixin,
 )
 
+DISJOINT_EXCHANGE_SNS_MSG = (
+    'Serial numbers are duplicated between attaching and detaching'
+)
 LIST_SEPARATOR = ','
 
 
@@ -101,8 +104,6 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
 
         class FromsetWithCustomValidation(FormsetClass):
             def is_valid(self, asset, *args, **kwargs):
-                #TODO:: validation: here and GET?
-                #TODO:: force attach and detach are disjoint sets
                 return super(FromsetWithCustomValidation, self).is_valid(*args, **kwargs)
 
         return FromsetWithCustomValidation(
@@ -146,17 +147,24 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
     def get(self, request, *args, **kwargs):
         detach_sns = request.GET.get('out_sn', '').split(LIST_SEPARATOR)
         attach_sns = request.GET.get('in_sn', '').split(LIST_SEPARATOR)
+        common_sns = set(detach_sns).intersection(set(attach_sns))
+        if common_sns:
+            messages.error(self.request, _(DISJOINT_EXCHANGE_SNS_MSG))
+            return HttpResponseRedirect(
+                reverse('change_parts', kwargs={'asset_id': self.asset.id})
+            )
 
-        up_to_create_sns = self._find_non_existing(detach_sns)
-        detach_parts = self._create_parts(up_to_create_sns, 'detach')
-
-        up_to_create_sns2 = self._find_non_existing(attach_sns)
-        attach_parts = self._create_parts(up_to_create_sns2, 'attach')
+        detach_parts = self._create_parts(
+            self._find_non_existing(detach_sns), 'detach',
+        )
+        attach_parts = self._create_parts(
+            self._find_non_existing(attach_sns), 'attach',
+        )
         try:
             Part.objects.bulk_create(detach_parts + attach_parts)
         except IntegrityError as e:
-            #TODO:: handle it
-            msg = ''
+            msg = ("Could not create all necessery parts,"
+                   " some of them already exists")
             messages.info(self.request, _(msg))
             #TODO:: better url
             return HttpResponseRedirect('/assets/parts')
@@ -193,7 +201,21 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
     def post(self, request, *args, **kwargs):
         detach_formset = self.get_formset('detach')
         attach_formset = self.get_formset('attach')
-        if detach_formset.is_valid(self.asset):
+
+        attach_sns = {form['sn'].value() for form in detach_formset.forms}
+        detach_sns = {form['sn'].value() for form in detach_formset.forms}
+        common_sns = set(detach_sns).intersection(set(attach_sns))
+        if common_sns:
+            #TODO:: check if should redirect to same form
+            messages.error(self.request, _(DISJOINT_EXCHANGE_SNS_MSG))
+            return HttpResponseRedirect(
+                reverse('change_parts', kwargs={'asset_id': self.asset.id})
+            )
+
+        if (
+            detach_formset.is_valid(self.asset) and
+            attach_formset.is_valid(self.asset)
+        ):
             self.move_parts(self.asset, attach_formset, detach_formset)
 
             msg = 'Successfully detached {} parts'.format(len(detach_formset.forms))
