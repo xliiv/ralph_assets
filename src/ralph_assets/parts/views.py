@@ -146,6 +146,7 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         return parts
 
     def get(self, request, *args, **kwargs):
+        kwargs['asset'] = self.asset
         detach_sns = request.GET.get('out_sn', '').split(LIST_SEPARATOR)
         attach_sns = request.GET.get('in_sn', '').split(LIST_SEPARATOR)
         common_sns = set(detach_sns).intersection(set(attach_sns))

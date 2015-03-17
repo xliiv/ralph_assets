@@ -14,6 +14,10 @@ class ChangeBaseForm(forms.Form):
 
 
 class AttachForm(ReadOnlyFieldsMixin, forms.ModelForm):
+    readonly_fields = (
+        "sn", "model", "order_no", "price", "service", "part_environment",
+        "warehouse"
+    )
     class Meta:
         model = Part
         fields = (
@@ -22,9 +26,6 @@ class AttachForm(ReadOnlyFieldsMixin, forms.ModelForm):
         )
 
 class DetachForm(ReadOnlyFieldsMixin, forms.ModelForm):
-    readonly_fields = (
-        "model", "sn", "order_no", "price", "warehouse",
-    )
     class Meta:
         #TODO:: validate service-env
         #TODO:: model autocomplete nice-to-have
