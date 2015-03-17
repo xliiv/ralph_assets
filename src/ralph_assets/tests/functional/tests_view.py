@@ -2522,19 +2522,157 @@ class TestChangePartsView(ClientMixin, TestCase):
         response = self.client.post(url, post_data)
         expected_url = url + '?in_sn=21%2C31&out_sn=22%2C32'
         self.assertRedirects(response, expected_url)
+
+
 #TODO:: mv it to part file?
+from ralph_assets.parts.views import DISJOINT_EXCHANGE_SNS_MSG
+from ralph_assets.models_parts import Part
+from ralph_assets.tests.utils.parts import (
+    PartFactory,
+    PartModelFactory,
+)
+#TODO: refactor it
 class TestMovingParts(TestDevicesView, BaseViewsTest):
-    def test_existing_part_is_detached():
-        part = Part.objects.get(pk=part.id)
-        self.assertFalse(part.asset)
-    def test_part_is_detached():
+
+    #def get_blank_post_data(self, attach_forms_count, detach_forms_count):
+    #    return {
+    #        'asset': u'',
+    #        'attach-INITIAL_FORMS': attach_forms_count,
+    #        'attach-MAX_NUM_FORMS': '1000',
+    #        'attach-TOTAL_FORMS': attach_forms_count,
+    #        #'detach-INITIAL_FORMS': detach_forms_count,
+    #        #'detach-MAX_NUM_FORMS': u'1000',
+    #        #'detach-TOTAL_FORMS': detach_forms_count,
+    #    }
+
+    def test_part_is_attached(self):
+        asset = DCAssetFactory()
+        part = PartFactory()
+        self.assertEqual(len(asset.parts.all()), 0)
+        save_url = reverse('assign_to_asset', args=('dc', asset.id))
+        post_data = {
+            'asset': u'',
+            'attach-INITIAL_FORMS': 1,
+            'attach-MAX_NUM_FORMS': '1000',
+            'attach-TOTAL_FORMS': 1,
+            'attach-0-id': part.id,
+        }
+        response = self.client.post(save_url, post_data, follow=True)
+        self.assertEqual(len(response.context['messages']), 2)
+        self.assertIn(
+            'detached 0',
+            unicode(response.context['messages']._loaded_messages[0])
+        )
+        self.assertIn(
+            'attached 1',
+            unicode(response.context['messages']._loaded_messages[1])
+        )
+
+    def test_part_is_detached(self):
+        part = PartFactory()
+        self.assertEqual(len(part.asset.parts.all()), 1)
+        save_url = reverse('assign_to_asset', args=('dc', part.asset.id))
+        post_data = {
+            'asset': u'',
+            'detach-INITIAL_FORMS': 1,
+            'detach-MAX_NUM_FORMS': '1000',
+            'detach-TOTAL_FORMS': 1,
+            'detach-0-id': part.id,
+            'detach-0-sn': part.sn,
+            'detach-0-model': part.model.id,
+            'detach-0-price': part.price,
+            'detach-0-service': part.service.id,
+            'detach-0-part_environment': part.part_environment.id,
+            'detach-0-warehouse': part.warehouse.id
+        }
+        response = self.client.post(save_url, post_data, follow=True)
+        self.assertEqual(len(response.context['messages']), 2)
+        self.assertIn(
+            'detached 1',
+            unicode(response.context['messages']._loaded_messages[0])
+        )
+        self.assertIn(
+            'attached 0',
+            unicode(response.context['messages']._loaded_messages[1])
+        )
+
+    def test_detached_part_can_be_edited(self):
+        new_data = PartFactory()
+        part = PartFactory()
+        free_sn = 'non-existing-new-sn'
+        self.assertNotEqual(part.sn, free_sn)
+        save_url = reverse('assign_to_asset', args=('dc', part.asset.id))
+        post_data = {
+            'asset': u'',
+            'detach-INITIAL_FORMS': 1,
+            'detach-MAX_NUM_FORMS': '1000',
+            'detach-TOTAL_FORMS': 1,
+            'detach-0-id': part.id,
+            'detach-0-sn': free_sn,
+            'detach-0-model': new_data.model.id,
+            'detach-0-price': new_data.price,
+            'detach-0-service': new_data.service.id,
+            'detach-0-part_environment': new_data.part_environment.id,
+            'detach-0-warehouse': new_data.warehouse.id
+        }
+        self.client.post(save_url, post_data, follow=True)
+        changed_part = Part.objects.get(pk=part.id)
+        for field in [
+            'model', 'price', 'service', 'part_environment', 'warehouse'
+        ]:
+            self.assertNotEqual(
+                getattr(part, field), getattr(new_data, field),
+            )
+            self.assertEqual(
+                getattr(changed_part, field), getattr(new_data, field),
+            )
+        self.assertEqual(changed_part.sn, free_sn)
+
+    def test_cant_attach_and_detach_same_sn(self):
+        part = PartFactory()
+        save_url = reverse('assign_to_asset', args=('dc', part.asset.id))
+        #TODO:: make it function and use in each test
+        post_data = {
+            'asset': u'',
+            'attach-INITIAL_FORMS': 1,
+            'attach-MAX_NUM_FORMS': '1000',
+            'attach-TOTAL_FORMS': 1,
+            'attach-0-id': part.id,
+            'attach-0-sn': part.sn,
+            'detach-INITIAL_FORMS': 1,
+            'detach-MAX_NUM_FORMS': '1000',
+            'detach-TOTAL_FORMS': 1,
+            'detach-0-id': part.id,
+            'detach-0-sn': part.sn,
+            'detach-0-model': part.model.id,
+            'detach-0-price': part.price,
+            'detach-0-service': part.service.id,
+            'detach-0-part_environment': part.part_environment.id,
+            'detach-0-warehouse': part.warehouse.id
+        }
+        response = self.client.post(save_url, post_data, follow=True)
+        self.assertEqual(len(response.context['messages']), 1)
+        self.assertEqual(
+            unicode(response.context['messages']._loaded_messages[0]),
+            DISJOINT_EXCHANGE_SNS_MSG,
+        )
+
+    def test_other(self):
+        #TODO:: GET:maybe adding existing doesn't change part count
+        #TODO:: disjoint back to search for get and post
+        #TODO:: test invalide cases, like part doesn't belong to processed asset > validation error
         pass
 
-#TODO::
-#GET:
-#existing sn > it's in form
-#non-existing sn > created as dummy + in form
-#part doesn't belong to processed asset > validation error
-#POST:
-#part is attached successfully
-#part is detached successfully
+    def test_adding_non_existing_part(self):
+        pass
+
+    def test_detached_part_cant_be_edited(self):
+        #test form error
+        # TODO:: split it to
+            #edit included fields
+            #do not edit exlcuded fileds
+        #TODO:: docstring to tests
+        pass
+
+
+

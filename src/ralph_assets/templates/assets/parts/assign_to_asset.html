@@ -16,8 +16,8 @@
 
         <div class='span12 overflow-x'>
 
-            <h6>Attaching parts:</h6>
             {% if params.attach_formset.forms %}
+            <h6>Attaching parts:</h6>
             <table class="table table-striped table-bordered part-attach">
                 <tr>
                 {% for field in params.attach_formset.forms.0.visible_fields %}
