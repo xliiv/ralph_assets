@@ -151,15 +151,15 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         Removes parts included in `detach_formset` from `asset` and
         add parts included in `attach_formset` to `asset`.
         """
+        for form in attach_formset.forms:
+            form.instance.asset = asset
+            form.instance.save()
+
         for form in detach_formset.forms:
             form.save(commit=False)
             form.instance.asset = None
             form.instance.save()
 
-        for form in attach_formset.forms:
-            form.save(commit=False)
-            form.instance.asset = asset
-            form.instance.save()
 
     def get(self, request, *args, **kwargs):
         kwargs['asset'] = self.asset
@@ -225,8 +225,8 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
             attach_formset.is_valid(self.asset)
         ):
             self.move_parts(self.asset, attach_formset, detach_formset)
-
             msg = 'Successfully detached {} parts'.format(len(detach_formset.forms))
+            msg = 'Successfully attached {} parts'.format(len(attach_formset.forms))
             messages.info(self.request, _(msg))
             return HttpResponseRedirect(reverse(
                 'part_search', kwargs={'mode': self.mode},
