@@ -70,7 +70,7 @@
       {% endspaceless %}
     {% endif %}
     <div class="pull-right">
-      <a href="{% url add_part mode=mode  %}?device={{asset.id}}" class="btn btn-primary">{% trans "Add part" %}</a>
+      <a href="{% url change_parts mode=mode asset_id=asset.id %}" class="btn btn-primary">{% trans "asset's parts flow" %}</a>
     </div>
   </div>
 {% endblock %}
