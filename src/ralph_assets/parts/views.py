@@ -28,6 +28,9 @@ from ralph_assets.views.base import (
 COMMON_SNS_BETWEEN_FORMSETS_MSG = (
     'Serial numbers are duplicated between attaching and detaching'
 )
+BULK_CREATE_ERROR_MSG = (
+    "Could not create all necessery parts, some of them already exists"
+)
 LIST_SEPARATOR = ','
 
 
@@ -202,9 +205,7 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         try:
             Part.objects.bulk_create(detach_parts + attach_parts)
         except IntegrityError as e:
-            msg = ("Could not create all necessery parts,"
-                   " some of them already exists")
-            messages.info(self.request, _(msg))
+            messages.info(self.request, _(BULK_CREATE_ERROR_MSG))
             return HttpResponseRedirect(reverse(
                 'part_search', kwargs={'mode': self.mode},
             ))

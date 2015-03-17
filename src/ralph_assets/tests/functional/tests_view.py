@@ -2525,13 +2525,20 @@ class TestChangePartsView(ClientMixin, TestCase):
 
 
 #TODO:: mv it to part file?
-from ralph_assets.parts.views import COMMON_SNS_BETWEEN_FORMSETS_MSG
+import mock
+from ralph_assets.parts.views import COMMON_SNS_BETWEEN_FORMSETS_MSG, BULK_CREATE_ERROR_MSG, LIST_SEPARATOR
 from ralph_assets.models_parts import Part
 from ralph_assets.tests.utils.parts import (
     PartFactory,
     PartModelFactory,
 )
+from ralph_assets.tests.utils.assets import (
+    AssetFactory,
+    AssetType,
+    generate_sn,
+)
 #TODO: refactor it
+#TODO:: docstring to tests
 class TestMovingParts(TestDevicesView, BaseViewsTest):
 
     #def get_blank_post_data(self, attach_forms_count, detach_forms_count):
@@ -2596,6 +2603,10 @@ class TestMovingParts(TestDevicesView, BaseViewsTest):
             unicode(response.context['messages']._loaded_messages[1])
         )
 
+    def test_attached_part_cant_be_edited(self):
+        #TODO:: write it?
+        pass
+
     def test_detached_part_can_be_edited(self):
         new_data = PartFactory()
         part = PartFactory()
@@ -2610,6 +2621,7 @@ class TestMovingParts(TestDevicesView, BaseViewsTest):
             'detach-0-id': part.id,
             'detach-0-sn': free_sn,
             'detach-0-model': new_data.model.id,
+            'detach-0-order_no': new_data.order_no,
             'detach-0-price': new_data.price,
             'detach-0-service': new_data.service.id,
             'detach-0-part_environment': new_data.part_environment.id,
@@ -2627,6 +2639,8 @@ class TestMovingParts(TestDevicesView, BaseViewsTest):
                 getattr(changed_part, field), getattr(new_data, field),
             )
         self.assertEqual(changed_part.sn, free_sn)
+        # order_no should stay unchanged
+        self.assertEqual(changed_part.order_no, part.order_no)
 
     def test_cant_attach_and_detach_same_sn(self):
         part = PartFactory()
@@ -2657,22 +2671,54 @@ class TestMovingParts(TestDevicesView, BaseViewsTest):
             COMMON_SNS_BETWEEN_FORMSETS_MSG,
         )
 
-    def test_other(self):
-        #TODO:: GET:maybe adding existing doesn't change part count
-        #TODO:: disjoint back to search for get and post
-        #TODO:: test invalide cases, like part doesn't belong to processed asset > validation error
-        pass
+    def test_exchanging_missing_parts_adds_them(self):
+        asset = DCAssetFactory()
+        in_sn = generate_sn()
+        out_sn = generate_sn()
+        self.assertEqual(len(Part.objects.all()), 0)
+        form_url = reverse('assign_to_asset', args=('dc', asset.id))
+        request_query = urlencode({
+            'in_sn': LIST_SEPARATOR.join([in_sn]),
+            'out_sn': LIST_SEPARATOR.join([out_sn]),
+        })
+        full_form_url = '{}?{}'.format(form_url, request_query)
+        self.client.get(full_form_url)
+        self.assertEqual(len(Part.objects.all()), 2)
 
-    def test_adding_non_existing_part(self):
-        pass
+    def test_exchanging_existing_parts_uses_them(self):
+        part_in = PartFactory()
+        part_out = PartFactory()
+        self.assertEqual(len(Part.objects.all()), 2)
+        form_url = reverse('assign_to_asset', args=('dc', part_out.asset.id))
+        request_query = urlencode({
+            'in_sn': LIST_SEPARATOR.join([part_in.sn]),
+            'out_sn': LIST_SEPARATOR.join([part_out.sn]),
+        })
+        full_form_url = '{}?{}'.format(form_url, request_query)
+        response = self.client.get(full_form_url, follow=True)
+        self.assertEqual(len(Part.objects.all()), 2)
+        self.assertEqual(
+            response.context['params']['detach_formset'].forms[0]['id'].value(),
+            part_out.id,
+        )
+        self.assertEqual(
+            response.context['params']['attach_formset'].forms[0]['id'].value(),
+            part_in.id,
+        )
 
-    def test_detached_part_cant_be_edited(self):
-        #test form error
-        # TODO:: split it to
-            #edit included fields
-            #do not edit exlcuded fileds
-        #TODO:: docstring to tests
-        pass
 
+    @mock.patch('ralph_assets.parts.views.AssignToAssetView._find_non_existing')
+    def test_show_message_on_failed_adding(self, mocked_method):
+        asset = DCAssetFactory()
+        part_in = PartFactory()
+        mocked_method.return_value = {part_in.sn}
 
-
+        form_url = reverse('assign_to_asset', args=('dc', asset.id))
+        request_query = urlencode({'in_sn': LIST_SEPARATOR.join([part_in.sn])})
+        full_form_url = '{}?{}'.format(form_url, request_query)
+        response = self.client.get(full_form_url, follow=True)
+        self.assertEqual(len(response.context['messages']), 1)
+        self.assertEqual(
+            unicode(response.context['messages']._loaded_messages[0]),
+            BULK_CREATE_ERROR_MSG,
+        )

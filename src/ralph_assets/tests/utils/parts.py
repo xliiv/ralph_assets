@@ -19,7 +19,7 @@ from ralph.cmdb.tests.utils import (
 
 from ralph_assets.models_parts import Part, PartModel, PartModelType
 from ralph_assets.tests.utils.assets import (
-    AssetFactory,
+    DCAssetFactory,
     AssetType,
     generate_sn,
     WarehouseFactory,
@@ -36,7 +36,7 @@ class PartModelFactory(DjangoModelFactory):
 class PartFactory(DjangoModelFactory):
     FACTORY_FOR = Part
 
-    asset = SubFactory(AssetFactory)
+    asset = SubFactory(DCAssetFactory)
     asset_type = AssetType.data_center
     model = SubFactory(PartModelFactory)
     order_no = Sequence(lambda n: 'Order no #{}'.format(n))
