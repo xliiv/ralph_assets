@@ -26,6 +26,7 @@ class AttachForm(ReadOnlyFieldsMixin, forms.ModelForm):
         )
 
 class DetachForm(ReadOnlyFieldsMixin, forms.ModelForm):
+    readonly_fields = ("order_no",)
     class Meta:
         #TODO:: validate service-env
         #TODO:: model autocomplete nice-to-have
