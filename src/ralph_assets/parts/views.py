@@ -25,7 +25,7 @@ from ralph_assets.views.base import (
     SubmoduleModeMixin,
 )
 
-DISJOINT_EXCHANGE_SNS_MSG = (
+COMMON_SNS_BETWEEN_FORMSETS_MSG = (
     'Serial numbers are duplicated between attaching and detaching'
 )
 LIST_SEPARATOR = ','
@@ -105,6 +105,7 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
 
         class FromsetWithCustomValidation(FormsetClass):
             def is_valid(self, asset, *args, **kwargs):
+                #TODO:: validate if sns are common in formset
                 return super(FromsetWithCustomValidation, self).is_valid(*args, **kwargs)
 
         #TODO:: clean it
@@ -184,7 +185,7 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         attach_sns = self._get_request_data(request.GET, 'in_sn')
         common_sns = set(detach_sns).intersection(set(attach_sns))
         if common_sns:
-            messages.error(self.request, _(DISJOINT_EXCHANGE_SNS_MSG))
+            messages.error(self.request, _(COMMON_SNS_BETWEEN_FORMSETS_MSG))
             return HttpResponseRedirect(
                 reverse('change_parts', kwargs={
                     'asset_id': self.asset.id,
@@ -230,7 +231,7 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         detach_sns = {form['sn'].value() for form in detach_formset.forms if form['sn'].value()}
         common_sns = set(detach_sns).intersection(set(attach_sns))
         if common_sns:
-            messages.error(self.request, _(DISJOINT_EXCHANGE_SNS_MSG))
+            messages.error(self.request, _(COMMON_SNS_BETWEEN_FORMSETS_MSG))
             return HttpResponseRedirect(
                 reverse('change_parts', kwargs={
                     'asset_id': self.asset.id,

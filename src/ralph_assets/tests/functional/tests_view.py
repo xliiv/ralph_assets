@@ -2525,7 +2525,7 @@ class TestChangePartsView(ClientMixin, TestCase):
 
 
 #TODO:: mv it to part file?
-from ralph_assets.parts.views import DISJOINT_EXCHANGE_SNS_MSG
+from ralph_assets.parts.views import COMMON_SNS_BETWEEN_FORMSETS_MSG
 from ralph_assets.models_parts import Part
 from ralph_assets.tests.utils.parts import (
     PartFactory,
@@ -2654,7 +2654,7 @@ class TestMovingParts(TestDevicesView, BaseViewsTest):
         self.assertEqual(len(response.context['messages']), 1)
         self.assertEqual(
             unicode(response.context['messages']._loaded_messages[0]),
-            DISJOINT_EXCHANGE_SNS_MSG,
+            COMMON_SNS_BETWEEN_FORMSETS_MSG,
         )
 
     def test_other(self):
