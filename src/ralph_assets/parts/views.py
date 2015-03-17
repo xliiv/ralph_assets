@@ -107,9 +107,21 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
             def is_valid(self, asset, *args, **kwargs):
                 return super(FromsetWithCustomValidation, self).is_valid(*args, **kwargs)
 
-        return FromsetWithCustomValidation(
-            self.request.POST or None, queryset=queryset, prefix=prefix
-        )
+        #TODO:: clean it
+        from django.core.exceptions import ValidationError
+        try:
+            formset = FromsetWithCustomValidation(
+                self.request.POST or None, queryset=queryset, prefix=prefix
+            )
+        except ValidationError:
+            data = {
+                #TODO:: explain it
+                '{}-TOTAL_FORMS'.format(prefix): u'0',
+                '{}-INITIAL_FORMS'.format(prefix): u'0',
+                '{}-MAX_NUM_FORMS'.format(prefix): u'0',
+            }
+            formset = FromsetWithCustomValidation(data, prefix=prefix)
+        return formset
 
     def _find_non_existing(self, sns):
         existing_sns = Part.objects.filter(
@@ -160,11 +172,16 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
             form.instance.asset = None
             form.instance.save()
 
+    def _get_request_data(self, request_data, key):
+        return (
+            request_data[key].split(LIST_SEPARATOR)
+            if key in request_data else []
+        )
 
     def get(self, request, *args, **kwargs):
         kwargs['asset'] = self.asset
-        detach_sns = request.GET.get('out_sn', '').split(LIST_SEPARATOR)
-        attach_sns = request.GET.get('in_sn', '').split(LIST_SEPARATOR)
+        detach_sns = self._get_request_data(request.GET, 'out_sn')
+        attach_sns = self._get_request_data(request.GET, 'in_sn')
         common_sns = set(detach_sns).intersection(set(attach_sns))
         if common_sns:
             messages.error(self.request, _(DISJOINT_EXCHANGE_SNS_MSG))
@@ -195,13 +212,14 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         kwargs['detach_formset'] = self.get_formset('detach', queryset=detach_parts)
         attach_parts = Part.objects.filter(sn__in=attach_sns)
         kwargs['attach_formset'] = self.get_formset('attach', queryset=attach_parts)
-        is_valid = (
-            kwargs['detach_formset'].is_valid(self.asset) and
-            kwargs['attach_formset'].is_valid(self.asset)
-        )
-        if not is_valid:
-            msg = 'Some of selected parts are not from edited asset'
-            messages.warning(request, _(msg))
+        #TODO:: validate this
+        #is_valid = (
+        #    kwargs['detach_formset'].is_valid(self.asset) and
+        #    kwargs['attach_formset'].is_valid(self.asset)
+        #)
+        #if not is_valid:
+        #    msg = 'Some of selected parts are not from edited asset'
+        #    messages.warning(request, _(msg))
         return super(AssignToAssetView, self).get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -226,6 +244,7 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         ):
             self.move_parts(self.asset, attach_formset, detach_formset)
             msg = 'Successfully detached {} parts'.format(len(detach_formset.forms))
+            messages.info(self.request, _(msg))
             msg = 'Successfully attached {} parts'.format(len(attach_formset.forms))
             messages.info(self.request, _(msg))
             return HttpResponseRedirect(reverse(
