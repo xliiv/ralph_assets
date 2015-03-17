@@ -145,6 +145,22 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
             parts.append(part)
         return parts
 
+    @transaction.commit_on_success
+    def move_parts(self, asset, attach_formset, detach_formset):
+        """
+        Removes parts included in `detach_formset` from `asset` and
+        add parts included in `attach_formset` to `asset`.
+        """
+        for form in detach_formset.forms:
+            form.save(commit=False)
+            form.instance.asset = None
+            form.instance.save()
+
+        for form in attach_formset.forms:
+            form.save(commit=False)
+            form.instance.asset = asset
+            form.instance.save()
+
     def get(self, request, *args, **kwargs):
         kwargs['asset'] = self.asset
         detach_sns = request.GET.get('out_sn', '').split(LIST_SEPARATOR)
@@ -187,22 +203,6 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
             msg = 'Some of selected parts are not from edited asset'
             messages.warning(request, _(msg))
         return super(AssignToAssetView, self).get(request, *args, **kwargs)
-
-    @transaction.commit_on_success
-    def move_parts(self, asset, attach_formset, detach_formset):
-        """
-        Removes parts included in `detach_formset` from `asset` and
-        add parts included in `attach_formset` to `asset`.
-        """
-        for form in detach_formset.forms:
-            form.save(commit=False)
-            form.instance.asset = None
-            form.instance.save()
-
-        for form in attach_formset.forms:
-            form.save(commit=False)
-            form.instance.asset = asset
-            form.instance.save()
 
     def post(self, request, *args, **kwargs):
         detach_formset = self.get_formset('detach')
