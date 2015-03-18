@@ -59,15 +59,6 @@
     </table>
     {% endif %}
 
-    {% if not asset.has_parts %}
-      {% spaceless %}
-      <div class="pull-left">
-        <a href="{% url device_split mode='dc' asset_id=asset.id %}" class="btn btn-danger">
-          <i class="fugue-icon fugue-cutter"></i>&nbsp;{% trans "Split device" %}
-        </a>
-      </div>
-      {% endspaceless %}
-    {% endif %}
     <div class="pull-right">
       <a href="{% url change_parts mode=mode asset_id=asset.id %}" class="btn btn-primary">{% trans "asset's parts flow" %}</a>
     </div>
