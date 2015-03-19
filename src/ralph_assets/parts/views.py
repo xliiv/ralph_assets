@@ -105,7 +105,7 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         self.asset = get_object_or_404(Asset, pk=kwargs.get('asset_id'))
         return super(AssignToAssetView, self).dispatch(*args, **kwargs)
 
-    def get_formset(self, prefix, queryset=None):
+    def get_formset(self, request_data, prefix, queryset=None):
         if prefix == 'attach':
             form = AttachForm
         if prefix == 'detach':
@@ -113,7 +113,7 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         FormsetClass = modelformset_factory(Part, form=form, extra=0)
         try:
             formset = FormsetClass(
-                self.request.POST or None, queryset=queryset, prefix=prefix
+                request_data, queryset=queryset, prefix=prefix
             )
         except ValidationError:
             # make formset optional on view
@@ -143,7 +143,7 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
             )
             if part_type == 'attach':
                 data.update({
-                    'asset': self.asset,
+                    'asset': None,
                     'service': self.asset.service,
                     'part_environment': self.asset.device_environment,
                     'warehouse': self.asset.warehouse,
@@ -212,17 +212,17 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
 
         detach_parts = Part.objects.filter(sn__in=detach_sns)
         kwargs['detach_formset'] = self.get_formset(
-            'detach', queryset=detach_parts,
+            None, 'detach', queryset=detach_parts,
         )
         attach_parts = Part.objects.filter(sn__in=attach_sns)
         kwargs['attach_formset'] = self.get_formset(
-            'attach', queryset=attach_parts,
+            None, 'attach', queryset=attach_parts,
         )
         return super(AssignToAssetView, self).get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        detach_formset = self.get_formset('detach')
-        attach_formset = self.get_formset('attach')
+        attach_formset = self.get_formset(self.request.POST, 'attach')
+        detach_formset = self.get_formset(self.request.POST, 'detach')
 
         attach_sns = {
             form['sn'].value() for form in attach_formset.forms
@@ -256,6 +256,12 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
                 'device_edit', args=(self.mode, self.asset.id),
             ))
         else:
+            parts_ids_to_attach = [
+                form['id'].value() for form in attach_formset.forms
+            ]
+            parts = Part.objects.filter(pk__in=parts_ids_to_attach)
+            kwargs['attach_formset'] = self.get_formset(
+                None, 'attach', queryset=parts,
+            )
             kwargs['detach_formset'] = detach_formset
-            kwargs['attach_formset'] = attach_formset
             return super(AssignToAssetView, self).get(request, *args, **kwargs)
