@@ -18,7 +18,23 @@
       <div class="pagination">
         <ul>
           {% for report_mode in modes %}
-            <li{% if mode == report_mode.name %} class="active"{% endif %}><a href="{% url report_detail report_mode.name slug %}">{{ report_mode.verbose_name }}</a></li>
+            <li{% if mode == report_mode.name %} class="active"{% endif %}><a href="
+              {% if report_mode.name == 'dc' %}
+                {% url report_detail report_mode.name dc slug %}
+              {% else %}
+                {% url report_detail report_mode.name slug %}
+              {% endif %}">{{ report_mode.verbose_name }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+    {% endblock %}
+    {% block datacenters %}
+    {% if report.with_datacenters and mode == 'dc' %}
+      <div class="pagination">
+        <ul>
+          {% for report_datacenter in datacenters %}
+            <li{% if dc == report_datacenter.id %} class="active"{% endif %}><a href="{% url report_detail mode report_datacenter.id slug %}">{{ report_datacenter.verbose_name }}</a></li>
           {% endfor %}
         </ul>
       </div>

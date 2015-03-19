@@ -5,8 +5,10 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 from lck.django.choices import Choices
 from lck.django.common.models import TimeTrackable
 
@@ -77,6 +79,7 @@ class Part(HistoryMixin, TimeTrackable):
     asset_type = models.PositiveSmallIntegerField(choices=AssetType())
     model = models.ForeignKey(
         PartModel,
+        null=True,
         on_delete=models.PROTECT,
     )
     sn = models.CharField(max_length=200, unique=True)
@@ -104,6 +107,18 @@ class Part(HistoryMixin, TimeTrackable):
 
     def __unicode__(self):
         return '{} ({})'.format(self.sn, self.model)
+
+    def clean_fields(self, exclude=None):
+        if self.part_environment and self.service:
+            envs_of_service = self.service.get_environments()
+            if self.part_environment not in envs_of_service:
+                envs = ', '.join(
+                    [env.name for env in self.service.get_environments()]
+                ) or '-'
+                msg = _(
+                    "Correct environments for this service: {}".format(envs)
+                )
+                raise ValidationError({'part_environment': [msg]})
 
     @property
     def url(self):

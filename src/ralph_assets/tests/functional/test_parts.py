@@ -5,16 +5,27 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import mock
+from urllib import urlencode
+
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from ralph.cmdb.tests.utils import (
-    DeviceEnvironmentFactory,
-    ServiceCatalogFactory,
+    CIRelationFactory,
 )
 from ralph_assets.models_parts import Part
-from ralph_assets.tests.utils import ClientMixin
-from ralph_assets.tests.utils.assets import AssetType, WarehouseFactory
+from ralph_assets.parts.views import (
+    COMMON_SNS_BETWEEN_FORMSETS_MSG, BULK_CREATE_ERROR_MSG, LIST_SEPARATOR,
+)
+from ralph_assets.tests.functional.tests_view import BaseViewsTest
+from ralph_assets.tests.utils import ClientMixin, AdminFactory
+from ralph_assets.tests.utils.assets import (
+    AssetType,
+    DCAssetFactory,
+    WarehouseFactory,
+    generate_sn,
+)
 from ralph_assets.tests.utils.parts import (
     PartFactory,
     PartModelFactory,
@@ -30,9 +41,10 @@ FORM_FIELDS = (
 class PartManageViewsTestBase(ClientMixin, TestCase):
 
     def setUp(self):  # noqa
+        service_env_pair = CIRelationFactory()
         self.sample_warehouse = WarehouseFactory()
-        self.sample_service = ServiceCatalogFactory()
-        self.sample_environment = DeviceEnvironmentFactory()
+        self.sample_service = service_env_pair.parent
+        self.sample_environment = service_env_pair.child
         self.sample_part_model = PartModelFactory()
         self.sample_part_1 = PartFactory()
         self.sample_part_2 = PartFactory()
@@ -135,12 +147,14 @@ class TestAddPartView(PartManageViewsTestBase):
         response = self._make_request(sample_data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context['form'].errors), 1)
+        part_url = reverse('part_edit', args=('dc', self.sample_part_1.id))
         self.assertFormError(
             response,
             'form',
             'sn',
             'Following items already exist: '
-            '<a href="/assets/dc/edit/part/{0}/">{0}</a>'.format(
+            '<a href="{0}">{1}</a>'.format(
+                part_url,
                 self.sample_part_1.id,
             )
         )
@@ -213,3 +227,224 @@ class TestEditPartView(PartManageViewsTestBase):
 
         response = self._make_request(666, {})
         self.assertEqual(response.status_code, 404)
+
+
+class TestChangePartsView(ClientMixin, TestCase):
+
+    def setUp(self):
+        self.login_as_user(self.user)
+
+    @classmethod
+    def setUpClass(cls):
+        cls.asset = DCAssetFactory()
+        cls.user = AdminFactory()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.asset.delete()
+        cls.user.delete()
+
+    def test_redirect(self):
+        url = reverse(
+            'change_parts', kwargs={'mode': 'dc', 'asset_id': self.asset.id}
+        )
+        post_data = {
+            'in-0-sn': '21',
+            'in-1-sn': '31',
+            'out-0-sn': '22',
+            'out-1-sn': '32',
+            'out-INITIAL_FORMS': 0,
+            'out-TOTAL_FORMS': 2,
+            'out-MAX_NUM_FORMS': 1000,
+            'in-INITIAL_FORMS': 0,
+            'in-TOTAL_FORMS': 2,
+            'in-MAX_NUM_FORMS': 1000,
+        }
+        response = self.client.post(url, post_data)
+        expected_url = (
+            reverse('assign_to_asset', args=('dc', self.asset.id)) +
+            '?in_sn=21%2C31&out_sn=22%2C32'
+        )
+        self.assertRedirects(response, expected_url)
+
+
+class TestMovingParts(BaseViewsTest):
+
+    def test_part_is_attached(self):
+        "Part can be attached to asset"
+        asset = DCAssetFactory()
+        part = PartFactory()
+        self.assertEqual(len(asset.parts.all()), 0)
+        save_url = reverse('assign_to_asset', args=('dc', asset.id))
+        post_data = {
+            'asset': u'',
+            'attach-INITIAL_FORMS': 1,
+            'attach-MAX_NUM_FORMS': '1000',
+            'attach-TOTAL_FORMS': 1,
+            'attach-0-id': part.id,
+        }
+        response = self.client.post(save_url, post_data, follow=True)
+        self.assertEqual(len(response.context['messages']), 2)
+        self.assertIn(
+            'detached 0',
+            unicode(response.context['messages']._loaded_messages[0])
+        )
+        self.assertIn(
+            'attached 1',
+            unicode(response.context['messages']._loaded_messages[1])
+        )
+
+    def test_part_is_detached(self):
+        "Part can be deatached from asset"
+        part = PartFactory()
+        self.assertEqual(len(part.asset.parts.all()), 1)
+        save_url = reverse('assign_to_asset', args=('dc', part.asset.id))
+        post_data = {
+            'asset': u'',
+            'detach-INITIAL_FORMS': 1,
+            'detach-MAX_NUM_FORMS': '1000',
+            'detach-TOTAL_FORMS': 1,
+            'detach-0-id': part.id,
+            'detach-0-sn': part.sn,
+            'detach-0-model': part.model.id,
+            'detach-0-price': part.price,
+            'detach-0-service': part.service.id,
+            'detach-0-part_environment': part.part_environment.id,
+            'detach-0-warehouse': part.warehouse.id
+        }
+        response = self.client.post(save_url, post_data, follow=True)
+        self.assertEqual(len(response.context['messages']), 2)
+        self.assertIn(
+            'detached 1',
+            unicode(response.context['messages']._loaded_messages[0])
+        )
+        self.assertIn(
+            'attached 0',
+            unicode(response.context['messages']._loaded_messages[1])
+        )
+
+    def test_detached_part_can_be_edited(self):
+        "Deatached part's data was edited excluding order-no field"
+        new_data = PartFactory()
+        part = PartFactory()
+        free_sn = 'non-existing-new-sn'
+        self.assertNotEqual(part.sn, free_sn)
+        save_url = reverse('assign_to_asset', args=('dc', part.asset.id))
+        post_data = {
+            'asset': u'',
+            'detach-INITIAL_FORMS': 1,
+            'detach-MAX_NUM_FORMS': '1000',
+            'detach-TOTAL_FORMS': 1,
+            'detach-0-id': part.id,
+            'detach-0-sn': free_sn,
+            'detach-0-model': new_data.model.id,
+            'detach-0-order_no': new_data.order_no,
+            'detach-0-price': new_data.price,
+            'detach-0-service': new_data.service.id,
+            'detach-0-part_environment': new_data.part_environment.id,
+            'detach-0-warehouse': new_data.warehouse.id
+        }
+        self.client.post(save_url, post_data, follow=True)
+        changed_part = Part.objects.get(pk=part.id)
+        for field in [
+            'model', 'price', 'service', 'part_environment', 'warehouse'
+        ]:
+            self.assertNotEqual(
+                getattr(part, field), getattr(new_data, field),
+            )
+            self.assertEqual(
+                getattr(changed_part, field), getattr(new_data, field),
+            )
+        self.assertEqual(changed_part.sn, free_sn)
+        # order_no should stay unchanged
+        self.assertEqual(changed_part.order_no, part.order_no)
+
+    def test_cant_attach_and_detach_same_sn(self):
+        part = PartFactory()
+        save_url = reverse('assign_to_asset', args=('dc', part.asset.id))
+        post_data = {
+            'asset': u'',
+            'attach-INITIAL_FORMS': 1,
+            'attach-MAX_NUM_FORMS': '1000',
+            'attach-TOTAL_FORMS': 1,
+            'attach-0-id': part.id,
+            'attach-0-sn': part.sn,
+            'detach-INITIAL_FORMS': 1,
+            'detach-MAX_NUM_FORMS': '1000',
+            'detach-TOTAL_FORMS': 1,
+            'detach-0-id': part.id,
+            'detach-0-sn': part.sn,
+            'detach-0-model': part.model.id,
+            'detach-0-price': part.price,
+            'detach-0-service': part.service.id,
+            'detach-0-part_environment': part.part_environment.id,
+            'detach-0-warehouse': part.warehouse.id
+        }
+        response = self.client.post(save_url, post_data, follow=True)
+        self.assertEqual(len(response.context['messages']), 1)
+        self.assertEqual(
+            unicode(response.context['messages']._loaded_messages[0]),
+            COMMON_SNS_BETWEEN_FORMSETS_MSG,
+        )
+
+    def test_exchanging_missing_parts_adds_them(self):
+        """
+        Test checks that attached and deatached parts are created when they
+        don't exist during exchange.
+        """
+        asset = DCAssetFactory()
+        in_sn = generate_sn()
+        out_sn = generate_sn()
+        self.assertEqual(len(Part.objects.all()), 0)
+        form_url = reverse('assign_to_asset', args=('dc', asset.id))
+        request_query = urlencode({
+            'in_sn': LIST_SEPARATOR.join([in_sn]),
+            'out_sn': LIST_SEPARATOR.join([out_sn]),
+        })
+        full_form_url = '{}?{}'.format(form_url, request_query)
+        self.client.get(full_form_url)
+        self.assertEqual(len(Part.objects.all()), 2)
+
+    def test_exchanging_existing_parts_uses_them(self):
+        """
+        Test checks that new parts are not created when attaching and detaching
+        existing parts.
+        """
+        part_in = PartFactory()
+        part_out = PartFactory()
+        self.assertEqual(len(Part.objects.all()), 2)
+        form_url = reverse('assign_to_asset', args=('dc', part_out.asset.id))
+        request_query = urlencode({
+            'in_sn': LIST_SEPARATOR.join([part_in.sn]),
+            'out_sn': LIST_SEPARATOR.join([part_out.sn]),
+        })
+        full_form_url = '{}?{}'.format(form_url, request_query)
+        response = self.client.get(full_form_url, follow=True)
+        self.assertEqual(len(Part.objects.all()), 2)
+        context = response.context
+        self.assertEqual(
+            context['params']['detach_formset'].forms[0]['id'].value(),
+            part_out.id,
+        )
+        self.assertEqual(
+            context['params']['attach_formset'].forms[0]['id'].value(),
+            part_in.id,
+        )
+
+    @mock.patch(
+        'ralph_assets.parts.views.AssignToAssetView._find_non_existing',
+    )
+    def test_show_message_on_failed_adding(self, mocked_method):
+        asset = DCAssetFactory()
+        part_in = PartFactory()
+        mocked_method.return_value = {part_in.sn}
+
+        form_url = reverse('assign_to_asset', args=('dc', asset.id))
+        request_query = urlencode({'in_sn': LIST_SEPARATOR.join([part_in.sn])})
+        full_form_url = '{}?{}'.format(form_url, request_query)
+        response = self.client.get(full_form_url, follow=True)
+        self.assertEqual(len(response.context['messages']), 1)
+        self.assertEqual(
+            unicode(response.context['messages']._loaded_messages[0]),
+            BULK_CREATE_ERROR_MSG,
+        )

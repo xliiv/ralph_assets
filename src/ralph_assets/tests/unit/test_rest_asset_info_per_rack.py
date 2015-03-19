@@ -15,10 +15,8 @@ from rest_framework.test import APIClient
 from ralph.cmdb.tests.utils import ServiceCatalogFactory
 from ralph.discovery.tests.util import DeviceFactory
 from ralph_assets.models_assets import Orientation
-from ralph_assets.rest.serializers.models_dc_asssets import (
-    TYPE_ACCESSORY,
-    TYPE_ASSET,
-)
+from ralph_assets.rest.serializers.models_dc_assets import TYPE_ACCESSORY
+from ralph_assets.rest.serializers.models_assets import TYPE_ASSET
 from ralph_assets.tests.utils.assets import (
     AssetFactory,
     RackFactory,
@@ -113,6 +111,7 @@ class TestRestAssetInfoPerRack(TestCase):
                     'position': self.asset_1.device_info.position,
                     'model': self.asset_1.model.name,
                     'children': [],
+                    'parts': [],
                     'layout': u'',
                     'management_ip': self.dev_1.management_ip.address,
                     'service': self.asset_1.service.name,
@@ -131,6 +130,7 @@ class TestRestAssetInfoPerRack(TestCase):
                     'position': self.asset_2.device_info.position,
                     'model': self.asset_2.model.name,
                     'children': [],
+                    'parts': [],
                     'layout': u'',
                     'management_ip': self.dev_2.management_ip.address,
                     'service': self.asset_2.service.name,

@@ -13,8 +13,8 @@ from rest_framework.views import APIView
 from ralph_assets.models_assets import Orientation, Rack
 from ralph_assets.models_dc_assets import RackAccessory
 from ralph.ui.views.common import ACLGateway
-from ralph_assets.rest.serializers.models_dc_asssets import (
-    AssetSerializer,
+from ralph_assets.rest.serializers.models_assets import AssetSerializer
+from ralph_assets.rest.serializers.models_dc_assets import (
     RackAccessorySerializer,
     RackSerializer,
     PDUSerializer,

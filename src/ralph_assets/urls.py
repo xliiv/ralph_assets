@@ -26,15 +26,11 @@ from ralph_assets.api import (
 from ralph_assets.views.attachment import AddAttachment, DeleteAttachment
 from ralph_assets.views.device import AddDevice, EditDevice, SplitDeviceView
 from ralph_assets.views.user import EditUser, UserDetails, UserList
-from ralph_assets.views.part import (
-    AddPart,
-    EditPart,
-    PartList,
-)
 from ralph_assets.views.asset import (
     AssetSearch,
     AssetBulkEdit,
     DeleteAsset,
+    ChassisBulkEdit,
 )
 from ralph_assets.views.ajax import (
     CategoryDependencyView,
@@ -97,21 +93,15 @@ urlpatterns = patterns(
     url(r'(?P<mode>(back_office|dc))/search',
         login_required(AssetSearch.as_view()),
         name='asset_search'),
-    url(r'(?P<mode>(back_office|dc))/part/',
-        login_required(PartList.as_view()),
-        name='part_search'),
     url(r'(?P<mode>(back_office|dc))/add/device/',
         login_required(AddDevice.as_view()),
         name='add_device'),
-    url(r'(?P<mode>(back_office|dc))/add/part/',
-        login_required(AddPart.as_view()),
-        name='add_part'),
     url(r'(?P<mode>(back_office|dc))/edit/device/(?P<asset_id>[0-9]+)/$',
         login_required(EditDevice.as_view()),
         name='device_edit'),
-    url(r'(?P<mode>(back_office|dc))/edit/part/(?P<part_id>[0-9]+)/$',
-        login_required(EditPart.as_view()),
-        name='part_edit'),
+    url(r'(?P<mode>(dc))/edit_location_data/$',
+        login_required(ChassisBulkEdit.as_view()),
+        name='edit_location_data'),
     url(r'ajax/dependencies/category/$',
         CategoryDependencyView.as_view(),
         name='category_dependency_view'),
@@ -198,6 +188,11 @@ urlpatterns = patterns(
         name='assets_reports',
     ),
     url(
+        r'reports/(?P<mode>\S+)/(?P<dc>\S+)/(?P<slug>\S+)$',
+        login_required(ReportDetail.as_view()),
+        name='report_detail',
+    ),
+    url(
         r'reports/(?P<mode>\S+)/(?P<slug>\S+)$',
         login_required(ReportDetail.as_view()),
         name='report_detail',
@@ -209,5 +204,9 @@ urlpatterns = patterns(
     url(
         r'^licences/',
         include('ralph_assets.licences.urls', app_name='licences'),
+    ),
+    url(
+        r'^(?P<mode>(back_office|dc))/parts/',
+        include('ralph_assets.parts.urls', app_name='parts'),
     ),
 )
