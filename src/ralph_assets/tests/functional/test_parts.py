@@ -12,8 +12,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from ralph.cmdb.tests.utils import (
-    DeviceEnvironmentFactory,
-    ServiceCatalogFactory,
+    CIRelationFactory,
 )
 from ralph_assets.models_parts import Part
 from ralph_assets.parts.views import (
@@ -43,9 +42,10 @@ FORM_FIELDS = (
 class PartManageViewsTestBase(ClientMixin, TestCase):
 
     def setUp(self):  # noqa
+        service_env_pair = CIRelationFactory()
         self.sample_warehouse = WarehouseFactory()
-        self.sample_service = ServiceCatalogFactory()
-        self.sample_environment = DeviceEnvironmentFactory()
+        self.sample_service = service_env_pair.parent
+        self.sample_environment = service_env_pair.child
         self.sample_part_model = PartModelFactory()
         self.sample_part_1 = PartFactory()
         self.sample_part_2 = PartFactory()
@@ -148,12 +148,14 @@ class TestAddPartView(PartManageViewsTestBase):
         response = self._make_request(sample_data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context['form'].errors), 1)
+        part_url = reverse('part_edit', args=('dc', self.sample_part_1.id))
         self.assertFormError(
             response,
             'form',
             'sn',
             'Following items already exist: '
-            '<a href="/assets/dc/edit/part/{0}/">{0}</a>'.format(
+            '<a href="{0}">{1}</a>'.format(
+                part_url,
                 self.sample_part_1.id,
             )
         )
@@ -235,7 +237,7 @@ class TestChangePartsView(ClientMixin, TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.asset = AssetFactory()
+        cls.asset = DCAssetFactory()
         cls.user = AdminFactory()
 
     @classmethod
@@ -260,7 +262,10 @@ class TestChangePartsView(ClientMixin, TestCase):
             'in-MAX_NUM_FORMS': 1000,
         }
         response = self.client.post(url, post_data)
-        expected_url = url + '?in_sn=21%2C31&out_sn=22%2C32'
+        expected_url = (
+            reverse('assign_to_asset', args=('dc', self.asset.id)) +
+            '?in_sn=21%2C31&out_sn=22%2C32'
+        )
         self.assertRedirects(response, expected_url)
 
 
@@ -320,7 +325,7 @@ class TestMovingParts(BaseViewsTest):
         )
 
     def test_detached_part_can_be_edited(self):
-        "Deatached part data was edited excluding order-no field"
+        "Deatached part's data was edited excluding order-no field"
         new_data = PartFactory()
         part = PartFactory()
         free_sn = 'non-existing-new-sn'
@@ -384,6 +389,10 @@ class TestMovingParts(BaseViewsTest):
         )
 
     def test_exchanging_missing_parts_adds_them(self):
+        """
+        Test checks that attached and deatached parts are created when they
+        don't exist during exchange.
+        """
         asset = DCAssetFactory()
         in_sn = generate_sn()
         out_sn = generate_sn()
@@ -398,6 +407,10 @@ class TestMovingParts(BaseViewsTest):
         self.assertEqual(len(Part.objects.all()), 2)
 
     def test_exchanging_existing_parts_uses_them(self):
+        """
+        Test checks that new parts are not created when attaching and detaching
+        existing parts.
+        """
         part_in = PartFactory()
         part_out = PartFactory()
         self.assertEqual(len(Part.objects.all()), 2)
