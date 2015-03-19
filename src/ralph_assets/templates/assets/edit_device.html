@@ -33,7 +33,7 @@
   <div>
     <h5>{% trans "Assigned parts" %}</h5>
 
-    {% if asset.parts %}
+    {% if asset.parts.all %}
     <table class="table table-striped table-bordered">
         <tr>
             <th>{% trans "model" %}</th>
