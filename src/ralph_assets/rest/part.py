@@ -23,4 +23,3 @@ class PartsView(ACLGateway, APIView):
         if sn == '':
             return Response(status=400)
         return Response(PartSerializer(self.get_object(sn)).data)
-

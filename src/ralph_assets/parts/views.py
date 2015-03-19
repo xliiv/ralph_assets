@@ -9,6 +9,7 @@ from urllib import urlencode
 from collections import defaultdict
 
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import IntegrityError, transaction
 from django.forms.formsets import formset_factory
@@ -114,17 +115,16 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         class FromsetWithCustomValidation(FormsetClass):
             def is_valid(self, asset, *args, **kwargs):
                 #TODO:: validate if sns are common in formset
-                return super(FromsetWithCustomValidation, self).is_valid(*args, **kwargs)
+                return super(FromsetWithCustomValidation, self).is_valid(
+                    *args, **kwargs
+                )
 
-        #TODO:: clean it
-        from django.core.exceptions import ValidationError
         try:
             formset = FromsetWithCustomValidation(
                 self.request.POST or None, queryset=queryset, prefix=prefix
             )
         except ValidationError:
             data = {
-                #TODO:: explain it
                 '{}-TOTAL_FORMS'.format(prefix): u'0',
                 '{}-INITIAL_FORMS'.format(prefix): u'0',
                 '{}-MAX_NUM_FORMS'.format(prefix): u'0',
@@ -144,7 +144,9 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         parts = []
         for sn in sns:
             data = dict(
-                asset_type=self.asset.type, sn=sn, order_no=self.asset.order_no,
+                asset_type=self.asset.type,
+                sn=sn,
+                order_no=self.asset.order_no,
             )
             if part_type == 'attach':
                 data.update({
@@ -209,16 +211,20 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         )
         try:
             Part.objects.bulk_create(detach_parts + attach_parts)
-        except IntegrityError as e:
+        except IntegrityError:
             messages.info(self.request, _(BULK_CREATE_ERROR_MSG))
             return HttpResponseRedirect(reverse(
                 'part_search', kwargs={'mode': self.mode},
             ))
 
         detach_parts = Part.objects.filter(sn__in=detach_sns)
-        kwargs['detach_formset'] = self.get_formset('detach', queryset=detach_parts)
+        kwargs['detach_formset'] = self.get_formset(
+            'detach', queryset=detach_parts,
+        )
         attach_parts = Part.objects.filter(sn__in=attach_sns)
-        kwargs['attach_formset'] = self.get_formset('attach', queryset=attach_parts)
+        kwargs['attach_formset'] = self.get_formset(
+            'attach', queryset=attach_parts,
+        )
         #TODO:: validate this
         #is_valid = (
         #    kwargs['detach_formset'].is_valid(self.asset) and
@@ -233,8 +239,14 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         detach_formset = self.get_formset('detach')
         attach_formset = self.get_formset('attach')
 
-        attach_sns = {form['sn'].value() for form in attach_formset.forms if form['sn'].value()}
-        detach_sns = {form['sn'].value() for form in detach_formset.forms if form['sn'].value()}
+        attach_sns = {
+            form['sn'].value() for form in attach_formset.forms
+            if form['sn'].value()
+        }
+        detach_sns = {
+            form['sn'].value() for form in detach_formset.forms
+            if form['sn'].value()
+        }
         common_sns = set(detach_sns).intersection(set(attach_sns))
         if common_sns:
             messages.error(self.request, _(COMMON_SNS_BETWEEN_FORMSETS_MSG))
@@ -250,9 +262,13 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
             attach_formset.is_valid(self.asset)
         ):
             self.move_parts(self.asset, attach_formset, detach_formset)
-            msg = 'Successfully detached {} parts'.format(len(detach_formset.forms))
+            msg = 'Successfully detached {} parts'.format(
+                len(detach_formset.forms)
+            )
             messages.info(self.request, _(msg))
-            msg = 'Successfully attached {} parts'.format(len(attach_formset.forms))
+            msg = 'Successfully attached {} parts'.format(
+                len(attach_formset.forms)
+            )
             messages.info(self.request, _(msg))
             return HttpResponseRedirect(reverse(
                 'device_edit', args=(self.mode, self.asset.id),

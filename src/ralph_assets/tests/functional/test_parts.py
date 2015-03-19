@@ -409,16 +409,19 @@ class TestMovingParts(BaseViewsTest):
         full_form_url = '{}?{}'.format(form_url, request_query)
         response = self.client.get(full_form_url, follow=True)
         self.assertEqual(len(Part.objects.all()), 2)
+        context = response.context
         self.assertEqual(
-            response.context['params']['detach_formset'].forms[0]['id'].value(),
+            context['params']['detach_formset'].forms[0]['id'].value(),
             part_out.id,
         )
         self.assertEqual(
-            response.context['params']['attach_formset'].forms[0]['id'].value(),
+            context['params']['attach_formset'].forms[0]['id'].value(),
             part_in.id,
         )
 
-    @mock.patch('ralph_assets.parts.views.AssignToAssetView._find_non_existing')
+    @mock.patch(
+        'ralph_assets.parts.views.AssignToAssetView._find_non_existing',
+    )
     def test_show_message_on_failed_adding(self, mocked_method):
         asset = DCAssetFactory()
         part_in = PartFactory()
