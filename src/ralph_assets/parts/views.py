@@ -40,6 +40,10 @@ class ChangePartsView(SubmoduleModeMixin, AssetsBase):
     prefixes = ['in', 'out']
     form_values = ['sn']
 
+    def dispatch(self, *args, **kwargs):
+        self.asset = get_object_or_404(Asset, pk=kwargs.get('asset_id'))
+        return super(ChangePartsView, self).dispatch(*args, **kwargs)
+
     def _to_url_params(self, formsets):
         # TODO: please, make me less complex and more beautiful
         params = {}
@@ -68,6 +72,7 @@ class ChangePartsView(SubmoduleModeMixin, AssetsBase):
         return formsets
 
     def get(self, request, *args, **kwargs):
+        kwargs.update({'asset': self.asset})
         kwargs.update(self.get_formsets())
         return super(ChangePartsView, self).get(request, *args, **kwargs)
 
@@ -250,7 +255,7 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
             msg = 'Successfully attached {} parts'.format(len(attach_formset.forms))
             messages.info(self.request, _(msg))
             return HttpResponseRedirect(reverse(
-                'part_search', kwargs={'mode': self.mode},
+                'device_edit', args=(self.mode, self.asset.id),
             ))
         else:
             kwargs['detach_formset'] = detach_formset

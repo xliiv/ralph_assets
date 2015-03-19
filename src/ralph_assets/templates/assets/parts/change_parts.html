@@ -9,8 +9,19 @@
 
 {% block content %}
 
-	{% if get_data %}<pre>GET: {{ get_data }}</pre>{% endif %}
-	{% if post_data %}<pre>POST: {{ post_data }}</pre>{% endif %}
+    <div class="row-fluid page-header">
+        <h1>
+            Parts flow <small>selecting serial numbers</small>
+        </h1>
+    </div>
+
+    <div class='row-fluid'>
+        <p class='lead'>
+            Enter serial numbers of parts which you want to attach or detach
+            from asset:<br>
+            <a href='{{params.asset.url}}'>{{params.asset}}</a>
+        </p>
+    </div>
 
 	<form method="POST" class="row-fluid" class="formset">
 		{% csrf_token %}
@@ -18,7 +29,7 @@
 			<div class="row-fluid">
 				<div class="span6">
 					<div class="well fieldset in-formset">
-						<h6>In</h6>
+						<h6>Attaching parts to asset</h6>
 						{{ params.in_formset.management_form }}
 						<table class="table table-striped table-condensed">
 							{% for form in params.in_formset %}
@@ -33,7 +44,7 @@
 				</div>
 				<div class="span6">
 					<div class="well fieldset out-formset">
-						<h6>Out</h6>
+						<h6>Detaching parts from asset</h6>
 						{{ params.out_formset.management_form }}
 						<table class="table table-striped table-condensed">
 							{% for form in params.out_formset %}

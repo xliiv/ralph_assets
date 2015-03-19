@@ -113,7 +113,7 @@ $(document).ready(function () {
 							self.set_row_class($input, 'error');
 							break;
 						case 404:
-							$target.html('The part with this SN doesn\'t exist.');
+							$target.html('The part with this SN will be created.');
 							self.set_row_class($input, 'warning');
 							break;
 					}
