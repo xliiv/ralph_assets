@@ -6,13 +6,15 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from factory import (
-    fuzzy,
-    lazy_attribute,
     Sequence,
     SubFactory,
+    fuzzy,
+    lazy_attribute,
+    post_generation,
 )
 from factory.django import DjangoModelFactory
 from ralph.cmdb.tests.utils import (
+    CIRelationFactory,
     DeviceEnvironmentFactory,
     ServiceCatalogFactory,
 )
@@ -48,3 +50,16 @@ class PartFactory(DjangoModelFactory):
     @lazy_attribute
     def sn(self):
         return generate_sn()
+
+    @post_generation
+    def device_environment(self, create, extracted, **kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if extracted:
+            self.device_environment = extracted
+        else:
+            if self.service:
+                ci_relation = CIRelationFactory(parent=self.service)
+                self.part_environment = ci_relation.child

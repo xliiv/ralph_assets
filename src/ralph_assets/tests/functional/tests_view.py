@@ -2505,7 +2505,7 @@ class TestChangePartsView(ClientMixin, TestCase):
 
     def test_redirect(self):
         url = reverse(
-            'change_parts', kwargs={'asset_id': self.asset.id}
+            'change_parts', kwargs={'mode': 'dc', 'asset_id': self.asset.id}
         )
         post_data = {
             'in-0-sn': '21',
