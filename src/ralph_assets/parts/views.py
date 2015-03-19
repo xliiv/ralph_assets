@@ -111,25 +111,18 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         if prefix == 'detach':
             form = DetachForm
         FormsetClass = modelformset_factory(Part, form=form, extra=0)
-
-        class FromsetWithCustomValidation(FormsetClass):
-            def is_valid(self, asset, *args, **kwargs):
-                #TODO:: validate if sns are common in formset
-                return super(FromsetWithCustomValidation, self).is_valid(
-                    *args, **kwargs
-                )
-
         try:
-            formset = FromsetWithCustomValidation(
+            formset = FormsetClass(
                 self.request.POST or None, queryset=queryset, prefix=prefix
             )
         except ValidationError:
+            # make formset optional on view
             data = {
                 '{}-TOTAL_FORMS'.format(prefix): u'0',
                 '{}-INITIAL_FORMS'.format(prefix): u'0',
                 '{}-MAX_NUM_FORMS'.format(prefix): u'0',
             }
-            formset = FromsetWithCustomValidation(data, prefix=prefix)
+            formset = FormsetClass(data, prefix=prefix)
         return formset
 
     def _find_non_existing(self, sns):
@@ -225,14 +218,6 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
         kwargs['attach_formset'] = self.get_formset(
             'attach', queryset=attach_parts,
         )
-        #TODO:: validate this
-        #is_valid = (
-        #    kwargs['detach_formset'].is_valid(self.asset) and
-        #    kwargs['attach_formset'].is_valid(self.asset)
-        #)
-        #if not is_valid:
-        #    msg = 'Some of selected parts are not from edited asset'
-        #    messages.warning(request, _(msg))
         return super(AssignToAssetView, self).get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -257,10 +242,7 @@ class AssignToAssetView(SubmoduleModeMixin, AssetsBase):
                 })
             )
 
-        if (
-            detach_formset.is_valid(self.asset) and
-            attach_formset.is_valid(self.asset)
-        ):
+        if (detach_formset.is_valid() and attach_formset.is_valid()):
             self.move_parts(self.asset, attach_formset, detach_formset)
             msg = 'Successfully detached {} parts'.format(
                 len(detach_formset.forms)
