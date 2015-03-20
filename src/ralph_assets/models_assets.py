@@ -11,6 +11,8 @@ from __future__ import unicode_literals
 import datetime
 import logging
 import os
+import re
+from collections import namedtuple
 
 from dateutil.relativedelta import relativedelta
 
@@ -482,6 +484,27 @@ class AssetLastHostname(models.Model):
             return obj
 
 
+class Gap(object):
+    """A placeholder that represents a gap in a blade chassis"""
+
+    id = 0
+    barcode = '-'
+    sn = '-'
+    service = namedtuple('Service', ['name'])('-')
+    model = namedtuple('Model', ['name'])('-')
+    url = ''
+    linked_device = None
+
+    def __init__(self, slot_no):
+        self.slot_no = slot_no
+
+    @property
+    def device_info(self):
+        return namedtuple('DeviceInfo', ['slot_no', 'ralph_device_id'])(
+            self.slot_no, None
+        )
+
+
 class Asset(
     AttachmentMixin,
     Regionalized,
@@ -942,10 +965,39 @@ class Asset(
         return self.type
 
     def get_related_assets(self):
-        return Asset.objects.select_related('device_info', 'model').filter(
-            device_info__position=self.device_info.position,
-            device_info__rack=self.device_info.rack,
-        ).exclude(id=self.id)
+        """Returns the children of a blade chassis"""
+        assets = list(
+            Asset.objects.select_related('device_info', 'model').filter(
+                device_info__position=self.device_info.position,
+                device_info__rack=self.device_info.rack,
+            ).exclude(id=self.id)
+        )
+        if not assets:
+            return []
+
+        assets_slots_on = []
+        for asset in assets:
+            slot_no = re.match('(\d+)', asset.device_info.slot_no)
+            if slot_no:
+                assets_slots_on.append(int(slot_no.group(0)))
+        max_slot_no = max(assets_slots_on) if assets_slots_on else 0
+        if assets[0].device_info.slot_no:
+            ab = assets[0].device_info.slot_no[-1] in {'A', 'B'}
+        else:
+            ab = False
+        slot_nos = {asset.device_info.slot_no for asset in assets}
+
+        def handle_missing(slot_no):
+            if slot_no not in slot_nos:
+                assets.append(Gap(slot_no))
+
+        for slot_no in xrange(1, max_slot_no + 1):
+            if ab:
+                for letter in ['A', 'B']:
+                    handle_missing(str(slot_no) + letter)
+            else:
+                handle_missing(str(slot_no))
+        return assets
 
     def get_orientation_desc(self):
         return self.device_info.get_orientation_desc()
