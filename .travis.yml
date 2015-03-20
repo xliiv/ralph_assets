@@ -13,6 +13,7 @@ python:
   - "2.7"
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install:
+    - pip install https://github.com/chapmanb/python-graph/releases/download/1.8.2/python-graph-core-1.8.2.tar.gz
     - pip install git+https://github.com/zefciu/django-search-forms.git@develop
     - pip install git+https://github.com/quamilek/bob-ajax-selects.git@develop
     - pip install git+https://github.com/allegro/django-bob.git@develop

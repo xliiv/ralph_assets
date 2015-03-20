@@ -7,19 +7,25 @@ from __future__ import unicode_literals
 
 import logging
 
+from collections import defaultdict
+
 from django.contrib import messages
+from django.core.urlresolvers import reverse
 from django.db import transaction
+from django.forms.models import modelformset_factory
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy as _
 
 from ralph_assets.licences.models import Licence
+from ralph_assets.forms import BladeSystemForm, BladeServerForm
 from ralph_assets.models import Asset
-from ralph_assets.models_assets import AssetType
+from ralph_assets.models_assets import AssetType, DeviceInfo
 from ralph_assets.views.base import (
     ActiveSubmoduleByAssetMixin,
     AssetsBase,
     BulkEditBase,
     HardwareModeMixin,
+    SubmoduleModeMixin,
     get_return_link,
 )
 from ralph_assets.views.search import _AssetSearch, AssetSearchDataTable
@@ -168,3 +174,135 @@ class AssetBulkEdit(
             super(AssetBulkEdit, self).get_success_url()
         )
         return success_url
+
+
+class ChassisBulkEdit(SubmoduleModeMixin, HardwareModeMixin, AssetsBase):
+    template_name = 'assets/data_center_location.html'
+    SAME_SLOT_MSG_ERROR = _('Slot number must be unique')
+
+    def get_formset(self):
+        return modelformset_factory(DeviceInfo, form=BladeServerForm, extra=0)
+
+    def get_context_data(self, *args, **kwargs):
+        self.mode = 'dc'
+        context = super(ChassisBulkEdit, self).get_context_data(
+            *args, **kwargs
+        )
+        return context
+
+    def _get_invalid_url(self, selected_ids):
+        asset_search_url = reverse('asset_search', args=(self.mode,))
+        url_query = 'id={}'.format(','.join(selected_ids))
+        invalid_url = '{}?{}'.format(asset_search_url, url_query)
+        return invalid_url
+
+    def get(self, *args, **kwargs):
+        self.selected_servers = self.request.GET.getlist('select')
+        if not self.selected_servers:
+            msg = _("Select at least one asset, please")
+            messages.info(self.request, msg)
+            return HttpResponseRedirect(reverse('dc'))
+
+        non_blades = self._find_non_blades(
+            Asset.objects.filter(pk__in=self.selected_servers)
+        )
+        if non_blades:
+            msg = self._get_non_blade_message(non_blades)
+            messages.error(self.request, msg)
+            return HttpResponseRedirect(
+                self._get_invalid_url(self.selected_servers)
+            )
+        context = self.get_context_data(self, *args, **kwargs)
+        context['chassis_form'] = BladeSystemForm()
+        device_infos = DeviceInfo.objects.filter(
+            asset__id__in=self.selected_servers
+        )
+        context['blade_server_formset'] = self.get_formset()(
+            queryset=device_infos,
+        )
+        return self.render_to_response(context)
+
+    def validate_same_slot(self, formset):
+        """Checks if there was duplicated slot-number among forms."""
+        def find_duplicates(formset):
+            slot_no2form_ids = defaultdict(list)
+            for idx, form in enumerate(formset.forms):
+                slot_no = form.cleaned_data['slot_no']
+                slot_no2form_ids[slot_no].append(idx)
+            return slot_no2form_ids
+
+        found_duplicates = find_duplicates(formset)
+        is_valid = True
+        for duplicates in found_duplicates.values():
+            # add error msg to all slot-numbers in formset which are
+            # duplicated
+            if len(duplicates) > 1:
+                for form_idx in duplicates:
+                    is_valid = False
+                    formset.forms[form_idx].errors['slot_no'] = (
+                        self.SAME_SLOT_MSG_ERROR
+                    )
+        return is_valid
+
+    def _find_non_blades(self, assets):
+        non_blades = []
+        for asset in assets:
+            is_blade = (
+                asset.model and
+                asset.model.category and
+                asset.model.category.is_blade
+            )
+            if not is_blade:
+                non_blades.append(asset)
+        return non_blades
+
+    def _get_non_blade_message(self, non_blades):
+        msg = _(
+            "Assets with these sns are not blade server: {}".format(
+                ', '.join([asset.sn or '' for asset in non_blades])
+            )
+        )
+        return msg
+
+    def post(self, request, *args, **kwargs):
+        chassis_form = BladeSystemForm(request.POST)
+        blade_server_formset = self.get_formset()(request.POST)
+        non_blades = self._find_non_blades([
+            form.instance.asset for form in blade_server_formset.forms
+        ])
+        if non_blades:
+            msg = self._get_non_blade_message(non_blades)
+            messages.error(self.request, msg)
+            selected_ids = [
+                form['id'].value() for form in blade_server_formset.forms
+            ]
+            return HttpResponseRedirect(self._get_invalid_url(selected_ids))
+
+        all_data_valid = (
+            chassis_form.is_valid() and
+            blade_server_formset.is_valid() and
+            self.validate_same_slot(blade_server_formset)
+        )
+        if all_data_valid:
+            for form in blade_server_formset.forms:
+                form.save(commit=False)
+                for field in BladeSystemForm.Meta.fields:
+                    setattr(
+                        form.instance, field, chassis_form.cleaned_data[field]
+                    )
+                form.instance.save()
+
+            msg = _(
+                "Successfully changed location data for {} assets".format(
+                    len(blade_server_formset.forms)
+                )
+            )
+            messages.info(self.request, msg)
+            return HttpResponseRedirect(
+                reverse('asset_search', args=(self.mode,))
+            )
+        else:
+            context = self.get_context_data(**kwargs)
+            context['chassis_form'] = chassis_form
+            context['blade_server_formset'] = blade_server_formset
+            return self.render_to_response(context)

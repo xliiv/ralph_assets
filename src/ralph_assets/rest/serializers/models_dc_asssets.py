@@ -65,7 +65,10 @@ class AssetSerializer(CoreDeviceMixin, serializers.ModelSerializer):
     url = serializers.CharField(source='url')
     core_url = serializers.SerializerMethodField('get_core_url')
     position = serializers.IntegerField(source='device_info.position')
-    children = RelatedAssetSerializer(source='get_related_assets')
+    children = RelatedAssetSerializer(
+        source='get_related_assets',
+        many=True,
+    )
     _type = serializers.SerializerMethodField('get_type')
     hostname = serializers.SerializerMethodField('get_hostname')
     management_ip = serializers.SerializerMethodField('get_management')
