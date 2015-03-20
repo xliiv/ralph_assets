@@ -52,7 +52,7 @@ class PartFactory(DjangoModelFactory):
         return generate_sn()
 
     @post_generation
-    def device_environment(self, create, extracted, **kwargs):
+    def part_environment(self, create, extracted, **kwargs):
         if not create:
             # Simple build, do nothing.
             return
