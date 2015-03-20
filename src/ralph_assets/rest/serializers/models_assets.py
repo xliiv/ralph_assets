@@ -15,6 +15,18 @@ from ralph_assets.models_assets import Asset
 TYPE_ASSET = 'asset'
 
 
+class AdminMixin(serializers.ModelSerializer):
+    """
+    A field that returns object's admin url
+    """
+
+    def admin_link(self, obj):
+        return reverse('admin:{app_label}_{module_name}_change'.format(
+            app_label=obj._meta.app_label,
+            module_name=obj._meta.module_name,
+        ), args=(obj.id,))
+
+
 class CoreDeviceMixin(object):
     def get_core_url(self, obj):
         """
