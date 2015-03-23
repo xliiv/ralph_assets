@@ -24,7 +24,7 @@ from ralph_assets.tests.utils.assets import (
     AssetType,
     DCAssetFactory,
     WarehouseFactory,
-    generate_sn,
+    unique_str,
 )
 from ralph_assets.tests.utils.parts import (
     PartFactory,
@@ -393,8 +393,8 @@ class TestMovingParts(BaseViewsTest):
         don't exist during exchange.
         """
         asset = DCAssetFactory()
-        in_sn = generate_sn()
-        out_sn = generate_sn()
+        in_sn = unique_str()
+        out_sn = unique_str()
         self.assertEqual(len(Part.objects.all()), 0)
         form_url = reverse('assign_to_asset', args=('dc', asset.id))
         request_query = urlencode({
