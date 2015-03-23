@@ -5,6 +5,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import unittest
+
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from ralph.account.models import Region
@@ -167,6 +169,7 @@ class TestValidations(TestCase):
         msg = SCREEN_ERROR_MESSAGES['duplicated_sn_or_bc']
         self.assertTrue(msg in response.content)
 
+    @unittest.skip("deprecated, use new parts feature please")
     def test_add_part(self):
         """
         1. Add part

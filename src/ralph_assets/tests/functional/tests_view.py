@@ -99,7 +99,7 @@ def get_asset_data():
         'budget_info': BudgetInfoFactory().id,
         'delivery_date': datetime.date(2013, 1, 7),
         'deprecation_end_date': datetime.date(2013, 7, 25),
-        'deprecation_rate': '77.00',
+        'deprecation_rate': Decimal('77.00'),
         'device_environment': ci_relation.child.id,
         'invoice_date': datetime.date(2009, 2, 23),
         'invoice_no': 'Invoice no #3',
@@ -140,12 +140,14 @@ def check_fields(testcase, correct_data, object_to_check):
             object_value = object_value.id
         except AttributeError:
             pass
-        object_value, expected = (
-            unicode(object_value), unicode(expected)
-        )
+        if not isinstance(object_value, Decimal):
+            object_value, expected = (
+                unicode(object_value), unicode(expected)
+            )
         msg = 'Object prop. "{}" is "{}" instead of "{}"'.format(
             prop_name, repr(object_value), repr(expected)
         )
+        print(repr(object_value), repr(expected))
         testcase.assertEqual(object_value, expected, msg)
 
 
