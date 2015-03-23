@@ -9,6 +9,7 @@ import datetime
 
 from dj.choices import Country
 from django.core.exceptions import ValidationError
+from django.core.management import call_command
 from django.test import TestCase
 from django.test.utils import override_settings
 from ralph.account.models import Region
@@ -115,6 +116,7 @@ class TestExportRelations(TestCase):
         )
 
     def test_licences_rows(self):
+        self.maxDiff = None
         self.licence1.assign(self.asset)
         self.licence1.assign(self.user)
         self.licence1.assign(self.owner)
@@ -131,26 +133,26 @@ class TestExportRelations(TestCase):
                     'first_name', 'last_name', 'single_cost',
                 ],
                 [
-                    'niw-666', 'soft-cat1', '10', '1000.00', '2014-04-28',
+                    'niw-666', 'soft-cat1', '10', '1000', '2014-04-28',
                     '666-999-666', '', '', '', '', '', '', '', '', '', '', '',
                     '', '',
                 ],
                 [
-                    'niw-666', 'soft-cat1', '10', '1000.00', '2014-04-28',
+                    'niw-666', 'soft-cat1', '10', '1000', '2014-04-28',
                     '666-999-666', str(self.asset.id), 'br-666', 'niw=666',
                     'user', 'Elmer', 'Stevens', 'owner', 'Eric', 'Brown',
                     'Default region', '', '', '', '', '', '', '', '', '', '',
                     '', '', '',
                 ],
                 [
-                    'niw-666', 'soft-cat1', '10', '1000.00', '2014-04-28',
+                    'niw-666', 'soft-cat1', '10', '1000', '2014-04-28',
                     '666-999-666', '', '', '', '', '', '', '', '', '', '',
-                    'user', 'Elmer', 'Stevens', '100.00',
+                    'user', 'Elmer', 'Stevens', '100',
                 ],
                 [
-                    'niw-666', 'soft-cat1', '10', '1000.00', '2014-04-28',
+                    'niw-666', 'soft-cat1', '10', '1000', '2014-04-28',
                     '666-999-666', '', '', '', '', '', '', '', '', '', '',
-                    'owner', 'Eric', 'Brown', '100.00',
+                    'owner', 'Eric', 'Brown', '100',
                 ],
             ]
         )
@@ -173,21 +175,21 @@ class TestExportRelations(TestCase):
                     'first_name', 'last_name', 'single_cost',
                 ],
                 [
-                    'niw-666', 'soft-cat1', '10', '1000.00', '2014-04-28',
+                    'niw-666', 'soft-cat1', '10', '1000', '2014-04-28',
                     '666-999-666', str(self.asset.id), 'br-666', 'niw=666',
                     'user', 'Elmer', 'Stevens', 'owner', 'Eric', 'Brown',
                     'Default region', '', '', '', '', '', '', '', '', '', '',
                     '', '', '',
                 ],
                 [
-                    'niw-666', 'soft-cat1', '10', '1000.00', '2014-04-28',
+                    'niw-666', 'soft-cat1', '10', '1000', '2014-04-28',
                     '666-999-666', '', '', '', '', '', '', '', '', '', '',
-                    'user', 'Elmer', 'Stevens', '100.00',
+                    'user', 'Elmer', 'Stevens', '100',
                 ],
                 [
-                    'niw-666', 'soft-cat1', '10', '1000.00', '2014-04-28',
+                    'niw-666', 'soft-cat1', '10', '1000', '2014-04-28',
                     '666-999-666', '', '', '', '', '', '', '', '', '', '',
-                    'owner', 'Eric', 'Brown', '100.00',
+                    'owner', 'Eric', 'Brown', '100',
                 ],
             ]
         )
@@ -207,6 +209,10 @@ class TestHostnameGenerator(TestCase):
         cls.cat3 = AssetCategoryFactory()
         cls.asset1 = BOAssetFactory()
         cls.asset2 = BOAssetFactory()
+
+    @classmethod
+    def tearDownClass(cls):
+        call_command('flush', interactive=False, verbosity=0)
 
     def _check_hostname_not_generated(self, asset):
         asset._try_assign_hostname(True)
