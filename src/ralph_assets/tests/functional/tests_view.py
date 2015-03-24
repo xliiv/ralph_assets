@@ -147,7 +147,6 @@ def check_fields(testcase, correct_data, object_to_check):
         msg = 'Object prop. "{}" is "{}" instead of "{}"'.format(
             prop_name, repr(object_value), repr(expected)
         )
-        print(repr(object_value), repr(expected))
         testcase.assertEqual(object_value, expected, msg)
 
 
