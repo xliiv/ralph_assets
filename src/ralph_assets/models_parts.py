@@ -42,9 +42,7 @@ class PartModelType(Choices):
 class PartModel(models.Model):
 
     model_type = models.PositiveSmallIntegerField(choices=PartModelType())
-    name = models.CharField(
-        max_length=150, unique=True,
-    )
+    name = models.CharField(max_length=150, unique=True)
 
     def __unicode__(self):
         return '{} ({})'.format(
