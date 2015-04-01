@@ -8,29 +8,44 @@ Released on TBA
 New features
 ************
 * Added Region feature to assets, liceces and supports.
-* Added location fields to device_info model: data-center, server-room, rack, position, slot, orientation, slot-number.
+* Added location fields to data center asset: data-center, server-room, rack, position, slot, orientation, slot-number.
 * Added data center visualization.
 * Added support for Accessories.
 * Removed Ralph from requirements. Now Ralph requires ralph_assets.
 * Added quantity to assigned licences.
+* Added bulk edition for blade servers.
+* Added redirecting button to return-asset transition from backoffice bulk-edit and single edit.
+* Added datacenter filter to asset reports.
+
 
 Minor improvements
 ******************
 * Improved history mechanism.
 * Reduced SQL queries about 50% in Licence and Hardware list view,
 * Made AssetModel's Category required.
-* Added purchase_order field to Asset model.
+* Added purchase_order field to Asset.
 * Seperated assets statuses for data center and back office.
 * Added department to DC's search form.
 * Removed office info field from bulk edit.
 * Skip liquidated assets in Scrooge API.
 * API for supports for Scrooge.
 * Renamed rack field to rack_old.
+* Added new status 'to deploy' for Assets.
+* Changes in form fields:
+    * New fields were added: hostname, service catalog name and management IP address. Now these fields can be displayed on Rack Visualisation view.
+    * Added `Region` to assets bulk edit form & admin form.
+    * Added Licence field to back-office bulkedit.
+* Mobile responsive version for asset editing.
+
 
 Fix
 ***
 * Fixed soft-deleting feature on Licenses and Supports.
 * Sync parent also for blade servers - use slote_no instead position.
+* Fixed counting in 'status - model' report
+* Show ``Full history`` even when the object have empty history.
+* Running post_transition as an non-blocking.
+
 
 
 2.3.0
