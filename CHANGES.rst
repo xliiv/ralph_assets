@@ -1,9 +1,10 @@
 Change Log
 ----------
 
-2.4.0
+2.5.0
 ~~~~~
-Released on TBA
+
+Released on April 13, 2015
 
 New features
 ************
@@ -13,6 +14,10 @@ New features
 * Added support for Accessories.
 * Removed Ralph from requirements. Now Ralph requires ralph_assets.
 * Added quantity to assigned licences.
+* Added bulk edition for blade servers.
+* Added redirecting button to return-asset transition from backoffice bulk-edit and single edit.
+* Added datacenter filter to asset reports.
+
 
 Minor improvements
 ******************
@@ -26,12 +31,22 @@ Minor improvements
 * Skip liquidated assets in Scrooge API.
 * API for supports for Scrooge.
 * Renamed rack field to rack_old.
+* Added new status 'to deploy' for Assets.
+* Changes in form fields:
+    * New fields were added: hostname, service catalog name and management IP address. Now these fields can be displayed on Rack Visualisation view.
+    * Added `Region` to assets bulk edit form & admin form.
+    * Added Licence field to back-office bulkedit.
+* Mobile responsive version for asset editing.
+
 
 Fix
 ***
 * Fixed soft-deleting feature on Licenses and Supports.
 * Sync parent also for blade servers - use slote_no instead position.
-* Fixed counting in 'status - model' report.
+* Fixed counting in 'status - model' report
+* Show ``Full history`` even when the object have empty history.
+* Running post_transition as an non-blocking.
+
 
 
 2.3.0
