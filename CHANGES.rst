@@ -1,6 +1,21 @@
 Change Log
 ----------
 
+2.5.1
+~~~~~
+
+Released on April 23, 2015
+
+New features
+************
+
+* Added versioning to static files
+* Added configuration-url and visualization-url to edit asset view.
+* Small forms improvments. Added help texts to some fields.
+* Changed look and feel for support listing (Djid)
+* Change message in bulk edit location
+
+
 2.5.0
 ~~~~~
 
