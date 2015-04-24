@@ -80,6 +80,10 @@ def get_assets(date):
             ralph_device = device_info.get_ralph_device()
             if ralph_device:
                 hostname = ralph_device.name
+        try:
+            data_center_id = asset.device_info.data_center_id
+        except AttributeError:
+            data_center_id = None
 
         yield {
             'asset_id': asset.id,
@@ -89,7 +93,7 @@ def get_assets(date):
             'environment_id': asset.device_environment_id,
             'sn': asset.sn,
             'barcode': asset.barcode,
-            'warehouse_id': asset.warehouse_id,
+            'warehouse_id': data_center_id,
             'cores_count': asset.cores_count,
             'power_consumption': asset.model.power_consumption,
             'collocation': asset.model.height_of_device,
