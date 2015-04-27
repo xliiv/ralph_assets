@@ -108,6 +108,11 @@ class AssetBulkEdit(
     def get_object_class(self):
         return self.model
 
+    def get_context_data(self, *args, **kwargs):
+        data = super(AssetBulkEdit, self).get_context_data(*args, **kwargs)
+        data['assets'] = self.get_queryset()
+        return data
+
     def initial_forms(self, formset, queryset):
         for idx, asset in enumerate(queryset):
             if asset.office_info:

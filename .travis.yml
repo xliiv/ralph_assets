@@ -28,7 +28,7 @@ before_install:
     - pip install flake8 --use-mirrors
     - make flake
 before_script:
-  mysql -e 'CREATE DATABASE ralph CHARACTER SET utf8 COLLATE utf8_general_ci;'
+  mysql -e 'CREATE DATABASE ralph CHARACTER SET utf8 COLLATE utf8_general_ci;' -uroot
 script:
   make test-with-coveralls
 after_success:

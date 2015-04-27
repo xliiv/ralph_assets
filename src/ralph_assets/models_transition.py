@@ -12,6 +12,7 @@ import logging
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 from django.db import models
+from django.db.models import Q
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from lck.django.common.models import (
@@ -63,6 +64,29 @@ class Transition(Named, TimeTrackable, WithConcurrentGetOrCreate):
         return ReportOdtSourceLanguage.objects.filter(
             report_odt_source__slug=self.slug
         )
+
+    @classmethod
+    def get_common_transitions_for_assets(cls, assets):
+        """Returns all transitions that are possible for assets.
+        """
+        if not assets:
+            return []
+
+        all_trans = set(cls.objects.all())
+        for asset in assets:
+            all_trans &= set(cls.get_for_asset(asset))
+        return all_trans
+
+    @classmethod
+    def get_for_asset(cls, asset):
+        """Returns transition for asset.
+        """
+        if asset.status:
+            return cls.objects.filter(
+                Q(from_status__isnull=True) | Q(from_status=asset.status)
+            )
+        else:
+            return []
 
 
 class TransitionsHistory(TimeTrackable, WithConcurrentGetOrCreate):
