@@ -1,6 +1,12 @@
 Change Log
 ----------
 
+DEV
+~~~
+
+* [scrooge-api]: changed warehouse source from warehouse to datacenter
+
+
 2.5.0
 ~~~~~
 

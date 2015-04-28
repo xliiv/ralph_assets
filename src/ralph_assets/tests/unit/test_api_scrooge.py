@@ -77,6 +77,10 @@ class TestApiScrooge(TestCase):
         ])
 
     def _compare_asset(self, asset, api_result, date, name):
+        try:
+            data_center_id = asset.device_info.data_center_id
+        except AttributeError:
+            data_center_id = None
         self.assertEquals(api_result, {
             'asset_id': asset.id,
             'device_id': asset.device_info.ralph_device_id,
@@ -85,7 +89,7 @@ class TestApiScrooge(TestCase):
             'environment_id': asset.device_environment_id,
             'sn': asset.sn,
             'barcode': asset.barcode,
-            'warehouse_id': asset.warehouse_id,
+            'warehouse_id': data_center_id,
             'cores_count': asset.cores_count,
             'power_consumption': asset.model.power_consumption,
             'collocation': asset.model.height_of_device,
