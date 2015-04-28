@@ -300,6 +300,14 @@ define(['jquery'], function ($) {
             detectedChanges = false;
         })
 
+        $('.transition-link').each(function() {
+            $(this).click(function () {
+                $('#transition-type').val($(this).data('transition'));
+                $(this).parents('form').submit();
+            });
+        });
+
+
         window.onbeforeunload = function(e) {
             if(detectedChanges)
                 return 'Detected unsaved changes on form.';
