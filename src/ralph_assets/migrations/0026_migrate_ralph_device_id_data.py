@@ -12,7 +12,6 @@ class Migration(DataMigration):
     def forwards(self, orm):
         for dev in orm['ralph_assets.deviceinfo'].objects.all():
             if dev.ralph_device_id_old:
-                print(dev)
                 try:
                     dev.ralph_device = orm['discovery.device'].objects.get(
                         pk=dev.ralph_device_id_old
@@ -24,7 +23,6 @@ class Migration(DataMigration):
     def backwards(self, orm):
         for dev in orm['ralph_assets.deviceinfo'].objects.all():
             if dev.ralph_device:
-                print(dev)
                 try:
                     dev.ralph_device_id_old = dev.ralph_device.id
                     dev.save()

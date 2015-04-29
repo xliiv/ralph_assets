@@ -56,7 +56,10 @@ class AssetSerializerBase(serializers.ModelSerializer):
         Return the URL to device in core.
         """
         url = None
-        device_core_id = obj.device_info.ralph_device.id
+        try:
+            device_core_id = obj.device_info.ralph_device.id
+        except AttributeError:
+            device_core_id = None
         if device_core_id:
             url = reverse('search', kwargs={
                 'details': 'info', 'device': device_core_id
