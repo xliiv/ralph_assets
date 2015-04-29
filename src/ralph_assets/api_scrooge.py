@@ -11,7 +11,8 @@ from django.db.models import Q
 
 from ralph.util.api import Getter
 from ralph_assets.licences.models import Licence
-from ralph_assets.models_assets import Asset, AssetModel, AssetType, Warehouse
+from ralph_assets.models_assets import Asset, AssetModel, AssetType
+from ralph_assets.models_dc_assets import DataCenter
 from ralph_assets.models_support import Support
 
 logger = logging.getLogger(__name__)
@@ -35,7 +36,7 @@ class DatedGetter(Getter):
 
 def get_warehouses():
     """Yields dicts describing all warehouses"""
-    for warehouse in Warehouse.objects.all():
+    for warehouse in DataCenter.objects.all():
         yield {
             'warehouse_id': warehouse.id,
             'warehouse_name': warehouse.name,
