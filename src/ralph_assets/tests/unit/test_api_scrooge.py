@@ -16,8 +16,8 @@ from ralph_assets import api_scrooge
 from ralph_assets.tests.utils.assets import (
     DCAssetFactory,
     AssetModelFactory,
-    WarehouseFactory,
 )
+from ralph_assets.tests.utils.assets import DataCenterFactory
 from ralph_assets.tests.utils.supports import (
     DCSupportFactory,
     BOSupportFactory,
@@ -29,8 +29,8 @@ class TestApiScrooge(TestCase):
     """Test internal API for Scrooge"""
 
     def test_get_warehouse(self):
-        warehouse1 = WarehouseFactory()
-        warehouse2 = WarehouseFactory()
+        warehouse1 = DataCenterFactory()
+        warehouse2 = DataCenterFactory()
         result = [w for w in api_scrooge.get_warehouses()]
         self.assertEquals(result, [
             {
