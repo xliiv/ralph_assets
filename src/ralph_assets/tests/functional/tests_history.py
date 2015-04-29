@@ -82,7 +82,7 @@ class HistoryAssetsView(TestCase):
         }
         self.dc_asset_params = self.asset_params.copy()
         self.dc_asset_params.update({
-            'ralph_device_id': '',
+            'ralph_device': '',
             'production_year': 2011,
         })
         self.bo_asset_params = self.asset_params.copy()
@@ -208,7 +208,7 @@ class ConnectAssetWithDevice(TestCase):
         device_info_data = get_device_info_dict()
         self.dc_asset_params.update(device_info_data)
         self.dc_asset_params.update({
-            'ralph_device_id': '',
+            'ralph_device': '',
         })
         self.asset = None
 
@@ -222,9 +222,9 @@ class ConnectAssetWithDevice(TestCase):
         request = self.client.post(url, attrs)
         self.assertEqual(request.status_code, 302)
         asset = Asset.objects.get(sn='777-777')
-        self.assertTrue(asset.device_info.ralph_device_id)
-        device = Device.objects.get(id=asset.device_info.ralph_device_id)
-        self.assertEqual(device.id, asset.device_info.ralph_device_id)
+        self.assertTrue(asset.device_info.ralph_device)
+        device = Device.objects.get(id=asset.device_info.ralph_device.id)
+        self.assertEqual(device, asset.device_info.ralph_device)
         self.assertEqual(device.model.name, 'Unknown')
         self.assertEqual(device.sn, '777-777')
         self.assertEqual(device.venture.name, 'Stock')
@@ -240,9 +240,9 @@ class ConnectAssetWithDevice(TestCase):
         request = self.client.post(url, attrs)
         self.assertEqual(request.status_code, 302)
         asset = Asset.objects.get(sn='999-999')
-        self.assertTrue(asset.device_info.ralph_device_id)
-        device = Device.objects.get(id=asset.device_info.ralph_device_id)
-        self.assertEqual(device.id, asset.device_info.ralph_device_id)
+        self.assertTrue(asset.device_info.ralph_device)
+        device = Device.objects.get(id=asset.device_info.ralph_device.id)
+        self.assertEqual(device, asset.device_info.ralph_device)
 
     def test_add_dc_device_asset_without_create_device(self):
         """Test check situation, when link beetwen the asset and the device
@@ -292,7 +292,7 @@ class TestsStockDevice(TestCase):
         device_info = get_device_info_dict()
         self.dc_asset_params.update(device_info)
         self.dc_asset_params.update({
-            'ralph_device_id': '',
+            'ralph_device': '',
             'production_year': 2011,
         })
 
@@ -309,15 +309,15 @@ class TestsStockDevice(TestCase):
         )
         return Device.objects.get(sn='000000001')
 
-    def test_form_with_ralph_device_id(self):
+    def test_form_with_ralph_device(self):
         ralph_device = self.create_device()
         asset_params = self.dc_asset_params
-        asset_params['ralph_device_id'] = ralph_device.id
+        asset_params['ralph_device'] = ralph_device.id
         request = self.client.post('/assets/dc/add/device/', asset_params)
         self.assertEqual(request.status_code, 302)
         asset = Asset.objects.get(sn='fake-sn')
         self.assertNotEqual(asset.sn, ralph_device.sn)
-        self.assertEqual(asset.device_info.ralph_device_id, ralph_device.id)
+        self.assertEqual(asset.device_info.ralph_device, ralph_device)
 
     def test_form_with_sn(self):
         asset_device = self.create_device()
@@ -327,7 +327,7 @@ class TestsStockDevice(TestCase):
         self.assertEqual(request.status_code, 302)
         asset = Asset.objects.get(sn='000000001')
         self.assertEqual(asset.sn, asset_device.sn)
-        self.assertEqual(asset.device_info.ralph_device_id, asset_device.id)
+        self.assertEqual(asset.device_info.ralph_device, asset_device)
 
     def test_create_stock_device(self):
         asset_params = self.dc_asset_params
@@ -336,4 +336,4 @@ class TestsStockDevice(TestCase):
         asset = Asset.objects.get(sn='fake-sn')
         asset_device = Device.objects.get(sn='fake-sn')
         self.assertEqual(asset.sn, asset_device.sn)
-        self.assertEqual(asset.device_info.ralph_device_id, asset_device.id)
+        self.assertEqual(asset.device_info.ralph_device, asset_device)

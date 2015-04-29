@@ -517,7 +517,7 @@ class Gap(object):
     @property
     def device_info(self):
         return namedtuple('DeviceInfo', [
-            'slot_no', 'ralph_device_id', 'get_orientation_desc'
+            'slot_no', 'ralph_device', 'get_orientation_desc'
         ])(
             self.slot_no, None, lambda: self.orientation
         )
@@ -741,9 +741,9 @@ class Asset(
         if settings.SHOW_RALPH_CORES_DIFF:
             device_cores_count = None
             try:
-                if self.device_info and self.device_info.ralph_device_id:
+                if self.device_info and self.device_info.ralph_device.id:
                     device_cores_count = Device.objects.get(
-                        pk=self.device_info.ralph_device_id,
+                        pk=self.device_info.ralph_device.id,
                     ).get_core_count()
             except Device.DoesNotExist:
                 pass
@@ -794,11 +794,11 @@ class Asset(
                     self.generate_hostname(commit, template_vars)
 
     def get_ralph_device(self):
-        if not self.device_info or not self.device_info.ralph_device_id:
+        if not self.device_info or not self.device_info.ralph_device:
             return None
         try:
             return Device.objects.get(
-                pk=self.device_info.ralph_device_id,
+                pk=self.device_info.ralph_device.id,
             )
         except Device.DoesNotExist:
             return None
@@ -830,20 +830,20 @@ class Asset(
             do nothing
         """
         try:
-            ralph_device_id = self.device_info.ralph_device_id
+            ralph_device = self.device_info.ralph_device
         except AttributeError:
             # asset created with 'add part'
             pass
         else:
             if not self.exists:
-                if not ralph_device_id:
+                if not ralph_device:
                     device = self.find_device_to_link()
                     if device:
                         if force_unlink:
                             asset = device.get_asset()
-                            asset.device_info.ralph_device_id = None
+                            asset.device_info.ralph_device = None
                             asset.device_info.save()
-                        self.device_info.ralph_device_id = device.id
+                        self.device_info.ralph_device = device
                         self.device_info.save()
                     else:
                         self.create_stock_device()
@@ -884,7 +884,7 @@ class Asset(
     def create_stock_device(self):
         if not self.type_is_data_center:
             return
-        if not self.device_info.ralph_device_id:
+        if not self.device_info.ralph_device:
             try:
                 venture = Venture.objects.get(name='Stock')
             except Venture.DoesNotExist:
@@ -902,7 +902,7 @@ class Asset(
             device.remarks = self.order_no or ''
             device.dc = getattr(self.warehouse, 'name', '')
             device.save()
-            self.device_info.ralph_device_id = device.id
+            self.device_info.ralph_device = device
             self.device_info.save()
 
     def get_parts_info(self):

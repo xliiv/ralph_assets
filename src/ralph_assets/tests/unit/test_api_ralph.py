@@ -20,7 +20,7 @@ class TestApiRalph(TestCase):
     """Test internal API for Ralph"""
 
     def test_get_asset(self):
-        """Test get asset information by ralph_device_id."""
+        """Test get asset information by ralph_device."""
         support1 = DCSupportFactory()
         support2 = DCSupportFactory()
         category = AssetCategoryFactory()
@@ -29,7 +29,7 @@ class TestApiRalph(TestCase):
             model=model,
             supports=[support1, support2],
         )
-        asset_data = get_asset(asset.device_info.ralph_device_id)
+        asset_data = get_asset(asset.device_info.ralph_device.id)
         self.assertEqual(asset_data['sn'], asset.sn)
         self.assertEqual(asset_data['barcode'], asset.barcode)
         self.assertEqual(asset_data['supports'][0]['name'], support1.name)
@@ -55,7 +55,7 @@ class TestApiRalph(TestCase):
         category = AssetCategoryFactory()
         model = AssetModelFactory(category=category)
         asset = DCAssetFactory(model=model, source=None)
-        asset_data = get_asset(asset.device_info.ralph_device_id)
+        asset_data = get_asset(asset.device_info.ralph_device.id)
         self.assertEqual(asset_data['source'], None)
 
     def test_get_asset_by_sn_or_barcode(self):

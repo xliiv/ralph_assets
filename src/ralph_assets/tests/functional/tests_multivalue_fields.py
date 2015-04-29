@@ -44,7 +44,7 @@ class TestMultivalueFields(TestDevicesView, TestCase):
             model=self.model.id,
             price='10',
             production_year=2011,
-            ralph_device_id='',
+            ralph_device='',
             region=Region.get_default_region().id,
             service=ci_relation.parent.id,
             size=1,
@@ -188,7 +188,7 @@ class TestMultivalueFields(TestDevicesView, TestCase):
                     sn='serialnumber13',
                     barcode='barcode1',
                     remarks='asset12',
-                    ralph_device_id='',
+                    ralph_device='',
                     size=1,
                 )
                 post = self.client.post(self.addform, duplicate)

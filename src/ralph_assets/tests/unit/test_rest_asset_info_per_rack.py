@@ -43,13 +43,13 @@ class TestRestAssetInfoPerRack(TestCase):
         self.asset_1 = AssetFactory(
             device_info__position=1,
             device_info__slot_no='',
-            device_info__ralph_device_id=self.dev_1.id,
+            device_info__ralph_device=self.dev_1,
             service=ServiceCatalogFactory(name='Alpha Service'),
         )
         self.asset_2 = AssetFactory(
             device_info__position=2,
             device_info__slot_no='',
-            device_info__ralph_device_id=self.dev_2.id,
+            device_info__ralph_device=self.dev_2,
             service=ServiceCatalogFactory(name='Beta Service'),
         )
         asset_3 = AssetFactory()
@@ -112,7 +112,7 @@ class TestRestAssetInfoPerRack(TestCase):
                     'hostname': self.dev_1.name,
                     'url': '{}'.format(self.asset_1.get_absolute_url()),
                     'core_url': core_url.format(
-                        self.asset_1.device_info.ralph_device_id),
+                        self.asset_1.device_info.ralph_device.id),
                     'category': '{}'.format(self.asset_1.model.category),
                     'barcode': self.asset_1.barcode,
                     'sn': '{}'.format(self.asset_1.sn),
@@ -132,7 +132,7 @@ class TestRestAssetInfoPerRack(TestCase):
                     'hostname': self.dev_2.name,
                     'url': '{}'.format(self.asset_2.get_absolute_url()),
                     'core_url': core_url.format(
-                        self.asset_2.device_info.ralph_device_id),
+                        self.asset_2.device_info.ralph_device.id),
                     'category': '{}'.format(self.asset_2.model.category),
                     'barcode': self.asset_2.barcode,
                     'sn': '{}'.format(self.asset_2.sn),

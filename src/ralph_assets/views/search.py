@@ -65,7 +65,7 @@ class AssetsSearchQueryableMixin(object):
             'profit_center',
             'provider',
             'purpose',
-            'ralph_device_id',
+            'ralph_device',
             'region',
             'remarks',
             'required_support',
@@ -230,13 +230,15 @@ class AssetsSearchQueryableMixin(object):
                     all_q &= deprecation_rate_query_map[field_value]
                 elif field == 'unlinked' and field_value.lower() == 'on':
                         all_q &= ~Q(device_info=None)
-                        all_q &= Q(device_info__ralph_device_id=None)
-                elif field == 'ralph_device_id':
+                        all_q &= Q(device_info__ralph_device=None)
+                elif field == 'ralph_device':
                     if exact:
-                        all_q &= Q(device_info__ralph_device_id=field_value)
+                        all_q &= Q(device_info__ralph_device__id=field_value)
                     else:
                         all_q &= Q(
-                            device_info__ralph_device_id__icontains=field_value
+                            device_info__ralph_device__id__icontains=(
+                                field_value
+                            )
                         )
                 elif field == 'task_url':
                     if exact:
@@ -318,7 +320,7 @@ class AssetsSearchQueryableMixin(object):
                     ).filter(
                         venture__department__id=int(field_value)
                     ).values_list('id', flat=True)
-                    all_q &= Q(device_info__ralph_device_id__in=devices)
+                    all_q &= Q(device_info__ralph_device__id__in=devices)
                 else:
                     q = Q(**{field: field_value})
                     all_q = all_q & q
@@ -537,7 +539,7 @@ class AssetSearchDataTable(_AssetSearch, DataTableMixin):
             _('Inventory number', field='niw', foreign_field_name='',
               export=True),
             _('Ralph ID', field='device_info',
-              foreign_field_name='ralph_device_id', export=True),
+              foreign_field_name='ralph_device', export=True),
             _('Type', field='type', export=True),
             _('Deprecation rate', field='deprecation_rate',
               foreign_field_name='', export=True),
@@ -693,7 +695,7 @@ class AssetSearchDataTable(_AssetSearch, DataTableMixin):
                 ),
                 _(
                     'Ralph device id',
-                    field='ralph_device_id',
+                    field='ralph_device',
                     foreign_field_name='device_info',
                     export=True,
                 ),

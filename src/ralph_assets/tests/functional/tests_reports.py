@@ -136,7 +136,7 @@ class TestReportLinked(TestCase):
                 sn=asset.sn,
                 barcode=asset.barcode
             )
-            asset.device_info.ralph_device_id = device.id
+            asset.device_info.ralph_device.id = device.id
             asset.device_info.save()
 
         report = LinkedDevicesReport()
@@ -150,7 +150,7 @@ class TestReportLinked(TestCase):
                 sn=asset.sn,
                 barcode=asset.barcode
             )
-            asset.device_info.ralph_device_id = None
+            asset.device_info.ralph_device = None
             asset.device_info.save()
 
         report = LinkedDevicesReport()

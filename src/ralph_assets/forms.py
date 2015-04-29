@@ -117,7 +117,7 @@ def asset_search_back_office_fieldsets():
                 'order_no', 'budget_info',
             ],
             'collapsed': [
-                'provider', 'source', 'ralph_device_id', 'request_date_from',
+                'provider', 'source', 'ralph_device', 'request_date_from',
                 'request_date_to', 'provider_order_date_from',
                 'provider_order_date_to', 'delivery_date_from',
                 'delivery_date_to', 'deprecation_rate',
@@ -154,7 +154,7 @@ def asset_search_dc_fieldsets():
                 'order_no', 'budget_info',
             ],
             'collapsed': [
-                'provider', 'source', 'ralph_device_id', 'request_date_from',
+                'provider', 'source', 'ralph_device', 'request_date_from',
                 'request_date_to', 'provider_order_date_from',
                 'provider_order_date_to', 'delivery_date_from',
                 'delivery_date_to', 'deprecation_rate',
@@ -564,7 +564,7 @@ class DeviceForm(ModelForm):
             'orientation',
             'position',
             'slot_no',
-            'ralph_device_id',
+            'ralph_device',
         )
 
     force_unlink = BooleanField(required=False, label=_('Force unlink'))
@@ -572,7 +572,11 @@ class DeviceForm(ModelForm):
         required=False,
         label=_('Create stock device'),
     )
-
+    ralph_device = ModelChoiceField(
+        queryset=models_device.Device.objects.all(),
+        empty_label='----',
+        required=False,
+    )
     data_center = ModelChoiceField(
         label=_('data center'),
         queryset=DataCenter.objects.all(),
@@ -602,7 +606,7 @@ class DeviceForm(ModelForm):
         exclude = kwargs.pop('exclude', None)
         super(DeviceForm, self).__init__(*args, **kwargs)
 
-        self.fields['ralph_device_id'] = AutoCompleteSelectField(
+        self.fields['ralph_device'] = AutoCompleteSelectField(
             LOOKUPS['ralph_device'],
             required=False,
             help_text=_('Enter ralph id, barcode, sn, or model.'),
@@ -610,13 +614,20 @@ class DeviceForm(ModelForm):
         if exclude == 'create_stock':
             del self.fields['create_stock']
 
-    def clean_ralph_device_id(self):
-        return self.data['ralph_device_id'] or None
+    def clean_ralph_device(self):
+        if self.data['ralph_device']:
+            try:
+                return models_device.Device.objects.get(
+                    id=self.data['ralph_device']
+                )
+            except models_device.Device.DoesNotExist:
+                pass
+        return None
 
     def clean_create_stock(self):
         create_stock = self.cleaned_data.get('create_stock', False)
         if create_stock:
-            if not self.cleaned_data.get('ralph_device_id'):
+            if not self.cleaned_data.get('ralph_device'):
                 return create_stock
             else:
                 raise ValidationError(
@@ -627,28 +638,31 @@ class DeviceForm(ModelForm):
 
     def clean(self):
         """Check if device selected in this form (represented by
-        'ralph_device_id') is already assigned/linked to another asset.
+        'ralph_device') is already assigned/linked to another asset.
         If yes, the 'force_unlink' box should be ticked (causing that other
         asset to unlink) , otherwise an error should be reported.
         Obviously, the case when a given device is already assigned/linked
         to the asset being actually edited should be excluded - hence
-        "int(ralph_device_id) != instance_ralph_device_id".
+        "ralph_device != instance_ralph_device".
         """
-        ralph_device_id = self.cleaned_data.get('ralph_device_id')
+        ralph_device = self.cleaned_data.get('ralph_device')
         force_unlink = self.cleaned_data.get('force_unlink')
-        instance_ralph_device_id = getattr(self.instance, 'ralph_device_id',
-                                           None)
-        if (ralph_device_id and
-                int(ralph_device_id) != instance_ralph_device_id):
+        instance_ralph_device = getattr(
+            self.instance,
+            'ralph_device',
+            None
+        )
+
+        if (ralph_device and ralph_device != instance_ralph_device):
             try:
                 asset = Asset.objects_dc.get(
-                    device_info__ralph_device_id=ralph_device_id
+                    device_info__ralph_device=ralph_device
                 )
             except Asset.DoesNotExist:
                 pass
             else:
                 if force_unlink:
-                    asset.device_info.ralph_device_id = None
+                    asset.device_info.ralph_device = None
                     asset.device_info.save()
                 else:
                     linked_asset_url = reverse(
@@ -661,7 +675,7 @@ class DeviceForm(ModelForm):
                         'Please tick "Force unlink" checkbox if you want '
                         'to unlink it.'
                     )
-                    self._errors["ralph_device_id"] = self.error_class([
+                    self._errors["ralph_device"] = self.error_class([
                         mark_safe(msg.format(escape(linked_asset_url)))
                     ])
         return self.cleaned_data
@@ -1639,9 +1653,10 @@ class SearchAssetForm(Form):
             },
         )
     )
-    ralph_device_id = IntegerField(
+    ralph_device = ModelChoiceField(
+        queryset=models_device.Device.objects.all(),
+        empty_label='----',
         required=False,
-        label=_('Ralph device id'),
     )
     request_date_from = DateField(
         required=False, widget=DateWidget(attrs={

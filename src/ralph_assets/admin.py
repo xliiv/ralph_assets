@@ -184,7 +184,7 @@ class AssetAdmin(ModelAdmin):
     search_fields = (
         'sn',
         'barcode',
-        'device_info__ralph_device_id',
+        'device_info__ralph_device__id',
     )
     list_display = ('sn', 'model', 'type', 'barcode', 'status', 'deleted',)
     list_filter = ('type', AssetRegionFilter)

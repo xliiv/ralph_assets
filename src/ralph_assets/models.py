@@ -112,7 +112,7 @@ class LinkedDeviceNameLookup(DeviceLookup):
         query = Q(
             Q(barcode__icontains=text) |
             Q(sn__icontains=text) |
-            Q(device_info__ralph_device_id__in=matched_devices_ids)
+            Q(device_info__ralph_device__id__in=matched_devices_ids)
         )
         return self.get_base_objects().filter(query).order_by()[:10]
 
@@ -409,8 +409,8 @@ class AssetLookupFuzzy(AssetLookupBase):
         assets = Asset.objects.select_related(
             'model__name',
         ).filter(
-            Q(device_info__ralph_device_id=None) |
-            Q(device_info__ralph_device_id__in=dev_ids),
+            Q(device_info__ralph_device=None) |
+            Q(device_info__ralph_device__id__in=dev_ids),
         ).filter(part_info=None)
 
         def comparator(asset):

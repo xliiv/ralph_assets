@@ -102,7 +102,7 @@ class AssetsBase(ACLGateway, MenuMixin, TemplateView):
         if barcodes:
             found = Device.objects.filter(barcode__in=barcodes).all()
             found = Asset.objects.filter(
-                device_info__ralph_device_id__in=found,
+                device_info__ralph_device__id__in=found,
             ).all()
         else:
             found = []

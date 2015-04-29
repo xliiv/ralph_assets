@@ -12,7 +12,7 @@ from django.db.models.fields.related import RelatedField
 from ralph_assets.history.models import History
 
 
-def field_changes(instance, ignore=('id', 'ralph_device_id')):
+def field_changes(instance, ignore=('id', 'ralph_device')):
     """Yield the name, original value and new value for each changed field.
     Skip all insignificant fields and those passed in ``ignore``.
     When creating asset, the first asset status will be added into the history.

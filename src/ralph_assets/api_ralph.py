@@ -42,7 +42,7 @@ def _create_asset_dict(asset):
     category = asset.model.category.name if asset.model.category else ''
     return {
         'asset_id': asset.id,
-        'device_id': asset.device_info.ralph_device_id,
+        'device_id': asset.device_info.ralph_device.id,
         'model': asset.model.name,
         'manufacturer': manufacturer_name,
         'source': asset_source,
@@ -82,7 +82,7 @@ def _create_asset_dict(asset):
 
 def get_asset(device_id):
     try:
-        asset = Asset.objects.get(device_info__ralph_device_id=device_id)
+        asset = Asset.objects.get(device_info__ralph_device__id=device_id)
     except Asset.DoesNotExist:
         return
     return _create_asset_dict(asset)
@@ -100,10 +100,10 @@ def get_asset_by_sn_or_barcode(identity):
 
 def is_asset_assigned(asset_id, exclude_devices=[]):
     return Asset.objects.exclude(
-        device_info__ralph_device_id__in=exclude_devices,
+        device_info__ralph_device__id__in=exclude_devices,
     ).filter(
         pk=asset_id,
-        device_info__ralph_device_id__gt=0,
+        device_info__ralph_device__id__gt=0,
     ).exists()
 
 
@@ -111,12 +111,12 @@ def is_asset_assigned(asset_id, exclude_devices=[]):
 def assign_asset(device_id, asset_id=None):
     try:
         previous_asset = Asset.objects.get(
-            device_info__ralph_device_id=device_id,
+            device_info__ralph_device__id=device_id,
         )
     except Asset.DoesNotExist:
         pass
     else:
-        previous_asset.device_info.ralph_device_id = None
+        previous_asset.device_info.ralph_device = None
         previous_asset.device_info.save()
         previous_asset.save()
     if asset_id:
@@ -124,7 +124,7 @@ def assign_asset(device_id, asset_id=None):
             new_asset = Asset.objects.get(pk=asset_id)
         except Asset.DoesNotExist:
             return False
-        new_asset.device_info.ralph_device_id = device_id
+        new_asset.device_info.ralph_device.id = device_id
         new_asset.device_info.save()
         new_asset.save()
     return True

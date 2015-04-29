@@ -56,7 +56,7 @@ class TestValidations(TestCase):
     def test_try_send_empty_add_form(self):
         send_post = self.client.post(
             '/assets/back_office/add/device/',
-            {'ralph_device_id': '', 'sn': 'sn'},  # Test hock
+            {'ralph_device': '', 'sn': 'sn'},  # Test hock
         )
         self.assertEqual(send_post.status_code, 200)
 
@@ -68,7 +68,7 @@ class TestValidations(TestCase):
     def test_try_send_empty_edit_form(self):
         send_post = self.client.post(
             reverse('device_edit', args=('dc', self.first_asset.id, )),
-            {'ralph_device_id': ''},  # Test hock
+            {'ralph_device': ''},  # Test hock
         )
         self.assertEqual(send_post.status_code, 200)
 
@@ -83,7 +83,7 @@ class TestValidations(TestCase):
         post_data = {
             'size': 'string',
             'invoice_date': 'string',
-            'ralph_device_id': '',
+            'ralph_device': '',
             'sn': 'string',
         }
         send_post = self.client.post(url, post_data)

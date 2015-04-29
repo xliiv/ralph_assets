@@ -44,14 +44,14 @@ class TestModelAsset(TestCase):
             support_period=1,
             deprecation_rate=100,
         )
-        self.asset.device_info.ralph_device_id = 666
+        self.asset.device_info.ralph_device.id = 666
         self.asset.device_info.save()
         self.asset2 = AssetFactory(
             invoice_date=datetime.date(2012, 11, 28),
             support_period=120,
             deprecation_rate=50,
         )
-        self.asset2.device_info.ralph_device_id = 667
+        self.asset2.device_info.ralph_device.id = 667
         self.asset2.device_info.save()
         self.asset3 = AssetFactory(
             invoice_date=datetime.date(2012, 11, 28),
@@ -263,7 +263,7 @@ class TestApiAssets(TestCase):
         for item in get_assets(date):
             self.assertEqual(item['asset_id'], self.asset.id)
             self.assertEqual(
-                item['ralph_id'], self.asset.device_info.ralph_device_id,
+                item['ralph_id'], self.asset.device_info.ralph_device.id,
             )
             self.assertEqual(item['slots'], self.asset.slots)
             self.assertEqual(item['price'], self.asset.price)

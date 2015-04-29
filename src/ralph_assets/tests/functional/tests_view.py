@@ -408,7 +408,7 @@ class TestDevicesView(BaseViewsTest):
         })
         request_data.update(dict(
             # required, irrelevant data here
-            ralph_device_id='',
+            ralph_device='',
             hostname='',
         ))
         url = reverse('add_device', kwargs={'mode': self.mode})
@@ -464,7 +464,7 @@ class TestDataCenterDevicesView(TestDevicesView, TestRegions, BaseViewsTest):
             'sn': str(uuid.uuid1()),
         })
         device_data = self.device_info.copy()
-        device_data['ralph_device_id'] = ''
+        device_data['ralph_device'] = ''
         request_data = {}
         request_data.update(asset_data)
         request_data.update(device_data)
@@ -483,7 +483,7 @@ class TestDataCenterDevicesView(TestDevicesView, TestRegions, BaseViewsTest):
         asset = models_assets.Asset.objects.filter(pk=asset_id).get()
         del asset_data['asset']
         check_fields(self, asset_data.items(), asset)
-        device_data['ralph_device_id'] = asset_id
+        device_data['ralph_device'] = asset_id
         check_fields(self, device_data.items(), asset.device_info)
 
     def test_edit_device(self):
@@ -503,7 +503,7 @@ class TestDataCenterDevicesView(TestDevicesView, TestRegions, BaseViewsTest):
         edited_data = {}
         edited_data.update(self.new_asset_data)
         edited_data.update(new_device_data)
-        edited_data['ralph_device_id'] = ''
+        edited_data['ralph_device'] = ''
         url = self.edit_obj_url(asset.id)
         response = self.client.post(url, edited_data, follow=True)
         self.assertEqual(response.status_code, 200)
@@ -512,14 +512,14 @@ class TestDataCenterDevicesView(TestDevicesView, TestRegions, BaseViewsTest):
         self._check_asset_supports(asset, supports)
         check_fields(self, self.new_asset_data.items(), asset)
         # disable this check, handling this value is too sophisticated
-        del new_device_data['ralph_device_id']
+        del new_device_data['ralph_device']
         check_fields(self, new_device_data.items(), asset.device_info)
 
     def test_hostname_is_assigned(self):
         extra_data = {
             # required data for this test
             'asset': '',  # required button
-            'ralph_device_id': '',
+            'ralph_device': '',
             'region': Region.get_default_region().id,
             'slot_no': '',
             'status': str(TestHostnameAssigning.trigger_status.id),
@@ -559,7 +559,7 @@ class TestDataCenterDevicesView(TestDevicesView, TestRegions, BaseViewsTest):
             'barcode': ','.join(
                 [unique_str() for i in xrange(2)],
             ),
-            'ralph_device_id': '',
+            'ralph_device': '',
         })
         add_asset_url = reverse(
             'add_device',
@@ -578,7 +578,7 @@ class TestDataCenterDevicesView(TestDevicesView, TestRegions, BaseViewsTest):
         valid_region = self.user.get_profile().get_regions()[0]
         form_data = self.get_asset_form_data()
         form_data.update({
-            'ralph_device_id': '',
+            'ralph_device': '',
             'region': valid_region.id,
         })
         url = self._get_add_url(mode='dc')
@@ -591,7 +591,7 @@ class TestDataCenterDevicesView(TestDevicesView, TestRegions, BaseViewsTest):
         invalid_region = RegionFactory()
         form_data = self.get_asset_form_data({'device_info': None})
         form_data.update({
-            'ralph_device_id': '',
+            'ralph_device': '',
             'region': invalid_region.id,
         })
         url = self._get_add_url(mode='dc')
@@ -1817,7 +1817,7 @@ class TestSyncFieldMixin(TestDevicesView):
         device = self.create_device()
         data.update({
             'device_environment': device_environment.id,
-            'ralph_device_id': device.id,
+            'ralph_device': device.id,
             'region': Region.get_default_region().id,
             'service': service.id,
         })
@@ -1840,10 +1840,10 @@ class TestSyncFieldMixin(TestDevicesView):
         device_environment = ci_relation.child
         service = ci_relation.parent
         asset = DCAssetFactory()
-        asset.device_info.ralph_device_id = None
+        asset.device_info.ralph_device = None
         asset.device_info.save()
 
-        self.assertEqual(asset.device_info.ralph_device_id, None)
+        self.assertEqual(asset.device_info.ralph_device, None)
 
         device = self.create_device()
 
@@ -1854,7 +1854,7 @@ class TestSyncFieldMixin(TestDevicesView):
         data.update({
             'asset': 1,
             'device_environment': device_environment.id,
-            'ralph_device_id': device.id,
+            'ralph_device': device.id,
             'region': Region.get_default_region().id,
             'service': service.id,
         })
@@ -1863,7 +1863,7 @@ class TestSyncFieldMixin(TestDevicesView):
         asset = Asset.objects.all()[0]
         device = Device.objects.get(pk=device.id)
 
-        self.assertEqual(asset.device_info.ralph_device_id, device.id)
+        self.assertEqual(asset.device_info.ralph_device, device)
         self.assertNotEqual(device.service, None)
         self.assertEqual(device.service, asset.service)
         self.assertNotEqual(asset.device_environment, None)
@@ -1927,7 +1927,7 @@ class TestAssetAndDeviceLinkage(TestDevicesView, BaseViewsTest):
     def test_asset_spares_existing_device_fields(self):
         """
         - create ralph-core device *core_device*
-        - add asset with ralph_device_id = core_device.id
+        - add asset with ralph_device = core_device
         - check each field (name, remark, dc) is unchanged
         """
         old_value = {
@@ -1940,7 +1940,7 @@ class TestAssetAndDeviceLinkage(TestDevicesView, BaseViewsTest):
         form_data = self.get_asset_form_data({
             'region': Region.get_default_region(),
         })
-        form_data['ralph_device_id'] = device.id
+        form_data['ralph_device'] = device.id
         self.add_asset_by_form(form_data)
         device = Device.objects.get(pk=device.id)
         self._check_fields(device, old_value)
@@ -1969,7 +1969,7 @@ class TestAssetAndDeviceLinkage(TestDevicesView, BaseViewsTest):
 
     def test_adding_assets_creates_dummy_device(self):
         """
-        - add asset without ralph_device_id
+        - add asset without ralph_device
         - check each field (dc, device_environment, name, remarks, service)
         is copied to dummy device from asset
         """
@@ -1980,7 +1980,7 @@ class TestAssetAndDeviceLinkage(TestDevicesView, BaseViewsTest):
             'remarks': asset.order_no,
         }
         device = Device.objects.get(sn=asset.sn)
-        self.assertEqual(asset.device_info.ralph_device_id, device.id)
+        self.assertEqual(asset.device_info.ralph_device, device)
         self._check_fields(device, correct_value)
 
     def test_editing_assets_creates_dummy_device(self):
@@ -1996,18 +1996,18 @@ class TestAssetAndDeviceLinkage(TestDevicesView, BaseViewsTest):
         """
         asset = DCAssetFactory(device_info=None)
         form_data = self.get_asset_form_data()
-        Device.objects.get(pk=form_data['ralph_device_id']).delete()
+        Device.objects.get(pk=form_data['ralph_device']).delete()
         form_data.update({
             'asset': '',
             'create_stock': 'true',
-            'ralph_device_id': '',
+            'ralph_device': '',
             'region': Region.get_default_region().id,
         })
         edit_url = self._get_edit_url(asset.id, form_data['type'])
         self.client.post(edit_url, form_data, follow=True)
         device = Device.objects.get(sn=asset.sn)
         asset = Asset.objects.get(pk=asset.id)
-        self.assertEqual(asset.device_info.ralph_device_id, device.id)
+        self.assertEqual(asset.device_info.ralph_device, device)
         correct_value = {
             'dc': asset.warehouse.name,
             'name': asset.model.name,
@@ -2019,12 +2019,12 @@ class TestAssetAndDeviceLinkage(TestDevicesView, BaseViewsTest):
         """
         - create device with barcode
         - create asset with barcode == device.barcode by form
-        - check asset.device_info.ralph_device_id = device.id
+        - check asset.device_info.ralph_device = device
         """
         device = DeviceFactory()
         asset = self._get_asset_with_dummy_device({'barcode': device.barcode})
         device = Device.objects.get(barcode=device.barcode)
-        self.assertEqual(asset.device_info.ralph_device_id, device.id)
+        self.assertEqual(asset.device_info.ralph_device, device)
 
     @unittest.skip("until editing form has option 'link-by-barcode'")
     def test_editing_asset_links_device_by_barcode(self):
@@ -2044,7 +2044,7 @@ class TestAssetAndDeviceLinkage(TestDevicesView, BaseViewsTest):
         asset = DCAssetFactory(device_info=None)
         form_data = self.get_asset_form_data({'device_info': None})
         form_data.update({
-            'ralph_device_id': '',
+            'ralph_device': '',
             'asset': '',
             'barcode': device.barcode,
         })
@@ -2057,7 +2057,7 @@ class TestAssetAndDeviceLinkage(TestDevicesView, BaseViewsTest):
         self.client.post(edit_url, form_data, follow=True)
         device = Device.objects.get(pk=device.id)
         asset = Asset.objects.get(pk=asset.id)
-        self.assertEqual(asset.device_info.ralph_device_id, device.id)
+        self.assertEqual(asset.device_info.ralph_device, device)
         self._check_fields(device, values_before_linking)
 
     def test_adding_asset_doesnt_link_device_if_already_linked(self):
@@ -2070,8 +2070,9 @@ class TestAssetAndDeviceLinkage(TestDevicesView, BaseViewsTest):
         asset_with_device = DCAssetFactory()
         asset_with_device.barcode = 'changed-barcode'
         asset_with_device.save()
+        device = DeviceFactory()
 
-        device_info = DeviceInfoFactory(ralph_device_id=0)
+        device_info = DeviceInfoFactory(ralph_device=device)
         form_data = self.get_asset_form_data({'device_info': device_info})
         form_data.update({
             'barcode': asset_with_device.get_ralph_device().barcode,
@@ -2106,7 +2107,7 @@ class TestAssetAndDeviceLinkage(TestDevicesView, BaseViewsTest):
         self.assertTrue(first_asset.linked_device)
         form_data = self.get_asset_form_data({'device_info': None})
         form_data.update({
-            'ralph_device_id': '',
+            'ralph_device': '',
             'asset': '',
             'barcode': first_asset.linked_device.barcode,
         })
@@ -2126,8 +2127,8 @@ class TestAssetAndDeviceLinkage(TestDevicesView, BaseViewsTest):
         - add asset linked to device (both have same barcode)
         - changed asset barcode (link still exists)
         - add new asset with barcode device.barcode and *force-unlike* checked
-        - check old-asset has blank ralph_device_id
-        - check new-asset.office_inforalph_device_id == device-id
+        - check old-asset has blank ralph_device
+        - check new-asset.office_inforalph_device == device
         '''
         first_asset = DCAssetFactory()
         first_asset.barcode = 'changed-barcode'
@@ -2137,7 +2138,7 @@ class TestAssetAndDeviceLinkage(TestDevicesView, BaseViewsTest):
             'region': Region.get_default_region(),
         })
         form_data.update({
-            'ralph_device_id': '',
+            'ralph_device': '',
             'barcode': first_asset.get_ralph_device().barcode,
             'force_unlink': 'true',
         })
@@ -2149,10 +2150,10 @@ class TestAssetAndDeviceLinkage(TestDevicesView, BaseViewsTest):
         linked_device = Device.objects.get(pk=first_asset.id)
         first_asset = Asset.objects.get(pk=first_asset.id)
         self.assertEqual(
-            first_asset.device_info.ralph_device_id, None,
+            first_asset.device_info.ralph_device, None,
         )
         self.assertEqual(
-            second_asset.device_info.ralph_device_id, linked_device.id,
+            second_asset.device_info.ralph_device, linked_device,
         )
         self.assertEqual(second_asset.barcode, linked_device.barcode)
 
@@ -2181,7 +2182,7 @@ class TestAssetAndDeviceLinkage(TestDevicesView, BaseViewsTest):
         second_asset = DCAssetFactory(device_info=None)
         form_data = self.get_asset_form_data({'device_info': None})
         form_data.update({
-            'ralph_device_id': '',
+            'ralph_device': '',
             'asset': '',
             'barcode': first_asset.linked_device.barcode,
             'force_unlink': 'true',
@@ -2193,7 +2194,7 @@ class TestAssetAndDeviceLinkage(TestDevicesView, BaseViewsTest):
         second_asset = Asset.objects.get(pk=second_asset.id)
         self.assertFalse(first_asset.linked_device)
         self.assertEqual(
-            second_asset.device_info.ralph_device_id, linked_device.id,
+            second_asset.device_info.ralph_device, linked_device,
         )
         self.assertEqual(second_asset.barcode, linked_device.barcode)
 

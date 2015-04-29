@@ -76,6 +76,7 @@ def get_assets(date):
             continue
         device_info = asset.device_info
         hostname = None
+        ralph_device = None
         if device_info:
             ralph_device = device_info.get_ralph_device()
             if ralph_device:
@@ -87,7 +88,7 @@ def get_assets(date):
 
         yield {
             'asset_id': asset.id,
-            'device_id': device_info.ralph_device_id if device_info else None,
+            'device_id': ralph_device.id if ralph_device else None,
             'asset_name': hostname,
             'service_id': asset.service_id,
             'environment_id': asset.device_environment_id,

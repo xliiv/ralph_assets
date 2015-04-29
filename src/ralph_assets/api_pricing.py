@@ -37,7 +37,7 @@ def get_assets(date):
             'barcode': asset.barcode,
             'is_deprecated': asset.is_deprecated(date=date),
             'price': asset.price,
-            'ralph_id': device_info.ralph_device_id if device_info else None,
+            'ralph_id': device_info.ralph_device.id if device_info else None,
             'slots': asset.slots,
             'sn': asset.sn,
             'price': asset.price,

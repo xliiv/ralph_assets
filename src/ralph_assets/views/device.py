@@ -438,7 +438,7 @@ class SplitDeviceView(SubmoduleModeMixin, AssetsBase):
     def get_proposed_components(self):
         try:
             components = list(get_device_components(
-                ralph_device_id=self.asset.device_info.ralph_device_id
+                ralph_device=self.asset.device_info.ralph_device
             ))
         except LookupError:
             components = []

@@ -240,7 +240,7 @@ class DeviceInfoResource(ModelResource):
         queryset = DeviceInfo.objects.all()
         list_allowed_methods = ['get']
         filtering = {
-            'ralph_device_id': ALL,
+            'ralph_device__id': ALL,
         }
         excludes = ["cache_version", "created", "deleted", "modified"]
 
