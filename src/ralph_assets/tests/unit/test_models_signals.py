@@ -92,32 +92,32 @@ class AssetDevInfoPostSaveTest(TestCase):
         )
         self.assets_dev_1 = DCAssetFactory(
             device_info=DeviceInfoFactory(
-                ralph_device_id=self.dev_1.id, data_center=self.assets_dc_1,
+                ralph_device=self.dev_1, data_center=self.assets_dc_1,
                 server_room=self.assets_sr_1, rack=self.assets_rack_1_1,
             ),
         )
         self.assets_dev_2 = DCAssetFactory(
             device_info=DeviceInfoFactory(
-                ralph_device_id=self.dev_2.id, data_center=self.assets_dc_1,
+                ralph_device=self.dev_2, data_center=self.assets_dc_1,
                 server_room=self.assets_sr_1, rack=self.assets_rack_1_2,
             )
         )
         self.assets_dev_3 = DCAssetFactory(
             device_info=DeviceInfoFactory(
-                ralph_device_id=self.dev_3.id, data_center=self.assets_dc_2,
+                ralph_device=self.dev_3, data_center=self.assets_dc_2,
                 server_room=self.assets_sr_2, rack=self.assets_rack_2_1,
             )
         )
         self.assets_dev_4 = DCAssetFactory(
             device_info=DeviceInfoFactory(
-                ralph_device_id=self.dev_4.id, data_center=self.assets_dc_2,
+                ralph_device=self.dev_4, data_center=self.assets_dc_2,
                 server_room=self.assets_sr_2, rack=self.assets_rack_2_2,
                 position=10, orientation=Orientation.front,
             )
         )
         self.assets_dev_5 = DCAssetFactory(
             device_info=DeviceInfoFactory(
-                ralph_device_id=self.dev_5.id, data_center=self.assets_dc_2,
+                ralph_device=self.dev_5, data_center=self.assets_dc_2,
                 server_room=self.assets_sr_2, rack=self.assets_rack_2_2,
                 position=10, orientation=Orientation.front, slot_no=1,
             )
@@ -145,7 +145,7 @@ class AssetDevInfoPostSaveTest(TestCase):
         self.assets_dev_2.save()
         old_device_info.delete()
         device_info = DeviceInfoFactory(
-            ralph_device_id=self.dev_2.id, data_center=self.assets_dc_2,
+            ralph_device=self.dev_2, data_center=self.assets_dc_2,
             server_room=self.assets_sr_2, rack=rack,
         )
         self.assets_dev_2.device_info = device_info
@@ -163,7 +163,7 @@ class AssetDevInfoPostSaveTest(TestCase):
         self.assets_dev_2.save()
         old_device_info.delete()
         device_info = DeviceInfoFactory(
-            ralph_device_id=self.dev_2.id, data_center=self.assets_dc_2,
+            ralph_device=self.dev_2, data_center=self.assets_dc_2,
             server_room=self.assets_sr_2, rack=rack,
         )
         self.assets_dev_2.device_info = device_info

@@ -167,7 +167,7 @@ class TestLinkedDeviceNameLookup(BaseLookupsTest):
     def test_asset_found_by_hostname(self):
         hostname = 'blade-408-1-sw1.dc4.local'
         device = DeviceFactory(name=hostname)
-        DCAssetFactory(device_info__ralph_device_id=device.id)
+        DCAssetFactory(device_info__ralph_device=device)
         self._check_lookup_count(
             self.base_url, searched_term=hostname, expected_count=1
         )
@@ -175,7 +175,7 @@ class TestLinkedDeviceNameLookup(BaseLookupsTest):
     def test_asset_found_by_device_hostname(self):
         hostname = 'blade-408-1-sw1.dc4.local'
         device = DeviceFactory(name=hostname)
-        DCAssetFactory(device_info__ralph_device_id=device.id)
+        DCAssetFactory(device_info__ralph_device=device)
         self._check_lookup_count(
             self.base_url, searched_term=hostname, expected_count=1
         )

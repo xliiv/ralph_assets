@@ -361,7 +361,7 @@ class TestLinkedDevice(TestCase):
 
     def test_dc_asset_with_linked_device(self):
         core_device = DeviceFactory()
-        device_info = DeviceInfoFactory(ralph_device_id=core_device.id)
+        device_info = DeviceInfoFactory(ralph_device=core_device)
         asset = DCAssetFactory(device_info=device_info)
         self.assertEqual(asset.linked_device, core_device)
 
@@ -396,7 +396,7 @@ class TestDeviceInfoValidation(TestCase):
 
     def setUp(self):
         self.form_data = {
-            'ralph_device_id': '',
+            'ralph_device': '',
         }
         self.rack = RackFactory()
         self.correct_device_info = DeviceInfoFactory(

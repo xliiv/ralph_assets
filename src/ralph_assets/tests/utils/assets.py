@@ -374,7 +374,7 @@ class BOAssetFactory(BaseAssetFactory):
 
 def get_device_info_dict():
     device_info = DeviceInfoFactory()
-    device_info_keys = {'orientation', 'position', 'ralph_device_id'}
+    device_info_keys = {'orientation', 'position', 'ralph_device'}
     device_info_data = {
         k: getattr(device_info, k) for k in device_info_keys
     }

@@ -81,9 +81,13 @@ class TestApiScrooge(TestCase):
             data_center_id = asset.device_info.data_center_id
         except AttributeError:
             data_center_id = None
+        device_id = None
+        if asset.device_info.ralph_device:
+            device_id = asset.device_info.ralph_device.id
+
         self.assertEquals(api_result, {
             'asset_id': asset.id,
-            'device_id': asset.device_info.ralph_device_id,
+            'device_id': device_id,
             'asset_name': name,
             'service_id': asset.service.id,
             'environment_id': asset.device_environment_id,
@@ -130,7 +134,7 @@ class TestApiScrooge(TestCase):
             region=Region.get_default_region(),
             invoice_date=date(2013, 11, 11),
         )
-        asset.device_info.ralph_device_id = None
+        asset.device_info.ralph_device = None
         asset.device_info.save()
         today = date(2013, 11, 12)
         result = [a for a in api_scrooge.get_assets(today)]

@@ -97,8 +97,8 @@
                     {% if row.get_data_type == 'device' %}
                         <li><a href="./edit/device/{{row.id}}">{% trans "Edit" %}</a></li>
                         <li><a href="./history/device/{{row.id}}">{% trans "History" %}</a></li>
-                        {% if row.device_info.ralph_device_id%}
-                            <li><a href="{% url search 'info' row.device_info.ralph_device_id %}">{% trans "View in Ralph" %}</a></li>
+                        {% if row.device_info.ralph_device.id%}
+                            <li><a href="{% url search 'info' row.device_info.ralph_device.id %}">{% trans "View in Ralph" %}</a></li>
                         {% endif %}
                     {% else %}
                         <li><a href="./edit/part/{{row.id}}">{% trans "Edit" %}</a></li>

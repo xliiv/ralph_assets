@@ -214,7 +214,7 @@ def get_bulk_edit_post_data_part(form_id, *args, **kwargs):
         field('provider'): kwargs.get('provider', 'Provider 0'),
         field('status'): kwargs.get('status', AssetStatus.in_progress.id),
         field('source'): kwargs.get('source', AssetSource.shipment.id),
-        field('ralph_device_id'): kwargs.get('ralph_device_id', ''),
+        field('ralph_device'): kwargs.get('ralph_device', ''),
         field('price'): kwargs.get('price', 10),
         field('warehouse'): warehouse_id,
         field('deprecation_rate'): kwargs.get('deprecation_rate', 25),

@@ -333,9 +333,9 @@ class LinkedDevicesReport(BaseReport):
             }
 
         device_info_ids = DeviceInfo.objects.exclude(
-            ralph_device_id=None
+            ralph_device=None
         ).values_list(
-            'ralph_device_id', flat=True
+            'ralph_device__id', flat=True
         )
         devices = Device.objects.exclude(id__in=device_info_ids)
         node, root = self.report.add(
