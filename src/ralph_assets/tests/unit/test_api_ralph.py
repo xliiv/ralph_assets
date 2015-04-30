@@ -7,12 +7,19 @@ from __future__ import unicode_literals
 
 from django.test import TestCase
 
-from ralph_assets.api_ralph import get_asset, get_asset_by_sn_or_barcode
+from ralph.discovery.tests.util import DeviceFactory
+
+from ralph_assets.api_ralph import (
+    assign_asset,
+    get_asset,
+    get_asset_by_sn_or_barcode,
+)
 from ralph_assets.tests.utils.assets import (
     AssetCategoryFactory,
     AssetModelFactory,
     DCAssetFactory,
 )
+from ralph_assets.models_assets import Asset
 from ralph_assets.tests.utils.supports import DCSupportFactory
 
 
@@ -74,3 +81,81 @@ class TestApiRalph(TestCase):
         self.assertEqual(asset_data['barcode'], asset.barcode)
         # not exists
         self.assertEqual(get_asset_by_sn_or_barcode('foo_ziew_123'), None)
+
+
+class TestAssetAssigning(TestCase):
+
+    def test_unassigned_device_is_assigned_to_free_asset(self):
+        """
+        test unassigned device is assigned to asset (which is not paired with
+        other device)
+        """
+        device = DeviceFactory()
+        asset = DCAssetFactory()
+        asset.device_info.ralph_device = None
+        asset.device_info.save()
+
+        self.assertIsNone(asset.device_info.ralph_device_id)
+        result = assign_asset(device.id, asset.id)
+        self.assertTrue(result)
+        updated_asset = Asset.objects.get(pk=asset.id)
+        self.assertEqual(updated_asset.device_info.ralph_device_id, device.id)
+
+    def test_unassigned_device_is_assigned_to_paired_asset(self):
+        """
+        test unassigned device is assigned to asset (which is paired with
+        another device)
+        """
+        asset = DCAssetFactory()
+        device = DeviceFactory()
+
+        self.assertNotEqual(
+            asset.device_info.ralph_device_id, device.id,
+        )
+        result = assign_asset(device.id, asset.id)
+        self.assertTrue(result)
+        updated_asset = Asset.objects.get(pk=asset.id)
+        self.assertEqual(updated_asset.device_info.ralph_device_id, device.id)
+
+    def test_assigned_device_is_assigned_to_free_asset(self):
+        """
+        test assigned device is assigned to asset (which is not paired with
+        other device)
+        """
+        old_pair = DCAssetFactory()
+        device = old_pair.device_info.ralph_device
+        asset = DCAssetFactory()
+        asset.device_info.ralph_device = None
+        asset.device_info.save()
+
+        self.assertIsNotNone(old_pair.device_info.ralph_device)
+        self.assertIsNone(asset.device_info.ralph_device)
+
+        result = assign_asset(old_pair.device_info.ralph_device.id, asset.id)
+        self.assertTrue(result)
+        updated_old_pair = Asset.objects.get(pk=old_pair.id)
+        updated_asset = Asset.objects.get(pk=asset.id)
+
+        self.assertIsNone(updated_old_pair.device_info.ralph_device)
+        self.assertEqual(updated_asset.device_info.ralph_device, device)
+
+    def test_assigned_device_is_assigned_to_engaged_asset(self):
+        """
+        test assigned device is assigned to asset (which is paired with other
+        device)
+        """
+        old_pair = DCAssetFactory()
+        device = old_pair.device_info.ralph_device
+        asset = DCAssetFactory()
+
+        self.assertNotEqual(
+            old_pair.device_info.ralph_device, asset.device_info.ralph_device,
+        )
+
+        result = assign_asset(old_pair.device_info.ralph_device.id, asset.id)
+        self.assertTrue(result)
+        updated_old_pair = Asset.objects.get(pk=old_pair.id)
+        updated_asset = Asset.objects.get(pk=asset.id)
+
+        self.assertIsNone(updated_old_pair.device_info.ralph_device)
+        self.assertEqual(updated_asset.device_info.ralph_device, device)
