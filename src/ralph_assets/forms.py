@@ -591,6 +591,7 @@ class DeviceForm(ModelForm):
 
         attrs={'id': 'server-room-selection'},
         parent_field=data_center,
+        field_name_label='name',
     )
     rack = CascadeModelChoiceField(
         ('ralph_assets.models', 'RackLookup'),
@@ -599,6 +600,7 @@ class DeviceForm(ModelForm):
         required=False,
 
         parent_field=server_room,
+        field_name_label='name',
     )
 
     def __init__(self, *args, **kwargs):
@@ -1653,9 +1655,8 @@ class SearchAssetForm(Form):
             },
         )
     )
-    ralph_device = ModelChoiceField(
-        queryset=models_device.Device.objects.all(),
-        empty_label='----',
+    ralph_device = AutoCompleteSelectField(
+        LOOKUPS['ralph_device'],
         required=False,
     )
     request_date_from = DateField(
