@@ -432,7 +432,9 @@ class TestModelDeprecatedDataCenter(TestCase):
 
     def test_create(self):
         model = DeviceModelFactory(type=DeviceType.data_center)
-        self.assertTrue(DeprecatedRalphDC.create(name='DC', model=model))
+        self.assertTrue(DeprecatedRalphDC.create(
+            name='DC', model=model, sn='#DC-234'
+        ))
 
     def test_create_without_model(self):
         with self.assertRaises(ValueError):
@@ -448,13 +450,21 @@ class TestModelDeprecatedRack(TestCase):
 
     def test_create(self):
         model = DeviceModelFactory(type=DeviceType.rack)
-        self.assertTrue(DeprecatedRalphRack.create(name='Rack', model=model))
+        self.assertTrue(
+            DeprecatedRalphRack.create_deprecated_object(
+                name='Rack',
+                model=model,
+            )
+        )
 
     def test_create_without_model(self):
         with self.assertRaises(ValueError):
-            DeprecatedRalphRack.create(name='Rack')
+            DeprecatedRalphRack.create_deprecated_object(name='Rack')
 
     def test_create_with_incorrect_model(self):
         model = DeviceModelFactory()
         with self.assertRaises(ValueError):
-            DeprecatedRalphRack.create(name='Rack', model=model)
+            DeprecatedRalphRack.create_deprecated_object(
+                name='Rack',
+                model=model,
+            )

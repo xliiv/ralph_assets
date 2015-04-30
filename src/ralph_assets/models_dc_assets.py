@@ -84,7 +84,7 @@ class RequiredModelWithTypeMixin(object):
         super(RequiredModelWithTypeMixin, self).__init__(*args, **kwargs)
 
     @classmethod
-    def create(cls, **kwargs):
+    def create_deprecated_object(cls, **kwargs):
         if 'model' not in kwargs.iterkeys():
             raise ValueError('Please provide model.')
         elif kwargs['model'].type != cls._model_type:

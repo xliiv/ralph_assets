@@ -530,3 +530,4 @@ __all__ = [
 
 # Load signals (hook - don't remove it)
 import ralph_assets.models_signals  # noqa
+import ralph_assets.deprecated  # noqa
