@@ -42,6 +42,11 @@ from ralph_assets.licences.models import (
     LicenceType,
     SoftwareCategory,
 )
+from ralph_assets.models_parts import (
+    Part,
+    PartModel,
+    PartModelType,
+)
 from ralph_assets.models_support import Support
 from ralph_assets.models_transition import (
     Action,
@@ -484,6 +489,15 @@ class VentureDepartmentLookup(RestrictedLookupChannel):
             name__icontains=q).order_by('name')[:10]
 
 
+class PartModelLookup(RestrictedLookupChannel):
+    model = PartModel
+    min_length = 3
+
+    def get_query(self, q, request):
+        return self.model.objects.filter(
+            name__icontains=q).order_by('name')[:10]
+
+
 def get_edit_url(object_):
     if isinstance(object_, User):
         return reverse(
@@ -518,7 +532,10 @@ __all__ = [
     'LicenceType',
     'OfficeInfo',
     'Orientation',
+    'Part',
     'PartInfo',
+    'PartModel',
+    'PartModelType',
     'ReportOdtSource',
     'ReportOdtSourceLanguage',
     'Service',

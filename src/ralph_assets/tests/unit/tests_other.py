@@ -121,6 +121,7 @@ class TestExportRelations(TestCase):
         )
 
     def test_licences_rows(self):
+        self.maxDiff = None
         self.licence1.assign(self.asset)
         self.licence1.assign(self.user)
         self.licence1.assign(self.owner)

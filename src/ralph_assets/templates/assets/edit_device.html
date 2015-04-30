@@ -33,46 +33,36 @@
 
 {% block parts %}
   <div>
-    <h5>{% trans "Device parts" %}</h5>
-    {% if parts %}
-    <table class="table table-striped table-bordered details-history">
-        <thead><tr>
-            <th></th>
-            <th>{% trans "Name" %}</th>
-            <th>{% trans "Source device" %}</th>
-            <th>{% trans "Author" %}</th>
-        </tr></thead>
-        <tbody>
-        {% for part in parts%}
-            <tr>
-                <td><input type="checkbox" name="part_ids" value="{{ part.id }}"></td>
-                <td><a href="{% url part_edit mode=mode asset_id=part.id %}">{{ part }}</a></td>
-                <td><a href="{% if part.part_info.source_device %}{% url device_edit mode=mode asset_id=part.part_info.source_device.id %}{% endif %}">{{ part.part_info.source_device|default:'-'}}</a></td>
-                <td>{{ part.user|default:'-'}}</td>
-            </tr>
+    <h5>{% trans "Assigned parts" %}</h5>
+
+    {% if asset.parts.all %}
+    <table class="table table-striped table-bordered">
+        <tr>
+            <th>{% trans "model" %}</th>
+            <th>{% trans "sn" %}</th>
+            <th>{% trans "order number" %}</th>
+            <th>{% trans "price" %}</th>
+            <th>{% trans "service" %}</th>
+            <th>{% trans "environment" %}</th>
+            <th>{% trans "warehouse" %}</th>
+        </tr>
+        {% for part in asset.parts.all %}
+        <tr>
+            <td>{{part.model|default:'-'}}</td>
+            <td><a href="{{part.url}}">{{part.sn}}</a></td>
+            <td>{{part.order_no}}</td>
+            <td>{{part.price}}</td>
+            <td>{{part.service}}</td>
+            <td>{{part.part_environment}}</td>
+            <td>{{part.warehouse}}</td>
+        </tr>
         {% endfor %}
         </tbody>
     </table>
-    <div class="pull-left">
-      <div class="pull-left">
-      {% for field in part_form %}
-          {{ field.label }}: {{ field }}
-      {% endfor %}
-      </div>
-      <button class="btn btn-primary pull-left" name="move_parts" type="submit">{% trans "Move part" %}</button>
-    </div>
     {% endif %}
-    {% if not asset.has_parts %}
-      {% spaceless %}
-      <div class="pull-left">
-        <a href="{% url device_split mode='dc' asset_id=asset.id %}" class="btn btn-danger">
-          <i class="fugue-icon fugue-cutter"></i>&nbsp;{% trans "Split device" %}
-        </a>
-      </div>
-      {% endspaceless %}
-    {% endif %}
+
     <div class="pull-right">
-      <a href="{% url add_part mode=mode  %}?device={{asset.id}}" class="btn btn-primary">{% trans "Add part" %}</a>
+      <a href="{% url change_parts mode=mode asset_id=asset.id %}" class="btn btn-primary">{% trans "asset's parts flow" %}</a>
     </div>
   </div>
 {% endblock %}

@@ -15,10 +15,8 @@ from rest_framework.test import APIClient
 from ralph.cmdb.tests.utils import ServiceCatalogFactory
 from ralph.discovery.tests.util import DeviceFactory
 from ralph_assets.models_assets import Orientation
-from ralph_assets.rest.serializers.models_dc_asssets import (
-    TYPE_ACCESSORY,
-    TYPE_ASSET,
-)
+from ralph_assets.rest.serializers.models_dc_assets import TYPE_ACCESSORY
+from ralph_assets.rest.serializers.models_assets import TYPE_ASSET
 from ralph_assets.tests.utils.assets import (
     AssetFactory,
     RackFactory,
