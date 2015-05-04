@@ -124,7 +124,7 @@ def assign_asset(device_id, asset_id=None):
             new_asset = Asset.objects.get(pk=asset_id)
         except Asset.DoesNotExist:
             return False
-        new_asset.device_info.ralph_device.id = device_id
+        new_asset.device_info.ralph_device_id = device_id
         new_asset.device_info.save()
         new_asset.save()
     return True
