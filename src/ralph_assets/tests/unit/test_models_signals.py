@@ -9,6 +9,7 @@ from django.test import TestCase
 from mock import patch
 
 from ralph_assets.models_assets import DeviceInfo, Orientation
+from ralph_assets.models_dc_assets import DeprecatedRalphRack
 from ralph_assets.models_signals import (
     _get_core_parent,
     _update_cached_localization,
@@ -136,23 +137,6 @@ class AssetDevInfoPostSaveTest(TestCase):
         self.assertEqual(self.dev_3.dc, 'DC2')
 
     def test_update_localization(self):
-        # case: device_info without deprecated_ralph_rack
-        rack = RackFactory(
-            name="Rack 4 DC2", data_center=self.assets_dc_2,
-        )
-        old_device_info = self.assets_dev_2.device_info
-        self.assets_dev_2.device_info = None
-        self.assets_dev_2.save()
-        old_device_info.delete()
-        device_info = DeviceInfoFactory(
-            ralph_device=self.dev_2, data_center=self.assets_dc_2,
-            server_room=self.assets_sr_2, rack=rack,
-        )
-        self.assets_dev_2.device_info = device_info
-        self.assets_dev_2.save()
-        _update_localization(device=self.dev_2, asset_dev_info=device_info)
-        self.assertEqual(self.dev_2.parent_id, self.rack_1_2.id)
-
         # case: rack and dc changed
         rack = RackFactory(
             name="Rack 5 DC2", data_center=self.assets_dc_2,
@@ -231,3 +215,13 @@ class AssetDevInfoPostSaveTest(TestCase):
             sender=DeviceInfo, instance=self.assets_dev_2.device_info,
         )
         mock.assert_called_with(asset_dev_info=self.assets_dev_2.device_info)
+
+
+class DeprecatedRackPostSaveTest(TestCase):
+
+    def test_simple_add_rack(self):
+        DeviceModelFactory(type=DeprecatedRalphRack._model_type)
+        rack = RackFactory()
+        deprecated_rack = DeprecatedRalphRack.objects.get(name=rack.name)
+        self.assertEqual(rack.name, deprecated_rack.name)
+        self.assertEqual(rack.deprecated_ralph_rack_id, deprecated_rack.id)
