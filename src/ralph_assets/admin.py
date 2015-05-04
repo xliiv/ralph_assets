@@ -36,6 +36,7 @@ from ralph_assets.models import (
 )
 from ralph_assets.models_assets import REPORT_LANGUAGES
 from ralph_assets.models_dc_assets import Accessory
+from ralph_assets.models_parts import PartModel
 from ralph_assets.models_util import ImportProblem
 from ralph_assets.licences.models import LicenceType, SoftwareCategory
 from ralph_assets.models_support import Support, SupportType
@@ -491,3 +492,15 @@ class AccessoryAdmin(ModelAdmin):
     search_fields = ('name',)
 
 admin.site.register(Accessory, AccessoryAdmin)
+
+
+class PartModelAdmin(ModelAdmin):
+
+    save_on_top = True
+    list_display = ('name', 'model_type')
+    search_fields = ('name',)
+    list_filter = ('model_type',)
+    fields = ('name', 'model_type')
+
+
+admin.site.register(PartModel, PartModelAdmin)

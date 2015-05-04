@@ -4,7 +4,15 @@ Change Log
 DEV
 ~~~
 
-* [scrooge-api]: changed warehouse source from warehouse to datacenter
+* [scrooge-api]: changed warehouse source from warehouse to datacenter.
+* Redesigned assets parts:
+    * Added new views:
+        - add,
+        - list,
+        - edit,
+        - parts exchanging.
+
+    * Old models kept for optional migration.
 
 
 2.5.1
