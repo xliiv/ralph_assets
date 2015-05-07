@@ -95,6 +95,10 @@ class TestExportRelations(TestCase):
         call_command('flush', interactive=False, verbosity=0)
 
     def test_assets_rows(self):
+        company, segment = 'company', 'segment'
+        self.asset.owner.profile.company = company
+        self.asset.owner.profile.segment = segment
+        self.asset.owner.profile.save()
         rows = [item for item in get_assets_rows()]
 
         self.assertListEqual(
@@ -104,18 +108,18 @@ class TestExportRelations(TestCase):
                     'id', 'niw', 'barcode', 'sn', 'model__category__name',
                     'model__manufacturer__name', 'model__name',
                     'user__username', 'user__first_name', 'user__last_name',
-                    'owner__username', 'owner__first_name',
-                    'owner__last_name', 'status', 'service_name__name',
-                    'property_of', 'warehouse__name', 'invoice_date',
-                    'invoice_no', 'region__name',
+                    'owner__username', 'owner__first_name', 'owner__last_name',
+                    'owner__profile__company', 'owner__profile__segment',
+                    'status', 'service_name__name', 'property_of',
+                    'warehouse__name', 'invoice_date', 'invoice_no',
+                    'region__name',
                 ],
                 [
-                    self.asset.id, 'niw=666', 'br-666',
-                    '1111-1111-1111-1111', 'Subcategory', 'Manufacturer1',
-                    'Model1', 'user', 'Elmer', 'Stevens', 'owner', 'Eric',
-                    'Brown', 1, None, None, 'Warehouse',
-                    datetime.date(2014, 4, 28), 'invoice-6666',
-                    'Default region',
+                    self.asset.id, 'niw=666', 'br-666', '1111-1111-1111-1111',
+                    'Subcategory', 'Manufacturer1', 'Model1', 'user', 'Elmer',
+                    'Stevens', 'owner', 'Eric', 'Brown', company, segment,
+                    1, None, None, 'Warehouse', datetime.date(2014, 4, 28),
+                    'invoice-6666', 'Default region',
                 ],
             ]
         )
