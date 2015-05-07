@@ -15,6 +15,7 @@ from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from tastypie.resources import ModelResource
 from tastypie.throttle import CacheThrottle
 
+from ralph.discovery.models import Device
 from ralph.urls import LATEST_API
 from ralph_assets.models import (
     Asset,
@@ -235,12 +236,25 @@ class LicenceResource(ModelResource):
         )
 
 
+class SimpleDeviceResource(ModelResource):
+    class Meta:
+        queryset = Device.objects.all()
+        fields = ['id', 'barcode', 'sn', 'name']
+        filtering = {
+            'id': ALL,
+        }
+
+
 class DeviceInfoResource(ModelResource):
+    ralph_device = fields.ForeignKey(
+        SimpleDeviceResource, 'ralph_device', full=True,
+    )
+
     class Meta:
         queryset = DeviceInfo.objects.all()
         list_allowed_methods = ['get']
         filtering = {
-            'ralph_device__id': ALL,
+            'ralph_device': ALL_WITH_RELATIONS,
         }
         excludes = ["cache_version", "created", "deleted", "modified"]
 
