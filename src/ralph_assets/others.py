@@ -25,6 +25,8 @@ ASSETS_COLUMNS = [
     'owner__username',
     'owner__first_name',
     'owner__last_name',
+    'owner__profile__company',
+    'owner__profile__segment',
     'status',
     'service_name__name',
     'property_of',
