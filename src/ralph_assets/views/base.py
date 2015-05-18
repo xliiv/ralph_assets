@@ -155,14 +155,15 @@ class AssetsBase(ACLGateway, MenuMixin, TemplateView):
 
         model = self.asset_form.cleaned_data.get('model')
         slot_no = self.additional_info.cleaned_data.get('slot_no')
-        if model and not model.category.is_blade and slot_no not in [None, '']:
+        is_blade = model.category.is_blade if model.category else False
+        if model and not is_blade and slot_no not in [None, '']:
             # slot_no cant be set when asset is not blade
             set_error_message(
                 form=self.additional_info,
                 field_name='slot_no',
                 msg=_("Field can't be set if asset is other than blade"),
             )
-        if model and model.category.is_blade and slot_no in [None, '']:
+        if model and is_blade and slot_no in [None, '']:
             # slot_no is required when asset is blade
             set_error_message(
                 form=self.additional_info,
