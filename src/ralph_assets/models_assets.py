@@ -1023,6 +1023,7 @@ class Asset(
                     device_info__position=self.device_info.position,
                     device_info__rack=self.device_info.rack,
                     device_info__orientation=orientation,
+                    model__category__is_blade=True,
                 ).exclude(id=self.id)
             ))
         assets = [
