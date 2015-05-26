@@ -11,8 +11,8 @@
 
 {% block scripts %}
   {{ block.super }}
-  <script type="text/javascript" src="{% static 'assets/js/mobile.js' %}">
-  </script>
+  <script type="text/javascript" src="{% static 'assets/js/mobile.js' %}"></script>
+  <script type="text/javascript">window.__asset_id__ = {{ asset.id }}</script>
 {% endblock %}
 
 

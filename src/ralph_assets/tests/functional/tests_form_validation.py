@@ -9,6 +9,7 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 from ralph.account.models import Region
 
+from ralph.util.tests.utils import RegionFactory
 from ralph_assets import models_assets
 from ralph_assets.tests.utils.assets import (
     AssetFactory,
@@ -16,6 +17,7 @@ from ralph_assets.tests.utils.assets import (
     AssetModelFactory,
     WarehouseFactory,
 )
+from ralph_assets.tests.utils.licences import LicenceFactory
 from ralph_assets.tests.util import (
     SCREEN_ERROR_MESSAGES,
     get_bulk_edit_post_data,
@@ -76,6 +78,21 @@ class TestValidations(TestCase):
             self.assertFormError(
                 send_post, field[0], field[1], 'This field is required.'
             )
+
+    def test_wrong_region_licence(self):
+        licence = LicenceFactory(region=RegionFactory())
+        self.first_asset.region = Region.get_default_region()
+        self.first_asset.save()
+        send_post = self.client.post(
+            reverse('device_edit', args=('back_office', self.first_asset.id)),
+            {'licences': [licence.id]},
+        )
+        self.assertEqual(send_post.status_code, 200)
+        self.assertNotEqual(licence.region, self.first_asset.region)
+        self.assertFormError(
+            send_post, 'asset_form', 'licences',
+            'You don\'t have correct region to save with this licence.'
+        )
 
     def test_invalid_field_value(self):
         # instead of integers we send strings, error should be thrown

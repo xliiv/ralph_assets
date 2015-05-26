@@ -50,6 +50,7 @@ from ralph_assets.models import (
     AssetStatus,
     AssetType,
     DeviceInfo,
+    Licence,
     OfficeInfo,
     PartInfo,
     RALPH_DATE_FORMAT,
@@ -868,6 +869,14 @@ class BaseAssetForm(ModelForm):
 
     def clean(self):
         cleaned_data = super(BaseAssetForm, self).clean()
+        licences = cleaned_data['licences']
+        regionalized_licences = Licence.objects.filter(id__in=licences)
+        # regionalized_licences - filtered by user's region by deafult
+        # see models_util@Regionalized
+        if len(licences) > regionalized_licences.count():
+            self._errors['licences'] = self.error_class([_(
+                'You don\'t have correct region to save with this licence.'
+            )])
         env = cleaned_data.get("device_environment")
         service = cleaned_data.get("service")
         if env and service:

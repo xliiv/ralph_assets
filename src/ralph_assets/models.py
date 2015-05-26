@@ -16,7 +16,6 @@ from django.db import connection
 from django.db.models import Q
 
 from ralph.business.models import Department
-from ralph.middleware import get_actual_regions
 from ralph_assets.models_assets import (
     Asset,
     AssetCategory,
@@ -54,6 +53,19 @@ from ralph.discovery.models import Device, DeviceType
 
 
 RALPH_DATE_FORMAT = '%Y-%m-%d'
+
+
+class AssetMixin(object):
+    """Simple mixin which fetch asset from HTTP header's variable."""
+
+    def get_query(self, query, request):
+        self.asset = None
+        object_id = request.META.get('HTTP_ASSETID', None)
+        if object_id:
+            try:
+                self.asset = Asset.objects.get(id=object_id)
+            except Asset.DoesNotExist:
+                pass
 
 
 class ServerRoomLookup(RestrictedLookupChannel):
@@ -129,13 +141,14 @@ class LinkedDeviceNameLookup(DeviceLookup):
         return item
 
 
-class FreeLicenceLookup(RestrictedLookupChannel):
+class FreeLicenceLookup(AssetMixin, RestrictedLookupChannel):
     """Lookup the licences that have any specimen left."""
 
     model = Licence
     min_length = 4
 
     def get_query(self, query, request):
+        super(FreeLicenceLookup, self).get_query(query, request)
         cursor = connection.cursor()
         raw_sql = """
         SELECT
@@ -151,9 +164,7 @@ class FreeLicenceLookup(RestrictedLookupChannel):
                 UNION ALL
                 SELECT licence_id, quantity FROM ralph_assets_licenceuser) t ON
                     t.licence_id = ralph_assets_licence.id
-        WHERE
-            ralph_assets_licence.region_id IN (select uu.id from account_region uu where uu.name in ({region_expression}))
-        AND (
+        WHERE (
             ralph_assets_softwarecategory.name like %s
         OR
             ralph_assets_licence.niw LIKE %s
@@ -166,17 +177,16 @@ class FreeLicenceLookup(RestrictedLookupChannel):
             number_bought DESC
         LIMIT 10
         """  # noqa
-        regions = [region.name for region in get_actual_regions()]
-        region_expression = ', '.join(['%s'] * len(regions))
-        raw_sql = raw_sql.format(region_expression=region_expression)
         expression = '%{}%'.format(query)
 
         args = []
-        args.extend(regions)
         args.extend([expression] * 2)
         cursor.execute(raw_sql, args)
         ids = [row[0] for row in cursor.fetchall()]
-        results = Licence.objects.filter(id__in=ids)
+        filter_kwargs = {'id__in': ids}
+        if self.asset:
+            filter_kwargs['region'] = self.asset.region
+        results = Licence.objects.filter(**filter_kwargs)
         return results
 
     def get_result(self, obj):
@@ -191,6 +201,7 @@ class FreeLicenceLookup(RestrictedLookupChannel):
             name=escape(str(obj)),
             niw=obj.niw,
             free=obj.free,
+            region=obj.region,
         )
 
 
