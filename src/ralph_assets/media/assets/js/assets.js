@@ -179,6 +179,9 @@ define(['jquery'], function ($) {
 
 
     function initialize() {
+        $(document).ajaxSend(function(event, jqXHR, ajaxOptions) {
+            jqXHR.setRequestHeader('AssetID', window.__asset_id__ || 0);
+        });
         var report = new Report();
         var bulk = new Bulk();
         var tableListing = new TableListing();
@@ -313,7 +316,7 @@ define(['jquery'], function ($) {
                 return 'Detected unsaved changes on form.';
         }
     }
-    
+
     return {
         initialize: initialize
     }
