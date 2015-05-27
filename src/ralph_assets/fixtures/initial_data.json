@@ -1560,6 +1560,25 @@
         }
     },
     {
+        "pk": "2-2-2-data-center-device-load-balancer-extension",
+        "model": "ralph_assets.assetcategory",
+        "fields": {
+            "parent": "2-2-data-center-device",
+            "rght": 22,
+            "modified_by": null,
+            "name": "Load Balancer Extension",
+            "cache_version": 1,
+            "created": "2014-01-02T09:00:00",
+            "level": 2,
+            "modified": "2014-01-02T09:00:00",
+            "created_by": null,
+            "lft": 21,
+            "is_blade": true,
+            "tree_id": 2,
+            "type": 2
+        }
+    },
+    {
         "pk": "2-2-2-data-center-device-management-module",
         "model": "ralph_assets.assetcategory",
         "fields": {
