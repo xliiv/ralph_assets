@@ -68,37 +68,37 @@
         </thead>
         <tbody>
             {% for asset in assigned_assets %}
-            <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ asset.model.category }}</td>
-                <td>{{ asset.model.manufacturer }}</td>
-                <td>{{ asset.model }}</td>
-                <td>{{ asset.sn }}</td>
-                <td>{{ asset.barcode }}</td>
-                <td>{{ asset.remarks }}</td>
-                <td>{{ asset.get_status_display }}</td>
-                <td>
-                    <a href="{% url device_edit mode='back_office' asset_id=asset.id %}">{% trans "go to asset" %}</a>
-                </td>
-            </tr>
-            {% with asset.licences.all as licences %}
-            {% if licences %}
-            <tr>
-                <td colspan="7">
-                    <strong>{% trans "licences" %}</strong>
-                    <ul>
-                        {% for licence in  licences %}
-                            <li>
-                                 <a href="{{ licence.url }}">
-                                    {{ licence.software_category }} {{ licence.niw }}
-                                </a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </td>
-            </tr>
-            {% endif %}
-            {% endwith %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ asset.model.category }}</td>
+                    <td>{{ asset.model.manufacturer }}</td>
+                    <td>{{ asset.model }}</td>
+                    <td>{{ asset.sn }}</td>
+                    <td>{{ asset.barcode }}</td>
+                    <td>{{ asset.remarks }}</td>
+                    <td>{{ asset.get_status_display }}</td>
+                    <td>
+                        <a href="{% url device_edit mode='back_office' asset_id=asset.id %}">{% trans "go to asset" %}</a>
+                    </td>
+                </tr>
+                {% with asset.licences.all as licences %}
+                    {% if licences %}
+                    <tr>
+                        <td colspan="9">
+                            <strong>{% trans "licences" %}</strong>
+                            <ul>
+                                {% for licence in licences %}
+                                    <li>
+                                         <a href="{{ licence.get_absolute_url }}">
+                                            {{ licence.software_category }} {{ licence.niw }}
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                    </tr>
+                    {% endif %}
+                {% endwith %}
             {% endfor %}
         </tbody>
     </table>
@@ -122,7 +122,7 @@
                         <td>{{ forloop.counter }} </td>
                         <td>{{ licence.software_category }}</a></td>
                         <td>{{ licence.niw }}</a></td>
-                        <td><a href="{{ licence.url }}">{% trans "go to licence" %}</a></td>
+                        <td><a href="{{ licence.get_absolute_url }}">{% trans "go to licence" %}</a></td>
                     </tr>
                 {% endfor %}
             </tbody>
